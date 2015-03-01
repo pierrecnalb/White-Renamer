@@ -1,29 +1,53 @@
+#author : pierrecnalb
+#copyright pierrecnalb
+#v.1.0.0
 import os
 import time
 import shutil
 import sys
 from os import walk
+import operator
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
 language = "english"
 
-qt_app = QApplication(sys.argv)
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
         self.setWindowTitle('Renamer')
-        self.setMinimumSize(400,200)
-
-        self.filenames_type = ['UPPERCASE FILENAME', 'lowercase filename', 'Title Case Filename']
+        self.setMinimumSize(900,600)
+        self.filenames_type = ['-','UPPERCASE', 'lowercase filename', 'Title Case Filename']
         self.filename_box = QComboBox(self)
         self.filename_box.addItems(self.filenames_type)
         self.filename_box.setMinimumWidth(200)
-        self.filename_box.activated[int].connect(self.test_binding)
-
-        self.open_files_button = QPushButton('&Open', self)
-        self.open_files_button.clicked.connect(self.openFileDialog)
+        self.connect(self.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
+        #self.open_files_button = QPushButton('&Open', self)
+        #self.open_files_button.clicked.connect(self.openFileDialog)
+        header = ['Original Files','test']
+        data_list = [('test',10)]
+        table_model = MyTableModel(self, data_list, header)
+        table_view = QTableView(self)
+        table_view.setModel(table_model)
+        # set column width to fit contents (set font first!)
+        #table_view.resizeColumnsToContents()
+        # enable sorting
+        #table_view.setSortingEnabled(True)
+        table_view.setColumnWidth(0,440)
+        table_view.setColumnWidth(1,440)
+        table_view.setGeometry(10, 350, 880, 300)
+        self.action_dict = action_dict
+        #self.setGeometry(300,300,300,150)
+        self.actions = []
+        self.files = FilesCollection(directory, False)
+        #for i, file_modified in enumerate(self.files.get_files_list()['new']):
+         #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
+    def add_new_action(self, value):
+        print(self.action_dict[value])
+        self.actions.append(self.action_dict[value])
+        renamedFiles = self.files.call_actions(self.actions)
+        print(renamedFiles)
 
     @Slot()
     def openFileDialog(self):
@@ -39,26 +63,39 @@ class MainWindow(QMainWindow):
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         d = directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
 
-    @Slot()
-    def test_binding(self, index):
-        directory = "/home/pierre/Desktop/test"
-        myfiles = FilesCollection(directory)
-        myfiles_list = (myfiles.list_files_in_directory(False))
-        for files in myfiles_list[1]:
-            parsefiles = FileModifier(files)
-            parsefiles = FileModifier(files)
-            if index==0:
-                print(parsefiles)
-            if index==1:
-                print(parsefiles.convert_to_lowercase() +str(index))
-            if index==2:
-                print(parsefiles.convert_to_titlecase() + str(index))
-
     def run(self):
         #show the form
         self.show()
         #Run the Qt Application
         qt_app.exec_()
+
+class MyTableModel(QAbstractTableModel):
+    def __init__(self, parent, mylist, header, *args):
+        QAbstractTableModel.__init__(self, parent, *args)
+        self.mylist = mylist
+        self.header = header
+    def rowCount(self, parent):
+        return len(self.mylist)
+    def columnCount(self, parent):
+        return len(self.mylist[0])
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+        elif role != Qt.DisplayRole:
+            return None
+        return self.mylist[index.row()][index.column()]
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.header[col]
+        return None
+    def sort(self, col, order):
+        """sort table by given column number col"""
+        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        self.mylist = sorted(self.mylist,
+            key=operator.itemgetter(col))
+        if order == Qt.DescendingOrder:
+            self.mylist.reverse()
+        self.emit(SIGNAL("layoutChanged()"))
 
 class FilesCollection:
     def __init__(self, input_path, use_subdirectory):
@@ -71,6 +108,9 @@ class FilesCollection:
                 self.original_files_paths.append(os.path.join(dirpath,filename))
             if (not use_subdirectory):
                 break
+
+    def get_files_list(self):
+        return {'old' : self.original_files_paths, 'new' : self.modified_files_paths}
 
     def call_actions(self, actions):
         for old_file_path in self.original_files_paths:
@@ -229,29 +269,25 @@ class PipeAction(Action):
 
 if __name__ == '__main__':
     directory = "/home/pierre/Desktop/test"
+    action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
     #unittest.main()
     #directory = os.path.join("C:\\Users\\pblanc\\Desktop\\test")
-    actions = []
-    actions.append(CharacterInsertionAction("shortname","] ",0))
-    actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : FolderNameUsageAction("shortname"), 'index' : 0}))
-    actions.append(CharacterInsertionAction("shortname","[",0))
-    actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : Counter("shortname", 01, 1, True), 'index' : 10000}))
+    #actions = []
+    #files = FilesCollection(directory, True)
+    #actions.append(CharacterInsertionAction("shortname","] ",0))
+    #actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : FolderNameUsageAction("shortname"), 'index' : 0}))
+    #actions.append(CharacterInsertionAction("shortname","[",0))
+    #actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : Counter("shortname", 01, 1, True), 'index' : 10000}))
     #actions = [PipeAction("shortname", CharacterInsertionAction,{'new_char' : FolderNameUsageAction("shortname"), 'index' : 0})]
     #actions = [Counter("shortname", 1, 3,False)]
     #actions = [CharacterDeletionction("shortname", 2, 3)]
-    files = FilesCollection(directory, True)
-    renamedFiles = files.call_actions(actions)
-    print(renamedFiles)
+    #renamedFiles = files.call_actions(actions)
+    #for i, file_modified in enumerate(files.get_files_list()['new']):
+    #    data_list.append([files.get_files_list()['old'][i], file_modified])
 #Test
-#directory = os.path.join("C:\\Users\\pblanc\\Desktop\\test")
-
-##myfiles = FilesCollection(directory, False)
-##FileModifier(myfiles).remove_first_letters(3)
-##(FileModifier(myfiles).remove_last_letters(3))
-##print(myfiles.get_files_list(True)[1])
-
 #new_files = [shutil.move(file, replace_char(file," ","")) for file in files_in_directory]
 
+qt_app = QApplication(sys.argv)
 app = MainWindow()
 app.run()
 
