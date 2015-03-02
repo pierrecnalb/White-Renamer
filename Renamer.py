@@ -11,20 +11,11 @@ import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
 language = "english"
-
-
-class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        QMainWindow.__init__(self)
-        self.setWindowTitle('Renamer')
-        self.setMinimumSize(900,600)
-        self.filenames_type = ['-','UPPERCASE', 'lowercase filename', 'Title Case Filename']
-        self.filename_box = QComboBox(self)
-        self.filename_box.addItems(self.filenames_type)
-        self.filename_box.setMinimumWidth(200)
-        self.connect(self.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
-        #self.open_files_button = QPushButton('&Open', self)
-        #self.open_files_button.clicked.connect(self.openFileDialog)
+class MainWidget(QWidget):
+    #QMainWindow does not allow any grid or boxes layout. Therefore we use a QWidget instance
+    def __init__(self):
+        QWidget.__init__(self)
+        #Create Button and Layout
         header = ['Original Files','test']
         data_list = [('test',10)]
         table_model = MyTableModel(self, data_list, header)
@@ -37,10 +28,56 @@ class MainWindow(QMainWindow):
         table_view.setColumnWidth(0,440)
         table_view.setColumnWidth(1,440)
         table_view.setGeometry(10, 350, 880, 300)
-        self.action_dict = action_dict
+        self.filename_box = QComboBox(self)
+        self.filename_txt = QLabel(self)
+        self.extension_box = QComboBox(self)
+        self.path_box = QComboBox(self)
+        grid = QGridLayout()
+        # addWidget(QWidget, row, column, rowSpan, columnSpan)
+        grid.addWidget(self.filename_box,2,1,1,1)
+        grid.addWidget(self.filename_txt,1,1,1,1)
+        grid.addWidget(self.extension_box,2,2,1,1)
+        grid.addWidget(self.path_box,2,3,1,1)
+        grid.addWidget(table_view, 3,1,3,3)
+        #populate the combobox
+        self.combo_list = ['-','Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
+        self.filename_box.addItems(self.combo_list)
+        self.extension_box.addItems(self.combo_list)
+        self.path_box.addItems(self.combo_list)
+        self.filename_txt.setText('test')
+        self.setLayout(grid)
+
+class MainWindow(QMainWindow):
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self)
+        self.setWindowTitle('Renamer')
+        # setGeometry(x_pos, y_pos, width, height)
+        self.setGeometry(200,200,900,600)
+        # exit option for the menu bar File menu
+        self.exit = QAction('Exit', self)
+        # message for the status bar if mouse is over Exit
+        self.exit.setStatusTip('Exit program')
+        # newer connect style (PySide/PyQT 4.5 and higher)
+        self.exit.triggered.connect(app.quit)
+        # create the menu bar
+        menubar = self.menuBar()
+        file = menubar.addMenu('&File')
+        # now add self.exit
+        file.addAction(self.exit)
+        # create the status bar
+        self.statusBar()
+        # QWidget or its instance needed for box layout
+        widget = MainWidget()
+        self.setCentralWidget(widget)
+
+        #connect selection to an action
+        #self.connect(self.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
+        #self.open_files_button = QPushButton('&Open', self)
+        #self.open_files_button.clicked.connect(self.openFileDialog)
+        #self.action_dict = action_dict
         #self.setGeometry(300,300,300,150)
-        self.actions = []
-        self.files = FilesCollection(directory, False)
+        #self.actions = []
+        #self.files = FilesCollection(directory, False)
         #for i, file_modified in enumerate(self.files.get_files_list()['new']):
          #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
     def add_new_action(self, value):
@@ -62,12 +99,6 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         d = directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-
-    def run(self):
-        #show the form
-        self.show()
-        #Run the Qt Application
-        qt_app.exec_()
 
 class MyTableModel(QAbstractTableModel):
     def __init__(self, parent, mylist, header, *args):
@@ -287,7 +318,8 @@ if __name__ == '__main__':
 #Test
 #new_files = [shutil.move(file, replace_char(file," ","")) for file in files_in_directory]
 
-qt_app = QApplication(sys.argv)
-app = MainWindow()
-app.run()
+app = QApplication(sys.argv)
+win = MainWindow()
+win.show()
+app.exec_()
 
