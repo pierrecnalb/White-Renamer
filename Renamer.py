@@ -12,7 +12,7 @@ from PySide.QtCore import *
 from PySide.QtGui  import *
 language = "english"
 class MainWidget(QWidget):
-    #QMainWindow does not allow any grid or boxes layout. Therefore we use a QWidget instance
+    #QMainWindow does not allow any main_grid or boxes layout. Therefore we use a QWidget instance
     def __init__(self):
         QWidget.__init__(self)
         #Create Button and Layout
@@ -32,20 +32,20 @@ class MainWidget(QWidget):
         self.filename_txt = QLabel(self)
         self.extension_box = QComboBox(self)
         self.path_box = QComboBox(self)
-        grid = QGridLayout()
-        # addWidget(QWidget, row, column, rowSpan, columnSpan)
-        grid.addWidget(self.filename_box,2,1,1,1)
-        grid.addWidget(self.filename_txt,1,1,1,1)
-        grid.addWidget(self.extension_box,2,2,1,1)
-        grid.addWidget(self.path_box,2,3,1,1)
-        grid.addWidget(table_view, 3,1,3,3)
+        self.main_grid = QGridLayout()
         #populate the combobox
         self.combo_list = ['-','Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
         self.filename_box.addItems(self.combo_list)
         self.extension_box.addItems(self.combo_list)
         self.path_box.addItems(self.combo_list)
         self.filename_txt.setText('test')
-        self.setLayout(grid)
+        # addWidget(QWidget, row, column, rowSpan, columnSpan)
+        self.main_grid.addWidget(self.path_box,1,0,1,1)
+        self.main_grid.addWidget(self.filename_box,1,1,1,1)
+        self.main_grid.addWidget(self.filename_txt,0,1,1,1)
+        self.main_grid.addWidget(self.extension_box,1,2,1,1)
+        self.main_grid.addWidget(table_view, 2,0,3,3)
+        self.setLayout(self.main_grid)
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -67,11 +67,12 @@ class MainWindow(QMainWindow):
         # create the status bar
         self.statusBar()
         # QWidget or its instance needed for box layout
-        widget = MainWidget()
-        self.setCentralWidget(widget)
+        self.widget = MainWidget()
+        self.setCentralWidget(self.widget)
+        self.action_dict = {'Original Name' : OriginalName, 'Insert Characters' : CharacterInsertionAction, 'Delete Characters' : CharacterDeletionAction, 'Find And Replace' : CharacterReplacementAction, 'Custom Name' : CustomNameAction, 'Folder Name' : FolderNameUsageAction, 'Counter' : Counter}
 
         #connect selection to an action
-        #self.connect(self.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
+        self.connect(self.widget.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
         #self.open_files_button = QPushButton('&Open', self)
         #self.open_files_button.clicked.connect(self.openFileDialog)
         #self.action_dict = action_dict
@@ -81,10 +82,22 @@ class MainWindow(QMainWindow):
         #for i, file_modified in enumerate(self.files.get_files_list()['new']):
          #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
     def add_new_action(self, value):
-        print(self.action_dict[value])
-        self.actions.append(self.action_dict[value])
-        renamedFiles = self.files.call_actions(self.actions)
-        print(renamedFiles)
+        self.selected_action = self.action_dict[value]
+        for i, arguments in enumerate(self.selected_action.INPUTS):
+            self.textbox1 = QLineEdit(self)
+            self.test = QLayoutItem()
+            self.widget.main_grid.addItem(self.test,1,3,1,1,0)
+        print("a")
+        #self.actions.append(self.action_dict[value])
+        #renamedFiles = self.files.call_actions(self.actions)
+        #print(renamedFiles)
+        #actionClass = CharacterInsertionAction
+        #value_searched_in_UI = {'new_char':"test", 'index' : 0}
+        #actionArgs = {}
+        #for input in actionClass.INPUTS:
+        #    actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
+        #actionInstance = actionClass('shortname', **actionArgs)
+        #actions.append(actionInstance)
 
     @Slot()
     def openFileDialog(self):
@@ -151,9 +164,12 @@ class FilesCollection:
             self.modified_files_paths.append(new_file_path)
         return self.modified_files_paths
 
+class ActionInput(object):
+    def __init__(self, argName, argType):
+        self.argumentName = argName
+        self.argumentType = argType
 
 class Action:
-        
     def __init__(self, path_section):
         self.path_section = path_section
 
@@ -182,9 +198,11 @@ class Action:
     def call_on_path_part(self, file_path, path_part):
         raise Exception("not implemented")
 
+
 class CharacterReplacementAction(Action):
     """Replace old_char by new_char in the section of the path."""
     """Path_section can be 'path', 'shortname' or 'extension'."""
+    INPUTS = []
     def __init__(self, path_section, old_char, new_char):
         Action.__init__(self, path_section)
         self.old_char = old_char
@@ -192,6 +210,16 @@ class CharacterReplacementAction(Action):
 
     def call_on_path_part(self, file_path, path_part):
         return path_part.replace(self.old_char,self.new_char)
+
+CharacterReplacementAction.INPUTS.append(ActionInput('old_char', str))
+CharacterReplacementAction.INPUTS.append(ActionInput('new_char', str))
+
+class OriginalName(Action):
+    """Return the original name."""
+    INPUTS = []
+
+    def call_on_path_part(self, file_path, path_part):
+        return path_part
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
@@ -204,12 +232,13 @@ class CharacterInsertionAction(Action):
 
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + self.new_char + path_part[self.index:]
-        
-CharacterInsertionAction.INPUTS.append(ActionInput(name='new_char', type=str))
-CharacterInsertionAction.INPUTS.append(ActionInput(name='index', type=int))
 
-class CharacterDeletionction(Action):
+CharacterInsertionAction.INPUTS.append(ActionInput('new_char', str))
+CharacterInsertionAction.INPUTS.append(ActionInput('index', int))
+
+class CharacterDeletionAction(Action):
     """Delete n-character starting from index position."""
+    INPUTS = []
     def __init__(self, path_section, number_of_char, index):
         Action.__init__(self, path_section)
         self.number_of_char = number_of_char
@@ -218,18 +247,24 @@ class CharacterDeletionction(Action):
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + path_part[self.index + self.number_of_char :]
 
+CharacterDeletionAction.INPUTS.append(ActionInput('number_of_char', int))
+CharacterDeletionAction.INPUTS.append(ActionInput('index', int))
+
 class UppercaseConversionAction(Action):
     """Convert the string to UPPERCASE."""
+    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         return path_part.upper()
 
 class LowercaseConversionAction(Action):
     """Convert the string to lowercase."""
+    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         return path_part.lower()
 
 class TitlecaseConversionAction(Action):
     """Convert the string to Title Case."""
+    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         if language=="english":
             return ' '.join([name[0].upper()+name[1:] for name in path_part.split(' ')])
@@ -238,15 +273,18 @@ class TitlecaseConversionAction(Action):
 
 class CustomNameAction(Action):
     """Use a custom name in the filename."""
+    INPUTS = []
     def __init__(self, path_section, new_name):
         Action.__init__(self, path_section)
         self.new_name = new_name
 
     def call_on_path_part(self, file_path, path_part):
         return self.new_name
+CustomNameAction.INPUTS.append(ActionInput('new_name', str))
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
+    INPUTS = []
 
     def call_on_path_part(self, file_path, path_part):
         (path, shortname, extension) = self.split_path(file_path)
@@ -254,6 +292,7 @@ class FolderNameUsageAction(Action):
 
 class ModifiedTimeUsageAction(Action):
     """Use the modified time metadata as the filename."""
+    INPUTS = []
     def call(self, file_path):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(self.filenames)
         return time.ctime(mtime)
@@ -261,8 +300,9 @@ class ModifiedTimeUsageAction(Action):
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
     """If restart==True, the counter is set to startindex at each subfolder."""
-    counter = 0
-    previous_path = ""
+    INPUTS = []
+    COUNTER = 0
+    PREVIOUS_PATH = ""
 
     def __init__(self, path_section, start_index, increment, restart):
         Action.__init__(self, path_section)
@@ -272,18 +312,23 @@ class Counter(Action):
 
     def call_on_path_part(self, file_path, path_part):
         path, shortname, extension = self.split_path(file_path)
-        if (path!=Counter.previous_path and self.restart is True):
-            Counter.counter = self.start_index
+        if (path!=Counter.PREVIOUS_PATH and self.restart is True):
+            Counter.COUNTER = self.start_index
         else:
-            if(Counter.counter == 0):
-                Counter.counter = self.start_index
+            if(Counter.COUNTER == 0):
+                Counter.COUNTER = self.start_index
             else:
-                Counter.counter = Counter.counter + (1 * self.increment)
-        Counter.previous_path=path
-        return str(Counter.counter)
+                Counter.COUNTER = Counter.COUNTER + (1 * self.increment)
+        Counter.PREVIOUS_PATH=path
+        return str(Counter.COUNTER)
+
+Counter.INPUTS.append(ActionInput('start_index', int))
+Counter.INPUTS.append(ActionInput('increment', int))
+Counter.INPUTS.append(ActionInput('restart', bool))
 
 class PipeAction(Action):
     """Execute actions inside another action."""
+    INPUTS = []
     def __init__(self, path_section, main_action, sub_action):
         Action.__init__(self, path_section)
         self.main_action = main_action
@@ -303,22 +348,24 @@ class PipeAction(Action):
         value = action.call_on_path_part(file_path, path_part)
         return value
 
-class ActionInput(object):
-    def __init__(self, argName, argType):
-        self.argumentName = argName
-        self.argumentType = argType
-    
+PipeAction.INPUTS.append(ActionInput('main_action', type))
+PipeAction.INPUTS.append(ActionInput('sub_action', type))
+
+
 if __name__ == '__main__':
     directory = "/home/pierre/Desktop/test"
-    action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
-    
+    files = FilesCollection(directory, False)
+    actions=[]
+   # action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
     actionClass = CharacterInsertionAction
-    
+    value_searched_in_UI = {'new_char':"test", 'index' : 0}
+    actionArgs = {}
     for input in actionClass.INPUTS:
-        actionArgs[input.argumentName] = valeurquejevaischercherqqpartdansl'ui
-      #juste un détail : plutôt que d'écrire qqch comme "actionInstance = actionClass('shortname', **actionArgs)", je ferais une méthode statique Action.createAction(actionClass, path_section, args)  
-    actionInstance = actionClass('shortname', **actionArgs) # Juste pour faire comme si on était dans l'UI, hein. Parce que sinon, j'aurais pu utiliser CharacterInsertionAction(...) directement, évidemment.
-    actionInstance.call(...)
+        actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
+    #Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
+    actionInstance = actionClass('shortname', **actionArgs)
+    actions.append(actionInstance)
+    #print(files.call_actions(actions))
 
 app = QApplication(sys.argv)
 win = MainWindow()
