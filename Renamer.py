@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.0
+#v.1.0.1
 import os
 import time
 import shutil
@@ -153,6 +153,7 @@ class FilesCollection:
 
 
 class Action:
+        
     def __init__(self, path_section):
         self.path_section = path_section
 
@@ -194,6 +195,8 @@ class CharacterReplacementAction(Action):
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
+    INPUTS = []
+
     def __init__(self, path_section, new_char, index):
         Action.__init__(self, path_section)
         self.new_char = new_char
@@ -201,6 +204,9 @@ class CharacterInsertionAction(Action):
 
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + self.new_char + path_part[self.index:]
+        
+CharacterInsertionAction.INPUTS.append(ActionInput(name='new_char', type=str))
+CharacterInsertionAction.INPUTS.append(ActionInput(name='index', type=int))
 
 class CharacterDeletionction(Action):
     """Delete n-character starting from index position."""
@@ -297,29 +303,24 @@ class PipeAction(Action):
         value = action.call_on_path_part(file_path, path_part)
         return value
 
-
+class ActionInput(object):
+    def __init__(self, argName, argType):
+        self.argumentName = argName
+        self.argumentType = argType
+    
 if __name__ == '__main__':
     directory = "/home/pierre/Desktop/test"
     action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
-    #unittest.main()
-    #directory = os.path.join("C:\\Users\\pblanc\\Desktop\\test")
-    #actions = []
-    #files = FilesCollection(directory, True)
-    #actions.append(CharacterInsertionAction("shortname","] ",0))
-    #actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : FolderNameUsageAction("shortname"), 'index' : 0}))
-    #actions.append(CharacterInsertionAction("shortname","[",0))
-    #actions.append(PipeAction("shortname", CharacterInsertionAction, {'new_char' : Counter("shortname", 01, 1, True), 'index' : 10000}))
-    #actions = [PipeAction("shortname", CharacterInsertionAction,{'new_char' : FolderNameUsageAction("shortname"), 'index' : 0})]
-    #actions = [Counter("shortname", 1, 3,False)]
-    #actions = [CharacterDeletionction("shortname", 2, 3)]
-    #renamedFiles = files.call_actions(actions)
-    #for i, file_modified in enumerate(files.get_files_list()['new']):
-    #    data_list.append([files.get_files_list()['old'][i], file_modified])
-#Test
-#new_files = [shutil.move(file, replace_char(file," ","")) for file in files_in_directory]
+    
+    actionClass = CharacterInsertionAction
+    
+    for input in actionClass.INPUTS:
+        actionArgs[input.argumentName] = valeurquejevaischercherqqpartdansl'ui
+      #juste un détail : plutôt que d'écrire qqch comme "actionInstance = actionClass('shortname', **actionArgs)", je ferais une méthode statique Action.createAction(actionClass, path_section, args)  
+    actionInstance = actionClass('shortname', **actionArgs) # Juste pour faire comme si on était dans l'UI, hein. Parce que sinon, j'aurais pu utiliser CharacterInsertionAction(...) directement, évidemment.
+    actionInstance.call(...)
 
 app = QApplication(sys.argv)
 win = MainWindow()
 win.show()
 app.exec_()
-
