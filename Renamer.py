@@ -83,6 +83,25 @@ class MainWindow(QMainWindow):
          #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
     def add_new_action(self, value):
         self.selected_action = self.action_dict[value]
+        self.inner_grid = QGridLayout()
+        self.label2 = QLabel(self)
+        self.label2.setText('action2')
+        self.textbox2 = QLineEdit(self)
+        self.label = QLabel(self)
+        self.label.setText('action')
+        self.textbox = QLineEdit(self)
+        hbox = QHBoxLayout()
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.label)
+        vbox.addWidget(self.textbox)
+        vbox2 = QVBoxLayout()
+        vbox2.addWidget(self.label2)
+        vbox2.addWidget(self.textbox2)
+        hbox.addLayout(vbox)
+        hbox.addLayout(vbox2)
+        self.setLayout(hbox)
+        self.widget.main_grid.addLayout(hbox,2,1,1,1)
+
         for i, arguments in enumerate(self.selected_action.INPUTS):
             self.textbox1 = QLineEdit(self)
             self.test = QLayoutItem()
