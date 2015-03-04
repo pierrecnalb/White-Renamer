@@ -18,23 +18,23 @@ class MainWidget(QWidget):
         #Create Button and Layout
         header = ['Original Files','test']
         data_list = [('test',10)]
-        table_model = MyTableModel(self, data_list, header)
-        table_view = QTableView(self)
-        table_view.setModel(table_model)
-        # set column width to fit contents (set font first!)
-        #table_view.resizeColumnsToContents()
-        # enable sorting
-        #table_view.setSortingEnabled(True)
-        table_view.setColumnWidth(0,440)
-        table_view.setColumnWidth(1,440)
-        table_view.setGeometry(10, 350, 880, 300)
+        #table_model = MyTableModel(self, data_list, header)
+        #table_view = QTableView(self)
+        #table_view.setModel(table_model)
+        ## set column width to fit contents (set font first!)
+        ##table_view.resizeColumnsToContents()
+        ## enable sorting
+        ##table_view.setSortingEnabled(True)
+        #table_view.setColumnWidth(0,440)
+        #table_view.setColumnWidth(1,440)
+        #table_view.setGeometry(10, 350, 880, 300)
         self.filename_box = QComboBox(self)
         self.filename_txt = QLabel(self)
         self.extension_box = QComboBox(self)
         self.path_box = QComboBox(self)
         self.main_grid = QGridLayout()
         #populate the combobox
-        self.combo_list = ['-','Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
+        self.combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
         self.filename_box.addItems(self.combo_list)
         self.extension_box.addItems(self.combo_list)
         self.path_box.addItems(self.combo_list)
@@ -44,7 +44,7 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.filename_box,1,1,1,1)
         self.main_grid.addWidget(self.filename_txt,0,1,1,1)
         self.main_grid.addWidget(self.extension_box,1,2,1,1)
-        self.main_grid.addWidget(table_view, 2,0,3,3)
+        #self.main_grid.addWidget(table_view, 2,0,3,3)
         self.setLayout(self.main_grid)
 
 class MainWindow(QMainWindow):
@@ -69,44 +69,42 @@ class MainWindow(QMainWindow):
         # QWidget or its instance needed for box layout
         self.widget = MainWidget()
         self.setCentralWidget(self.widget)
+        self.hbox = None
         self.action_dict = {'Original Name' : OriginalName, 'Insert Characters' : CharacterInsertionAction, 'Delete Characters' : CharacterDeletionAction, 'Find And Replace' : CharacterReplacementAction, 'Custom Name' : CustomNameAction, 'Folder Name' : FolderNameUsageAction, 'Counter' : Counter}
 
         #connect selection to an action
-        self.connect(self.widget.filename_box, SIGNAL('currentIndexChanged(QString)'), self.add_new_action)
-        #self.open_files_button = QPushButton('&Open', self)
-        #self.open_files_button.clicked.connect(self.openFileDialog)
+        self.widget.filename_box.activated[str].connect(self.add_sub_button)
         #self.action_dict = action_dict
         #self.setGeometry(300,300,300,150)
         #self.actions = []
         #self.files = FilesCollection(directory, False)
         #for i, file_modified in enumerate(self.files.get_files_list()['new']):
          #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
-    def add_new_action(self, value):
-        self.selected_action = self.action_dict[value]
-        self.inner_grid = QGridLayout()
-        self.label2 = QLabel(self)
-        self.label2.setText('action2')
-        self.textbox2 = QLineEdit(self)
-        self.label = QLabel(self)
-        self.label.setText('action')
-        self.textbox = QLineEdit(self)
-        hbox = QHBoxLayout()
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.label)
-        vbox.addWidget(self.textbox)
-        vbox2 = QVBoxLayout()
-        vbox2.addWidget(self.label2)
-        vbox2.addWidget(self.textbox2)
-        hbox.addLayout(vbox)
-        hbox.addLayout(vbox2)
-        self.setLayout(hbox)
-        self.widget.main_grid.addLayout(hbox,2,1,1,1)
 
-        for i, arguments in enumerate(self.selected_action.INPUTS):
-            self.textbox1 = QLineEdit(self)
-            self.test = QLayoutItem()
-            self.widget.main_grid.addItem(self.test,1,3,1,1,0)
-        print("a")
+    def add_sub_button(self, value):
+        selected_action = self.action_dict[value]
+        if self.hbox is not None:
+            self.clearLayout(self.hbox)
+        self.hbox = QHBoxLayout()
+        for arguments in (selected_action.INPUTS):
+            vbox = QVBoxLayout()
+            label = QLabel(self)
+            label.setText(str(arguments.argumentName))
+            textbox = QLineEdit(self)
+            vbox.addWidget(label)
+            vbox.addWidget(textbox)
+            self.hbox.addLayout(vbox)
+            self.setLayout(self.hbox)
+        self.widget.main_grid.addLayout(self.hbox,2,1,1,1)
+
+    def clearLayout(self, layout):
+        """delete all children of the specified layout"""
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.clearLayout(child.layout())
         #self.actions.append(self.action_dict[value])
         #renamedFiles = self.files.call_actions(self.actions)
         #print(renamedFiles)
