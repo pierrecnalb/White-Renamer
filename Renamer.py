@@ -29,6 +29,7 @@ class MainWidget(QWidget):
         #table_view.setColumnWidth(1,440)
         #table_view.setGeometry(10, 350, 880, 300)
         self.filename_box = QComboBox(self)
+        self.filename_box.setObjectName('filename_box')
         self.filename_txt = QLabel(self)
         self.extension_box = QComboBox(self)
         self.path_box = QComboBox(self)
@@ -83,6 +84,8 @@ class MainWindow(QMainWindow):
 
     def add_sub_button(self, value):
         selected_action = self.action_dict[value]
+        button = self.sender()
+        print(str(button.objectName()))
         if self.hbox is not None:
             self.clearLayout(self.hbox)
         self.hbox = QHBoxLayout()
