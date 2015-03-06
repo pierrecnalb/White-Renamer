@@ -32,7 +32,10 @@ class MainWidget(QWidget):
         self.filename_box.setObjectName('filename_box')
         self.filename_txt = QLabel(self)
         self.extension_box = QComboBox(self)
+        self.extension_box.setObjectName('extension_box')
         self.path_box = QComboBox(self)
+        self.path_box.setObjectName('path_box')
+
         self.main_grid = QGridLayout()
         #populate the combobox
         self.combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
@@ -75,6 +78,8 @@ class MainWindow(QMainWindow):
 
         #connect selection to an action
         self.widget.filename_box.activated[str].connect(self.add_sub_button)
+        self.widget.extension_box.activated[str].connect(self.add_sub_button)
+        self.widget.path_box.activated[str].connect(self.add_sub_button)
         #self.action_dict = action_dict
         #self.setGeometry(300,300,300,150)
         #self.actions = []
@@ -84,11 +89,24 @@ class MainWindow(QMainWindow):
 
     def add_sub_button(self, value):
         selected_action = self.action_dict[value]
-        button = self.sender()
-        print(str(button.objectName()))
-        if self.hbox is not None:
-            self.clearLayout(self.hbox)
-        self.hbox = QHBoxLayout()
+        button_pressed = self.sender()
+        if button_pressed.objectName() == "filename_box":
+            grid_index = 1
+        elif button_pressed.objectName() == "extension_box":
+            grid_index = 2
+        elif button_pressed.objectName() == "path_box":
+            grid_index = 0
+        else:
+            raise Exception("not implemented")
+        if self.widget.main_grid.itemAtPosition(2,1) is not None:
+            print("is not none")
+            b= self.widget.main_grid.itemAtPosition(2,1)
+            print("itematposition : "+ str(b))
+            self.clearLayout(b)
+
+        #self.clearLayout(self.widget.main_grid.itemAtPosition(2,1))
+        hbox = QHBoxLayout()
+        print("hbox : " + str(hbox))
         for arguments in (selected_action.INPUTS):
             vbox = QVBoxLayout()
             label = QLabel(self)
@@ -96,9 +114,10 @@ class MainWindow(QMainWindow):
             textbox = QLineEdit(self)
             vbox.addWidget(label)
             vbox.addWidget(textbox)
-            self.hbox.addLayout(vbox)
-            self.setLayout(self.hbox)
-        self.widget.main_grid.addLayout(self.hbox,2,1,1,1)
+            hbox.addLayout(vbox)
+            self.setLayout(hbox)
+        self.widget.main_grid.addLayout(hbox,2,grid_index,1,1)
+
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
