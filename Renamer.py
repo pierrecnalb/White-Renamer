@@ -12,12 +12,18 @@ from PySide.QtCore import *
 from PySide.QtGui  import *
 language = "english"
 class MainWidget(QWidget):
-    #QMainWindow does not allow any main_grid or boxes layout. Therefore we use a QWidget instance
+    #QMainWindow does not allow any self.main_grid or boxes layout. Therefore we use a QWidget instance
     def __init__(self):
         QWidget.__init__(self)
         #Create Button and Layout
         header = ['Original Files','test']
         data_list = [('test',10)]
+        self.prefix_number = 0
+        self.suffix_number = 0
+        self.main_grid = QGridLayout()
+        self.filename_index = 3
+        self.extension_index = 5
+        self.add_widgets()
         #table_model = MyTableModel(self, data_list, header)
         #table_view = QTableView(self)
         #table_view.setModel(table_model)
@@ -28,28 +34,119 @@ class MainWidget(QWidget):
         #table_view.setColumnWidth(0,440)
         #table_view.setColumnWidth(1,440)
         #table_view.setGeometry(10, 350, 880, 300)
-        self.filename_box = QComboBox(self)
-        self.filename_box.setObjectName('filename_box')
-        self.filename_txt = QLabel(self)
-        self.extension_box = QComboBox(self)
-        self.extension_box.setObjectName('extension_box')
-        self.path_box = QComboBox(self)
-        self.path_box.setObjectName('path_box')
-
-        self.main_grid = QGridLayout()
-        #populate the combobox
-        self.combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
-        self.filename_box.addItems(self.combo_list)
-        self.extension_box.addItems(self.combo_list)
-        self.path_box.addItems(self.combo_list)
-        self.filename_txt.setText('test')
+        #self.action_dict = action_dict
+        #self.setGeometry(300,300,300,150)
+        #self.actions = []
+        #self.files = FilesCollection(directory, False)
+        #for i, file_modified in enumerate(self.files.get_files_list()['new']):
+         #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
         # addWidget(QWidget, row, column, rowSpan, columnSpan)
-        self.main_grid.addWidget(self.path_box,1,0,1,1)
-        self.main_grid.addWidget(self.filename_box,1,1,1,1)
-        self.main_grid.addWidget(self.filename_txt,0,1,1,1)
-        self.main_grid.addWidget(self.extension_box,1,2,1,1)
-        #self.main_grid.addWidget(table_view, 2,0,3,3)
+    def add_widgets(self):
+        #add combobox to the grid depending on the number of prefixes and suffixes
+        filename_box = QComboBox(self)
+        filename_box.setObjectName('filename_box')
+        filename_lbl = QLabel('Filename')
+        extension_box = QComboBox(self)
+        extension_box.setObjectName('extension_box')
+        extension_lbl = QLabel('Extension')
+        path_box = QComboBox(self)
+        path_box.setObjectName('path_box')
+        path_lbl = QLabel('Path')
+        add_prefix_btn = QPushButton('+')
+        add_suffix_btn = QPushButton('+')
+        #populate the combobox
+        combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
+        filename_box.addItems(combo_list)
+        extension_box.addItems(combo_list)
+        path_box.addItems(combo_list)
+        self.action_dict = {'Original Name' : OriginalName, 'Insert Characters' : CharacterInsertionAction, 'Delete Characters' : CharacterDeletionAction, 'Find And Replace' : CharacterReplacementAction, 'Custom Name' : CustomNameAction, 'Folder Name' : FolderNameUsageAction, 'Counter' : Counter}
+        #connect selection to an action
+        filename_box.activated[str].connect(self.add_sub_button)
+        extension_box.activated[str].connect(self.add_sub_button)
+        path_box.activated[str].connect(self.add_sub_button)
+        add_prefix_btn.clicked.connect(self.add_prefix)
+        add_suffix_btn.clicked.connect(self.add_suffix)
+        self.main_grid.addWidget(path_box, 1, 0, 1, 1)
+        self.main_grid.addWidget(path_lbl, 0, 0, 1, 1)
+        self.main_grid.addWidget(add_prefix_btn, 1, 1, 1, 1)
+        for i in range(self.prefix_number):
+            prefix_box = QComboBox(self)
+            prefix_box.setObjectName("prefix_box|" + str(i + 1))
+            prefix_lbl = QLabel('Prefix')
+            prefix_box.addItems(combo_list)
+            prefix_box.activated[str].connect(self.add_sub_button)
+            self.main_grid.addWidget(prefix_lbl, 0, (2 + i), 1, 1)
+            self.main_grid.addWidget(prefix_box, 1, (2 + i), 1, 1)
+        self.main_grid.addWidget(filename_box, 1, (self.filename_index), 1, 1)
+        self.main_grid.addWidget(filename_lbl, 0, (self.filename_index), 1, 1)
+        self.main_grid.addWidget(add_suffix_btn, 1, (self.filename_index + 1), 1, 1)
+        for i in range(self.suffix_number):
+            suffix_box = QComboBox(self)
+            suffix_box.setObjectName("suffix_box|" + str(i + 1))
+            suffix_lbl = QLabel('Suffix')
+            suffix_box.addItems(combo_list)
+            suffix_box.activated[str].connect(self.add_sub_button)
+            self.main_grid.addWidget(suffix_lbl, 0, (self.filename_index + i + 2), 1, 1)
+            self.main_grid.addWidget(suffix_box, 1, (self.filename_index + i + 2), 1, 1)
+        self.main_grid.addWidget(extension_box, 1, (self.extension_index), 1, 1)
+        self.main_grid.addWidget(extension_lbl, 0, (self.extension_index), 1, 1)
+        #self.self.main_grid.addWidget(table_view, 2, 0, 3, 3)
         self.setLayout(self.main_grid)
+
+    def add_suffix(self):
+        self.suffix_number += 1
+        self.extension_index += 1
+        self.clearLayout(self.main_grid)
+        self.add_widgets()
+
+    def add_prefix(self):
+        self.prefix_number += 1
+        self.filename_index += 1
+        self.extension_index += 1
+        self.clearLayout(self.main_grid)
+        self.add_widgets()
+
+    def add_sub_button(self, value):
+        selected_action = self.action_dict[value]
+        button_pressed = self.sender()
+        if button_pressed.objectName() == "filename_box":
+            grid_index = self.filename_index
+        elif button_pressed.objectName() == "extension_box":
+            grid_index = self.extension_index
+        elif button_pressed.objectName() == "path_box":
+            grid_index = 0
+        elif button_pressed.objectName().split("|")[0] == "prefix_box":
+            grid_index = int(button_pressed.objectName().split("|")[1]) + 1
+        elif button_pressed.objectName().split("|")[0] == "suffix_box":
+            grid_index = int(button_pressed.objectName().split("|")[1]) + self.filename_index + 1
+
+        else:
+            raise Exception("not implemented")
+        sub_buttons = self.main_grid.itemAtPosition(2,grid_index)
+        if sub_buttons is not None:
+            self.clearLayout(sub_buttons)
+            sub_buttons.deleteLater()
+        hbox = QHBoxLayout()
+        for arguments in (selected_action.INPUTS):
+            vbox = QVBoxLayout()
+            label = QLabel(self)
+            label.setText(str(arguments.argumentCaption))
+            textbox = QLineEdit(self)
+            vbox.addWidget(label)
+            vbox.addWidget(textbox)
+            hbox.addLayout(vbox)
+            self.setLayout(hbox)
+        self.main_grid.addLayout(hbox,2,grid_index,1,1)
+
+
+    def clearLayout(self, layout):
+        """delete all children of the specified layout"""
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.clearLayout(child.layout())
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -73,60 +170,6 @@ class MainWindow(QMainWindow):
         # QWidget or its instance needed for box layout
         self.widget = MainWidget()
         self.setCentralWidget(self.widget)
-        self.hbox = None
-        self.action_dict = {'Original Name' : OriginalName, 'Insert Characters' : CharacterInsertionAction, 'Delete Characters' : CharacterDeletionAction, 'Find And Replace' : CharacterReplacementAction, 'Custom Name' : CustomNameAction, 'Folder Name' : FolderNameUsageAction, 'Counter' : Counter}
-
-        #connect selection to an action
-        self.widget.filename_box.activated[str].connect(self.add_sub_button)
-        self.widget.extension_box.activated[str].connect(self.add_sub_button)
-        self.widget.path_box.activated[str].connect(self.add_sub_button)
-        #self.action_dict = action_dict
-        #self.setGeometry(300,300,300,150)
-        #self.actions = []
-        #self.files = FilesCollection(directory, False)
-        #for i, file_modified in enumerate(self.files.get_files_list()['new']):
-         #   data_list.append([self.files.get_files_list()['old'][i], file_modified])
-
-    def add_sub_button(self, value):
-        selected_action = self.action_dict[value]
-        button_pressed = self.sender()
-        if button_pressed.objectName() == "filename_box":
-            grid_index = 1
-        elif button_pressed.objectName() == "extension_box":
-            grid_index = 2
-        elif button_pressed.objectName() == "path_box":
-            grid_index = 0
-        else:
-            raise Exception("not implemented")
-        if self.widget.main_grid.itemAtPosition(2,1) is not None:
-            print("is not none")
-            b= self.widget.main_grid.itemAtPosition(2,1)
-            print("itematposition : "+ str(b))
-            self.clearLayout(b)
-
-        #self.clearLayout(self.widget.main_grid.itemAtPosition(2,1))
-        hbox = QHBoxLayout()
-        print("hbox : " + str(hbox))
-        for arguments in (selected_action.INPUTS):
-            vbox = QVBoxLayout()
-            label = QLabel(self)
-            label.setText(str(arguments.argumentName))
-            textbox = QLineEdit(self)
-            vbox.addWidget(label)
-            vbox.addWidget(textbox)
-            hbox.addLayout(vbox)
-            self.setLayout(hbox)
-        self.widget.main_grid.addLayout(hbox,2,grid_index,1,1)
-
-
-    def clearLayout(self, layout):
-        """delete all children of the specified layout"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                self.clearLayout(child.layout())
         #self.actions.append(self.action_dict[value])
         #renamedFiles = self.files.call_actions(self.actions)
         #print(renamedFiles)
@@ -204,8 +247,9 @@ class FilesCollection:
         return self.modified_files_paths
 
 class ActionInput(object):
-    def __init__(self, argName, argType):
+    def __init__(self, argName, arg_caption, argType):
         self.argumentName = argName
+        self.argumentCaption = arg_caption
         self.argumentType = argType
 
 class Action:
@@ -250,8 +294,8 @@ class CharacterReplacementAction(Action):
     def call_on_path_part(self, file_path, path_part):
         return path_part.replace(self.old_char,self.new_char)
 
-CharacterReplacementAction.INPUTS.append(ActionInput('old_char', str))
-CharacterReplacementAction.INPUTS.append(ActionInput('new_char', str))
+CharacterReplacementAction.INPUTS.append(ActionInput('old_char', 'replace', str))
+CharacterReplacementAction.INPUTS.append(ActionInput('new_char', 'with', str))
 
 class OriginalName(Action):
     """Return the original name."""
@@ -272,8 +316,8 @@ class CharacterInsertionAction(Action):
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + self.new_char + path_part[self.index:]
 
-CharacterInsertionAction.INPUTS.append(ActionInput('new_char', str))
-CharacterInsertionAction.INPUTS.append(ActionInput('index', int))
+CharacterInsertionAction.INPUTS.append(ActionInput('new_char','insert',  str))
+CharacterInsertionAction.INPUTS.append(ActionInput('index', 'position', int))
 
 class CharacterDeletionAction(Action):
     """Delete n-character starting from index position."""
@@ -286,8 +330,8 @@ class CharacterDeletionAction(Action):
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + path_part[self.index + self.number_of_char :]
 
-CharacterDeletionAction.INPUTS.append(ActionInput('number_of_char', int))
-CharacterDeletionAction.INPUTS.append(ActionInput('index', int))
+CharacterDeletionAction.INPUTS.append(ActionInput('number_of_char', 'number of character', int))
+CharacterDeletionAction.INPUTS.append(ActionInput('index', 'from', int))
 
 class UppercaseConversionAction(Action):
     """Convert the string to UPPERCASE."""
@@ -319,7 +363,7 @@ class CustomNameAction(Action):
 
     def call_on_path_part(self, file_path, path_part):
         return self.new_name
-CustomNameAction.INPUTS.append(ActionInput('new_name', str))
+CustomNameAction.INPUTS.append(ActionInput('new_name', 'new name', str))
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
@@ -361,9 +405,9 @@ class Counter(Action):
         Counter.PREVIOUS_PATH=path
         return str(Counter.COUNTER)
 
-Counter.INPUTS.append(ActionInput('start_index', int))
-Counter.INPUTS.append(ActionInput('increment', int))
-Counter.INPUTS.append(ActionInput('restart', bool))
+Counter.INPUTS.append(ActionInput('start_index', 'start at', int))
+Counter.INPUTS.append(ActionInput('increment', 'increment by',  int))
+Counter.INPUTS.append(ActionInput('restart', 'restart', bool))
 
 class PipeAction(Action):
     """Execute actions inside another action."""
@@ -387,8 +431,8 @@ class PipeAction(Action):
         value = action.call_on_path_part(file_path, path_part)
         return value
 
-PipeAction.INPUTS.append(ActionInput('main_action', type))
-PipeAction.INPUTS.append(ActionInput('sub_action', type))
+PipeAction.INPUTS.append(ActionInput('main_action','main_action', type))
+PipeAction.INPUTS.append(ActionInput('sub_action','main_action', type))
 
 
 if __name__ == '__main__':
