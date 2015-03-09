@@ -15,6 +15,7 @@ class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_grid or boxes layout. Therefore we use a QWidget instance
     def __init__(self):
         QWidget.__init__(self)
+        self.actions = []
         #Create Button and Layout
         header = ['Original Files','test']
         data_list = [('test',10)]
@@ -24,6 +25,8 @@ class MainWidget(QWidget):
         self.filename_index = 3
         self.extension_index = 5
         self.add_widgets()
+        self.action_button_link = {}
+        self.subaction_button_link = {}
         #table_model = MyTableModel(self, data_list, header)
         #table_view = QTableView(self)
         #table_view.setModel(table_model)
@@ -43,8 +46,10 @@ class MainWidget(QWidget):
         # addWidget(QWidget, row, column, rowSpan, columnSpan)
     def add_widgets(self):
         #add combobox to the grid depending on the number of prefixes and suffixes
-        filename_box = QComboBox(self)
-        filename_box.setObjectName('filename_box')
+        preview_btn = QPushButton('Preview')
+        preview_btn.clicked.connect(self.apply_action)
+        self.filename_box = QComboBox(self)
+        self.filename_box.setObjectName('filename_box')
         filename_lbl = QLabel('Filename')
         extension_box = QComboBox(self)
         extension_box.setObjectName('extension_box')
@@ -56,18 +61,18 @@ class MainWidget(QWidget):
         add_suffix_btn = QPushButton('+')
         #populate the combobox
         combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
-        filename_box.addItems(combo_list)
+        self.filename_box.addItems(combo_list)
         extension_box.addItems(combo_list)
         path_box.addItems(combo_list)
         self.action_dict = {'Original Name' : OriginalName, 'Insert Characters' : CharacterInsertionAction, 'Delete Characters' : CharacterDeletionAction, 'Find And Replace' : CharacterReplacementAction, 'Custom Name' : CustomNameAction, 'Folder Name' : FolderNameUsageAction, 'Counter' : Counter}
         #connect selection to an action
-        filename_box.activated[str].connect(self.add_sub_button)
+        self.filename_box.activated[str].connect(self.activated)
         extension_box.activated[str].connect(self.add_sub_button)
         path_box.activated[str].connect(self.add_sub_button)
         add_prefix_btn.clicked.connect(self.add_prefix)
         add_suffix_btn.clicked.connect(self.add_suffix)
         self.main_grid.addWidget(path_box, 1, 0, 1, 1)
-        self.main_grid.addWidget(path_lbl, 0, 0, 1, 1)
+        self.main_grid.addWidget(preview_btn, 0, 0, 1, 1)
         self.main_grid.addWidget(add_prefix_btn, 1, 1, 1, 1)
         for i in range(self.prefix_number):
             prefix_box = QComboBox(self)
@@ -77,7 +82,7 @@ class MainWidget(QWidget):
             prefix_box.activated[str].connect(self.add_sub_button)
             self.main_grid.addWidget(prefix_lbl, 0, (2 + i), 1, 1)
             self.main_grid.addWidget(prefix_box, 1, (2 + i), 1, 1)
-        self.main_grid.addWidget(filename_box, 1, (self.filename_index), 1, 1)
+        self.main_grid.addWidget(self.filename_box, 1, (self.filename_index), 1, 1)
         self.main_grid.addWidget(filename_lbl, 0, (self.filename_index), 1, 1)
         self.main_grid.addWidget(add_suffix_btn, 1, (self.filename_index + 1), 1, 1)
         for i in range(self.suffix_number):
@@ -92,6 +97,11 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(extension_lbl, 0, (self.extension_index), 1, 1)
         #self.self.main_grid.addWidget(table_view, 2, 0, 3, 3)
         self.setLayout(self.main_grid)
+
+    def activated(self, value):
+        self.add_sub_button(value)
+        #Create or update dictionary containing the name of the combobox pressed and the tied action.
+        self.action_button_link.update({self.sender().objectName() : self.action_dict[value]})
 
     def add_suffix(self):
         self.suffix_number += 1
@@ -109,6 +119,7 @@ class MainWidget(QWidget):
     def add_sub_button(self, value):
         selected_action = self.action_dict[value]
         button_pressed = self.sender()
+        #specify where should the subbuttons go
         if button_pressed.objectName() == "filename_box":
             grid_index = self.filename_index
         elif button_pressed.objectName() == "extension_box":
@@ -132,12 +143,20 @@ class MainWidget(QWidget):
             label = QLabel(self)
             label.setText(str(arguments.argumentCaption))
             textbox = QLineEdit(self)
+            textbox.setObjectName(button_pressed.objectName() + '|' + str(arguments.argumentName))
+            textbox.textChanged[str].connect(self.get_subactions)
             vbox.addWidget(label)
             vbox.addWidget(textbox)
             hbox.addLayout(vbox)
             self.setLayout(hbox)
         self.main_grid.addLayout(hbox,2,grid_index,1,1)
 
+    def get_subactions(self, value):
+        #Update the dictionary containing the combobox pressed and the related arguments, each time an argument is updated.
+        arg_called = self.sender().objectName()
+        (combobox_name, subaction_name) = arg_called.split("|") 
+        self.subaction_button_link.update({combobox_name : subaction_name})
+        print(self.subaction_button_link[combobox_name])
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
@@ -147,6 +166,19 @@ class MainWidget(QWidget):
                 child.widget().deleteLater()
             elif child.layout() is not None:
                 self.clearLayout(child.layout())
+
+    def apply_action(self):
+        directory = "/home/pierre/Desktop/test"
+        files = FilesCollection(directory, False)
+        actionClass = self.action_button_link["filename_box"][0]
+        #renamedFiles = files.call_actions(self.actions)
+        value_searched_in_UI = {'new_char':"test", 'index' : 0}
+        actionArgs = {}
+        for input in actionClass.INPUTS:
+            actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
+        actionInstance = actionClass('shortname', **actionArgs)
+        self.actions.append(actionInstance)
+        print(files.call_actions(self.actions))
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -245,6 +277,14 @@ class FilesCollection:
                 new_file_path = action.call(new_file_path)
             self.modified_files_paths.append(new_file_path)
         return self.modified_files_paths
+
+class ButtonPropertyBinding():
+    """Group the button name, the actions and the arguments"""
+    def __init__(self, action_pressed, ActionInput):
+        self.action_pressed = action_pressed
+        self.ActionInput = ActionInput
+
+
 
 class ActionInput(object):
     def __init__(self, argName, arg_caption, argType):
@@ -436,19 +476,20 @@ PipeAction.INPUTS.append(ActionInput('sub_action','main_action', type))
 
 
 if __name__ == '__main__':
-    directory = "/home/pierre/Desktop/test"
-    files = FilesCollection(directory, False)
-    actions=[]
-   # action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
-    actionClass = CharacterInsertionAction
-    value_searched_in_UI = {'new_char':"test", 'index' : 0}
-    actionArgs = {}
-    for input in actionClass.INPUTS:
-        actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
-    #Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
-    actionInstance = actionClass('shortname', **actionArgs)
-    actions.append(actionInstance)
-    #print(files.call_actions(actions))
+    pass
+    #directory = "/home/pierre/Desktop/test"
+    #files = FilesCollection(directory, False)
+    #actions=[]
+   ## action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
+    #actionClass = CharacterInsertionAction
+    #value_searched_in_UI = {'new_char':"test", 'index' : 0}
+    #actionArgs = {}
+    #for input in actionClass.INPUTS:
+    #    actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
+    ##Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
+    #actionInstance = actionClass('shortname', **actionArgs)
+    #actions.append(actionInstance)
+    ##print(files.call_actions(actions))
 
 app = QApplication(sys.argv)
 win = MainWindow()
