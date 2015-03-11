@@ -23,7 +23,7 @@ class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_grid or boxes layout. Therefore we use a QWidget instance
     def __init__(self):
         QWidget.__init__(self)
-        self.all_action_inputs = []
+        self.all_action_descriptors = []
         character_replacement_inputs = []
         character_replacement_inputs.append(Renamer.ActionInput('old_char', 'replace', str))
         character_replacement_inputs.append(Renamer.ActionInput('new_char', 'with', str))
@@ -44,13 +44,13 @@ class MainWidget(QWidget):
         counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
         counter_inputs.append(Renamer.ActionInput('restart', 'restart', bool))
 
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Original Name", None, type(Renamer.OriginalName)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, type(Renamer.CharacterReplacementAction)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, type(Renamer.CharacterInsertionAction)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, type(Renamer.CharacterDeletionAction)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, type(Renamer.CustomNameAction)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Folder name", None, type(Renamer.FolderNameUsageAction)))
-        self.all_action_inputs.append(Renamer.ActionDescriptor("Counter", counter_inputs, type(Renamer.Counter)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", None, type(Renamer.OriginalName)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, type(Renamer.CharacterReplacementAction)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, type(Renamer.CharacterInsertionAction)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, type(Renamer.CharacterDeletionAction)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, type(Renamer.CustomNameAction)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", None, type(Renamer.FolderNameUsageAction)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, type(Renamer.Counter)))
 
         self.actions = []
         #Create Button and Layout
@@ -85,54 +85,63 @@ class MainWidget(QWidget):
         #add combobox to the grid depending on the number of prefixes and suffixes
         preview_btn = QPushButton('Preview')
         preview_btn.clicked.connect(self.apply_action)
-        self.filename_box = ActionButtonGroup("filename_box", self.all_action_inputs)
+        self.path_box = ActionButtonGroup("path_box")
+        self.path_box.set_action_descriptors(self.all_action_descriptors)
+        self.path_box.setObjectName('path_box')
+        self.filename_box = ActionButtonGroup("filename_box")
+        self.filename_box.set_action_descriptors(self.all_action_descriptors)
         self.filename_box.setObjectName('filename_box')
-        filename_lbl = QLabel('Filename')
-        extension_box = QComboBox(self)
-        extension_box.setObjectName('extension_box')
-        extension_lbl = QLabel('Extension')
-        path_box = QComboBox(self)
-        path_box.setObjectName('path_box')
-        path_lbl = QLabel('Path')
-        add_prefix_btn = QPushButton('+')
-        add_suffix_btn = QPushButton('+')
-        #populate the combobox
-        combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
-        extension_box.addItems(combo_list)
-        path_box.addItems(combo_list)
-        self.action_dict = {'Original Name' : Renamer.OriginalName, 'Insert Characters' : Renamer.CharacterInsertionAction, 'Delete Characters' : Renamer.CharacterDeletionAction, 'Find And Replace' : Renamer.CharacterReplacementAction, 'Custom Name' : Renamer.CustomNameAction, 'Folder Name' : Renamer.FolderNameUsageAction, 'Counter' : Renamer.Counter}
+        #print('after')
+        #filename_lbl = QLabel('Filename')
+        #extension_box = QComboBox(self)
+        #extension_box.setObjectName('extension_box')
+        #extension_lbl = QLabel('Extension')
+        #path_box = QComboBox(self)
+        #path_box.setObjectName('path_box')
+        #path_lbl = QLabel('Path')
+        #add_prefix_btn = QPushButton('+')
+        #add_suffix_btn = QPushButton('+')
+        ##populate the combobox
+        #combo_list = ['Original Name', 'Insert Characters', 'Delete Characters', 'Find And Replace', 'Custom Name', 'Folder Name', 'Counter']
+        #extension_box.addItems(combo_list)
+        #path_box.addItems(combo_list)
+        #self.action_dict = {'Original Name' : Renamer.OriginalName, 'Insert Characters' : Renamer.CharacterInsertionAction, 'Delete Characters' : Renamer.CharacterDeletionAction, 'Find And Replace' : Renamer.CharacterReplacementAction, 'Custom Name' : Renamer.CustomNameAction, 'Folder Name' : Renamer.FolderNameUsageAction, 'Counter' : Renamer.Counter}
         #connect selection to an action
         #self.filename_box.activated[str].connect(self.activated)
-        extension_box.activated[str].connect(self.add_sub_button)
-        path_box.activated[str].connect(self.add_sub_button)
-        add_prefix_btn.clicked.connect(self.add_prefix)
-        add_suffix_btn.clicked.connect(self.add_suffix)
-        self.main_grid.addWidget(path_box, 1, 0, 1, 1)
+        #extension_box.activated[str].connect(self.add_sub_button)
+        #path_box.activated[str].connect(self.add_sub_button)
+        #add_prefix_btn.clicked.connect(self.add_prefix)
+        #add_suffix_btn.clicked.connect(self.add_suffix)
+        #self.main_grid.addWidget(self.path_box, 1, 0, 1, 1)
         self.main_grid.addWidget(preview_btn, 0, 0, 1, 1)
-        self.main_grid.addWidget(add_prefix_btn, 1, 1, 1, 1)
-        for i in range(self.prefix_number):
-            prefix_box = QComboBox(self)
-            prefix_box.setObjectName("prefix_box|" + str(i + 1))
-            prefix_lbl = QLabel('Prefix')
-            prefix_box.addItems(combo_list)
-            prefix_box.activated[str].connect(self.add_sub_button)
-            self.main_grid.addWidget(prefix_lbl, 0, (2 + i), 1, 1)
-            self.main_grid.addWidget(prefix_box, 1, (2 + i), 1, 1)
-        self.main_grid.addWidget(self.filename_box, 1, (self.filename_index), 1, 1)
-        self.main_grid.addWidget(filename_lbl, 0, (self.filename_index), 1, 1)
-        self.main_grid.addWidget(add_suffix_btn, 1, (self.filename_index + 1), 1, 1)
-        for i in range(self.suffix_number):
-            suffix_box = QComboBox(self)
-            suffix_box.setObjectName("suffix_box|" + str(i + 1))
-            suffix_lbl = QLabel('Suffix')
-            suffix_box.addItems(combo_list)
-            suffix_box.activated[str].connect(self.add_sub_button)
-            self.main_grid.addWidget(suffix_lbl, 0, (self.filename_index + i + 2), 1, 1)
-            self.main_grid.addWidget(suffix_box, 1, (self.filename_index + i + 2), 1, 1)
-        self.main_grid.addWidget(extension_box, 1, (self.extension_index), 1, 1)
-        self.main_grid.addWidget(extension_lbl, 0, (self.extension_index), 1, 1)
+        #self.main_grid.addWidget(add_prefix_btn, 1, 1, 1, 1)
+        #for i in range(self.prefix_number):
+        #    prefix_box = QComboBox(self)
+        #    prefix_box.setObjectName("prefix_box|" + str(i + 1))
+        #    prefix_lbl = QLabel('Prefix')
+        #    prefix_box.addItems(combo_list)
+        #    prefix_box.activated[str].connect(self.add_sub_button)
+        #    self.main_grid.addWidget(prefix_lbl, 0, (2 + i), 1, 1)
+        #    self.main_grid.addWidget(prefix_box, 1, (2 + i), 1, 1)
+        self.main_grid.addWidget(self.filename_box, 1, 1, 1, 1)
+        self.main_grid.addWidget(self.path_box, 1, 0, 1, 1)
+        #self.main_grid.addWidget(filename_lbl, 0, (self.filename_index), 1, 1)
+        #self.main_grid.addWidget(add_suffix_btn, 1, (self.filename_index + 1), 1, 1)
+        #for i in range(self.suffix_number):
+        #    suffix_box = QComboBox(self)
+        #    suffix_box.setObjectName("suffix_box|" + str(i + 1))
+        #    suffix_lbl = QLabel('Suffix')
+        #    suffix_box.addItems(combo_list)
+        #    suffix_box.activated[str].connect(self.add_sub_button)
+        #    self.main_grid.addWidget(suffix_lbl, 0, (self.filename_index + i + 2), 1, 1)
+        #    self.main_grid.addWidget(suffix_box, 1, (self.filename_index + i + 2), 1, 1)
+        #self.main_grid.addWidget(extension_box, 1, (self.extension_index), 1, 1)
+        #self.main_grid.addWidget(extension_lbl, 0, (self.extension_index), 1, 1)
         #self.self.main_grid.addWidget(table_view, 2, 0, 3, 3)
+        self.path_box.grid_placement(self.main_grid,0)
+        self.filename_box.grid_placement(self.main_grid,1)
         self.setLayout(self.main_grid)
+        #self.setCentralWidget(self.filename_box)
 
     def activated(self, value):
         self.add_sub_button(value)
@@ -152,40 +161,40 @@ class MainWidget(QWidget):
         self.clearLayout(self.main_grid)
         self.add_widgets()
 
-    def add_sub_button(self, value):
-        selected_action = self.action_dict[value]
-        combobox_activated = self.sender()
-        #specify where should the subbuttons go
-        if combobox_activated == self.filename_box:
-            grid_index = self.filename_index
-        elif combobox_activated == self.extension_box:
-            grid_index = self.extension_index
-        elif combobox_activated == self.path_box:
-            grid_index = 0
-        elif combobox_activated.objectName().split("|")[0] == "prefix_box":
-            grid_index = int(combobox_activated.objectName().split("|")[1]) + 1
-        elif combobox_activated.objectName().split("|")[0] == "suffix_box":
-            grid_index = int(combobox_activated.objectName().split("|")[1]) + self.filename_index + 1
+    #def add_sub_button(self, value):
+    #    selected_action = self.action_dict[value]
+    #    combobox_activated = self.sender()
+    #    #specify where should the subbuttons go
+    #    if combobox_activated == self.filename_box:
+    #        grid_index = self.filename_index
+    #    elif combobox_activated == self.extension_box:
+    #        grid_index = self.extension_index
+    #    elif combobox_activated == self.path_box:
+    #        grid_index = 0
+    #    elif combobox_activated.objectName().split("|")[0] == "prefix_box":
+    #        grid_index = int(combobox_activated.objectName().split("|")[1]) + 1
+    #    elif combobox_activated.objectName().split("|")[0] == "suffix_box":
+    #        grid_index = int(combobox_activated.objectName().split("|")[1]) + self.filename_index + 1
 
-        else:
-            raise Exception("not implemented")
-        sub_buttons = self.main_grid.itemAtPosition(2,grid_index)
-        if sub_buttons is not None:
-            self.clearLayout(sub_buttons)
-            sub_buttons.deleteLater()
-        hbox = QHBoxLayout()
-        for arguments in (selected_action.INPUTS):
-            vbox = QVBoxLayout()
-            label = QLabel(self)
-            label.setText(str(arguments.argumentCaption))
-            textbox = QLineEdit(self)
-            textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
-            textbox.textChanged[str].connect(self.get_subactions)
-            vbox.addWidget(label)
-            vbox.addWidget(textbox)
-            hbox.addLayout(vbox)
-            self.setLayout(hbox)
-        self.main_grid.addLayout(hbox,2,grid_index,1,1)
+    #    else:
+    #        raise Exception("not implemented")
+    #    sub_buttons = self.main_grid.itemAtPosition(2,grid_index)
+    #    if sub_buttons is not None:
+    #        self.clearLayout(sub_buttons)
+    #        sub_buttons.deleteLater()
+    #    hbox = QHBoxLayout()
+    #    for arguments in (selected_action.INPUTS):
+    #        vbox = QVBoxLayout()
+    #        label = QLabel(self)
+    #        label.setText(str(arguments.argumentCaption))
+    #        textbox = QLineEdit(self)
+    #        textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
+    #        textbox.textChanged[str].connect(self.get_subactions)
+    #        vbox.addWidget(label)
+    #        vbox.addWidget(textbox)
+    #        hbox.addLayout(vbox)
+    #        self.setLayout(hbox)
+    #    self.main_grid.addLayout(hbox,2,grid_index,1,1)
 
     def get_subactions(self, value):
         #Update the dictionary containing the combobox pressed and the related arguments, each time an argument is updated.
@@ -193,15 +202,6 @@ class MainWidget(QWidget):
         (combobox_name, subaction_name) = arg_called.split("|")
         self.subaction_button_link.update({combobox_name : subaction_name})
         #print(self.subaction_button_link[combobox_name])
-
-    def clearLayout(self, layout):
-        """delete all children of the specified layout"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                self.clearLayout(child.layout())
 
     def apply_action(self):
         directory = "/home/pierre/Desktop/test"
@@ -218,14 +218,76 @@ class MainWidget(QWidget):
 
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
-    def __init__(self, frame_name, all_action_inputs):
+    def __init__(self, frame_name):
         QWidget.__init__(self)
         self.frame_name = frame_name
-        self.all_action_inputs = all_action_inputs
-        combobox = QComboBox(self)
-        label = QLabel(frame_name)
-        combobox.addItems(all_action_inputs)
-        print(all_action_inputs)
+        self.all_action_descriptors = None
+        self.combobox = QComboBox(self)
+        self.label = QLabel(frame_name)
+        self.grid = QGridLayout()
+        self.grid.addWidget(self.combobox, 0, 0, 1, 1)
+        self.combobox.activated[int].connect(self.add_sub_button)
+
+    def set_action_descriptors(self, action_descriptors):
+        self.all_action_descriptors = action_descriptors
+        for element in action_descriptors:
+            self.combobox.addItem(str(element))
+
+    def add_sub_button(self, value):
+        selected_action = self.all_action_descriptors[value]
+        #combobox_activated = self.sender()
+        ##specify where should the subbuttons go
+        #if combobox_activated == self.filename_box:
+        #    grid_index = self.filename_index
+        #elif combobox_activated == self.extension_box:
+        #    grid_index = self.extension_index
+        #elif combobox_activated == self.path_box:
+        #    grid_index = 0
+        #elif combobox_activated.objectName().split("|")[0] == "prefix_box":
+        #    grid_index = int(combobox_activated.objectName().split("|")[1]) + 1
+        #elif combobox_activated.objectName().split("|")[0] == "suffix_box":
+        #    grid_index = int(combobox_activated.objectName().split("|")[1]) + self.filename_index + 1
+
+        #else:
+        #    raise Exception("not implemented")
+        sub_buttons = self.grid.itemAtPosition(1,0)
+        print(sub_buttons)
+        if sub_buttons is not None:
+            self.clearLayout(sub_buttons)
+            sub_buttons.deleteLater()
+        hbox = QHBoxLayout()
+        hbox.setObjectName('test')
+        for arguments in (selected_action.action_inputs):
+            vbox = QVBoxLayout()
+            label = QLabel(self)
+            label.setText(str(arguments.argumentCaption))
+            textbox = QLineEdit(self)
+            #textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
+            #textbox.textChanged[str].connect(self.get_subactions)
+            vbox.addWidget(label)
+            vbox.addWidget(textbox)
+            hbox.addLayout(vbox)
+            #self.setLayout(hbox)
+        self.grid.addLayout(hbox,1,0,1,1)
+        MainWidget().add_widgets()
+        #self.main_grid.addLayout(self.grid,1,self.index,1)
+        #self.setLayout(self.main_grid)
+    #dict = {.argName : QLineEdit}
+    def clearLayout(self, layout):
+        """delete all children of the specified layout"""
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.clearLayout(child.layout())
+
+    def grid_placement(self, main_grid, index):
+        self.main_grid = main_grid
+        self.index = index
+
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):

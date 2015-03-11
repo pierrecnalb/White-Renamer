@@ -7,9 +7,6 @@ import shutil
 import sys
 from os import walk
 import operator
-import PySide
-from PySide.QtCore import *
-from PySide.QtGui  import *
 language = "english"
 
 class FilesCollection:
