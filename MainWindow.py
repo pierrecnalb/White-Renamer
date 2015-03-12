@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.1
+#v.1.0.2
 import os
 import time
 import shutil
@@ -88,9 +88,11 @@ class MainWidget(QWidget):
         self.path_box = ActionButtonGroup("path_box")
         self.path_box.set_action_descriptors(self.all_action_descriptors)
         self.path_box.setObjectName('path_box')
+        self.path_box.reset_layout()
         self.filename_box = ActionButtonGroup("filename_box")
         self.filename_box.set_action_descriptors(self.all_action_descriptors)
         self.filename_box.setObjectName('filename_box')
+        self.filename_box.reset_layout()
         #print('after')
         #filename_lbl = QLabel('Filename')
         #extension_box = QComboBox(self)
@@ -224,17 +226,13 @@ class ActionButtonGroup(QWidget):
         self.all_action_descriptors = None
         self.combobox = QComboBox(self)
         self.label = QLabel(frame_name)
+        self.combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
         self.grid = QGridLayout()
+
+    def reset_layout(self):
         self.grid.addWidget(self.combobox, 0, 0, 1, 1)
-        self.combobox.activated[int].connect(self.add_sub_button)
-
-    def set_action_descriptors(self, action_descriptors):
-        self.all_action_descriptors = action_descriptors
-        for element in action_descriptors:
-            self.combobox.addItem(str(element))
-
-    def add_sub_button(self, value):
-        selected_action = self.all_action_descriptors[value]
+        self.add_sub_button()
+        self.setLayout(self.grid)
         #combobox_activated = self.sender()
         ##specify where should the subbuttons go
         #if combobox_activated == self.filename_box:
@@ -250,29 +248,42 @@ class ActionButtonGroup(QWidget):
 
         #else:
         #    raise Exception("not implemented")
+    def add_sub_button(self):
+        print("grid=" + str(self.grid))
         sub_buttons = self.grid.itemAtPosition(1,0)
         print(sub_buttons)
         if sub_buttons is not None:
             self.clearLayout(sub_buttons)
             sub_buttons.deleteLater()
         hbox = QHBoxLayout()
-        hbox.setObjectName('test')
-        for arguments in (selected_action.action_inputs):
-            vbox = QVBoxLayout()
-            label = QLabel(self)
-            label.setText(str(arguments.argumentCaption))
-            textbox = QLineEdit(self)
-            #textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
-            #textbox.textChanged[str].connect(self.get_subactions)
-            vbox.addWidget(label)
-            vbox.addWidget(textbox)
-            hbox.addLayout(vbox)
-            #self.setLayout(hbox)
-        self.grid.addLayout(hbox,1,0,1,1)
-        MainWidget().add_widgets()
-        #self.main_grid.addLayout(self.grid,1,self.index,1)
-        #self.setLayout(self.main_grid)
-    #dict = {.argName : QLineEdit}
+        if self.selected_action.action_inputs is not None:
+            for arguments in (self.selected_action.action_inputs):
+                print("a")
+                vbox = QVBoxLayout()
+                label = QLabel(self)
+                label.setText(str(arguments.argumentCaption))
+                textbox = QLineEdit(self)
+                #textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
+                #textbox.textChanged[str].connect(self.get_subactions)
+                vbox.addWidget(label)
+                vbox.addWidget(textbox)
+                hbox.addLayout(vbox)
+                #self.setLayout(hbox)
+            self.grid.addLayout(hbox,1,0,1,1)
+            #MainWidget().add_widgets()
+            #self.main_grid.addLayout(self.grid,1,self.index,1)
+        #dict = {.argName : QLineEdit}
+
+    def set_action_descriptors(self, action_descriptors):
+        self.all_action_descriptors = action_descriptors
+        for element in action_descriptors:
+            self.combobox.addItem(str(element))
+
+    def on_selected_action_changed(self, value):
+        self.selected_action = self.all_action_descriptors[value]
+        print(self.selected_action)
+        self.add_sub_button()
+
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
         while layout.count():
