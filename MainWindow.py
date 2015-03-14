@@ -44,13 +44,13 @@ class MainWidget(QWidget):
         counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
         counter_inputs.append(Renamer.ActionInput('restart', 'restart', bool))
 
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", None, type(Renamer.OriginalName)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, type(Renamer.CharacterReplacementAction)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, type(Renamer.CharacterInsertionAction)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, type(Renamer.CharacterDeletionAction)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, type(Renamer.CustomNameAction)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", None, type(Renamer.FolderNameUsageAction)))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, type(Renamer.Counter)))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", None, Renamer.OriginalName))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, Renamer.CustomNameAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", None, Renamer.FolderNameUsageAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
 
         self.actions = []
         #Create Button and Layout
@@ -232,11 +232,11 @@ class MainWidget(QWidget):
     #        vbox = QVBoxLayout()
     #        label = QLabel(self)
     #        label.setText(str(arguments.argumentCaption))
-    #        textbox = QLineEdit(self)
-    #        textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
-    #        textbox.textChanged[str].connect(self.get_subactions)
+    #        sub_button = QLineEdit(self)
+    #        sub_button.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
+    #        sub_button.textChanged[str].connect(self.get_subactions)
     #        vbox.addWidget(label)
-    #        vbox.addWidget(textbox)
+    #        vbox.addWidget(sub_button)
     #        hbox.addLayout(vbox)
     #        self.setLayout(hbox)
     #    self.main_grid.addLayout(hbox,2,grid_index,1,1)
@@ -251,16 +251,18 @@ class MainWidget(QWidget):
     def apply_action(self):
         #self.add_widgets()
         directory = "/home/pierre/Desktop/test"
-        files = FilesCollection(directory, False)
+        files = Renamer.FilesCollection(directory, False)
+        (action_descriptor, arg) = self.filename_box.get_inputs()
+        action_class = action_descriptor.action_class
         #actionClass = CharacterInsertionAction
         ##renamedFiles = files.call_actions(self.actions)
         #value_searched_in_UI = {'new_char':"test", 'index' : 0}
-        value_searched_in_UI = self.filename_inputs
-        actionArgs = {}
-        for input in actionClass.INPUTS:
-            actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
-        actionInstance = actionClass('shortname', **actionArgs)
-        self.actions.append(actionInstance)
+        #value_searched_in_UI = arg['new_char']
+        action_args = {}
+        for input in action_descriptor.action_inputs:
+            action_args[input.argument_name] = arg[input.argument_name]#valeurquejevaischercherqqpartdanslui
+        action_instance = action_class('shortname', **action_args)
+        self.actions.append(action_instance)
         print(files.call_actions(self.actions))
 
 class ActionButtonGroup(QWidget):
@@ -294,8 +296,8 @@ class ActionButtonGroup(QWidget):
 
         #else:
         #    raise Exception("not implemented")
-    def on_selected_action_changed(self, value):
-        self.selected_action = self.all_action_descriptors[value]
+    def on_selected_action_changed(self, index):
+        self.selected_action = self.all_action_descriptors[index]
         self.add_sub_button()
 
     def add_sub_button(self):
@@ -309,28 +311,54 @@ class ActionButtonGroup(QWidget):
             for arguments in (self.selected_action.action_inputs):
                 vbox = QVBoxLayout()
                 label = QLabel()
-                label.setText(str(arguments.argumentCaption))
-                textbox = QLineEdit()
-                #textbox.setObjectName(combobox_activated.objectName() + '|' + str(arguments.argumentName))
-                #textbox.textChanged[str].connect(self.get_subactions)
+                label.setText(str(arguments.argument_caption))
+                if arguments.argument_type == str:
+                    sub_button = QLineEdit()
+                    sub_button.textChanged[str].connect(self.get_text_changed)
+                elif arguments.argument_type == bool:
+                    sub_button = QCheckBox()
+                    sub_button.stateChanged[int].connect(self.get_state_changed)
+                elif arguments.argument_type == int:
+                    sub_button = QLineEdit()
+                    sub_button.textChanged[str].connect(self.get_integer_changed)
+                sub_button.setObjectName(str(arguments.argument_name))
                 vbox.addWidget(label)
-                vbox.addWidget(textbox)
+                vbox.addWidget(sub_button)
                 hbox.addLayout(vbox)
-                self.button_inputs_dict[arguments.argumentName] = textbox
+                self.button_inputs_dict[arguments.argument_name] = ""
                 #self.setLayout(hbox)
             self.grid.addLayout(hbox,1,0,1,1)
             #MainWidget().add_widgets()
             #self.main_grid.addLayout(self.grid,1,self.index,1)
         #dict = {.argName : QLineEdit}
 
+    def get_text_changed(self, value):
+        self.button_inputs_dict[self.sender().objectName()] = value
+        print(value)
+
+    def get_state_changed(self, value):
+        state = None
+        if value == 0:
+            state = False
+        elif value == 2:
+            state = True
+        self.button_inputs_dict[self.sender().objectName()] = state
+        print(state)
+
+    def get_integer_changed(self, value):
+        try:
+            self.button_inputs_dict[self.sender().objectName()] = int(value)
+        except:
+            raise Exception("Please enter an integer.")
+
+
+        print(value)
+
+
     def set_action_descriptors(self, action_descriptors):
         self.all_action_descriptors = action_descriptors
         for element in action_descriptors:
             self.combobox.addItem(str(element))
-
-    def on_selected_action_changed(self, value):
-        self.selected_action = self.all_action_descriptors[value]
-        self.add_sub_button()
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
@@ -341,9 +369,8 @@ class ActionButtonGroup(QWidget):
             elif child.layout() is not None:
                 self.clearLayout(child.layout())
 
-    def get_selected_inputs(self):
-        if self.button_inputs_dict != {}:
-            return self.selected_action, self.button_inputs_dict
+    def get_inputs(self):
+        return self.selected_action, self.button_inputs_dict
 
 
 
