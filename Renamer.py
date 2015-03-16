@@ -43,10 +43,10 @@ class ActionDescriptor:
         return self.action_name
 
 class ActionInput:
-    def __init__(self, argName, arg_caption, argType):
-        self.argumentName = argName
-        self.argumentCaption = arg_caption
-        self.argumentType = argType
+    def __init__(self, arg_name, arg_caption, arg_type):
+        self.argument_name = arg_name
+        self.argument_caption = arg_caption
+        self.argument_type = arg_type
 
 class Action:
     def __init__(self, path_section):
@@ -150,6 +150,7 @@ class FolderNameUsageAction(Action):
 
     def call_on_path_part(self, file_path, path_part):
         (path, shortname, extension) = self.split_path(file_path)
+        print(shortname)
         return path.rsplit(os.sep,1)[-1]
 
 class ModifiedTimeUsageAction(Action):
@@ -161,26 +162,26 @@ class ModifiedTimeUsageAction(Action):
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
     """If restart==True, the counter is set to startindex at each subfolder."""
-    COUNTER = 0
-    PREVIOUS_PATH = ""
 
     def __init__(self, path_section, start_index, increment, restart):
         Action.__init__(self, path_section)
         self.start_index = start_index
         self.increment = increment
         self.restart = restart
+        self.counter = 0
+        self.previous_path = ""
 
     def call_on_path_part(self, file_path, path_part):
         path, shortname, extension = self.split_path(file_path)
-        if (path!=Counter.PREVIOUS_PATH and self.restart is True):
-            Counter.COUNTER = self.start_index
+        if (path!=self.previous_path and self.restart is True):
+            self.counter = self.start_index
         else:
-            if(Counter.COUNTER == 0):
-                Counter.COUNTER = self.start_index
+            if(self.counter == 0):
+                self.counter = self.start_index
             else:
-                Counter.COUNTER = Counter.COUNTER + (1 * self.increment)
-        Counter.PREVIOUS_PATH=path
-        return str(Counter.COUNTER)
+                self.counter = self.counter + (1 * self.increment)
+        self.previous_path=path
+        return str(self.counter)
 
 class PipeAction(Action):
     """Execute actions inside another action."""
@@ -206,14 +207,14 @@ class PipeAction(Action):
     #directory = "/home/pierre/Desktop/test"
     #files = FilesCollection(directory, False)
     #actions=[]
-   ## action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
+   ### action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
     #actionClass = CharacterInsertionAction
     #value_searched_in_UI = {'new_char':"test", 'index' : 0}
     #actionArgs = {}
-    #for input in actionClass.INPUTS:
+    #for input in actionClass.argument_inputs:
     #    actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
-    ##Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
+    ###Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
     #actionInstance = actionClass('shortname', **actionArgs)
     #actions.append(actionInstance)
-    ##print(files.call_actions(actions))
+    #print(files.call_actions(actions))
 

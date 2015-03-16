@@ -82,11 +82,15 @@ class MainWidget(QWidget):
         self.remove_prefix_btn = QPushButton('-')
         self.add_suffix_btn = QPushButton('+')
         self.add_prefix_btn.clicked.connect(self.add_prefix)
-        self.prefix_layout = QVBoxLayout()
-        self.prefix_layout.addWidget(self.add_prefix_btn)
-        self.prefix_layout.addWidget(self.remove_prefix_btn)
+        self.remove_prefix_btn.clicked.connect(self.remove_prefix)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.main_grid = None
+        directory = "/home/pierre/Desktop/test"
+        self.model = QFileSystemModel();
+        self.model.setRootPath(directory)
+        self.tree = QTreeView()
+        self.tree.setModel(self.model)
+        self.tree.setRootIndex(self.model.index(directory))
         self.add_widgets()
         #table_model = MyTableModel(self, data_list, header)
         #table_view = QTableView(self)
@@ -105,21 +109,27 @@ class MainWidget(QWidget):
     def add_widgets(self):
         #add AciontButtonGroup to the grid depending on the number of prefixes and suffixes
         self.main_grid = QGridLayout()
-        self.main_grid.addWidget(self.preview_btn, 2, 0, 1, 1)
-        self.main_grid.addWidget(self.path_box, 1, 0, 1, 1)
-        self.main_grid.addLayout(self.prefix_layout, 1, 1, 1, 1)
+        prefix_layout = QVBoxLayout()
+        prefix_layout.addWidget(self.add_prefix_btn)
+        prefix_layout.addWidget(self.remove_prefix_btn)
+        spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        prefix_layout.addItem(spacerItem)
+        #self.main_grid.addWidget(self.preview_btn, 2, 0, 1, 1)
+        self.main_grid.addWidget(self.path_box, 0, 0, 1, 1)
+        self.main_grid.addLayout(prefix_layout, 0, 1, 1, 1)
         if self.prefix_number != 0:
-            for i in enumerate(self.prefix_boxes):
+            for i in range(len(self.prefix_boxes)):
                 #the last prefix should be added to the most left of the grid.
-                self.main_grid.addWidget(self.prefix_boxes[len(self.prefix_boxes) - i -1], 1, (i + 2), 1, 1)
-        self.main_grid.addWidget(self.filename_box, 1,(self.filename_index), 1, 1)
-        self.main_grid.addWidget(self.add_suffix_btn, 1, (self.filename_index + 1), 1, 1)
+                self.main_grid.addWidget(self.prefix_boxes[len(self.prefix_boxes) - i -1], 0, (i + 2), 1, 1)
+        self.main_grid.addWidget(self.filename_box, 0,(self.filename_index), 1, 1)
+        self.main_grid.addWidget(self.add_suffix_btn, 0, (self.filename_index + 1), 1, 1)
         if self.suffix_number != 0:
             for i, suffix_box in enumerate(self.suffix_boxes):
-                self.main_grid.addWidget(suffix_box, 1, (self.filename_index + i + 2), 1, 1)
-        self.main_grid.addWidget(self.extension_box, 1, (self.extension_index), 1, 1)
+                self.main_grid.addWidget(suffix_box, 0, (self.filename_index + i + 2), 1, 1)
+        self.main_grid.addWidget(self.extension_box, 0, (self.extension_index), 1, 1)
+        #self.tree.show()
+        self.main_grid.addWidget(self.tree, 1, 0, 1, 5)
         self.setLayout(self.main_grid)
-        #self.self.main_grid.addWidget(table_view, 2, 0, 3, 3)
 
     def add_prefix(self):
         self.prefix_number += 1
@@ -137,7 +147,6 @@ class MainWidget(QWidget):
         self.filename_index -= 1
         self.extension_index -= 1
         self.main_grid.deleteLater()
-        prefix_box.reset_layout()
         del self.prefix_boxes[self.prefix_number]
         self.add_widgets()
 
@@ -180,6 +189,7 @@ class ActionButtonGroup(QWidget):
         self.combobox = QComboBox()
         self.label = QLabel(frame_name)
         self.combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
+        self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid = QGridLayout()
         self.button_inputs_dict = {}
 
@@ -227,6 +237,7 @@ class ActionButtonGroup(QWidget):
                 hbox.addLayout(vbox)
                 self.button_inputs_dict[arguments.argument_name] = ""
             self.grid.addLayout(hbox,2,0,1,1)
+        self.grid.addItem(self.spacerItem,3,0,1,5)
 
     def get_text_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = value
