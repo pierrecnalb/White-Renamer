@@ -66,15 +66,12 @@ class MainWidget(QWidget):
         self.path_box = ActionButtonGroup("Path")
         self.path_box.set_action_descriptors(self.all_action_descriptors)
         self.path_box.setObjectName('path_box')
-        self.path_box.reset_layout()
         self.filename_box = ActionButtonGroup("Filename")
         self.filename_box.set_action_descriptors(self.all_action_descriptors)
         self.filename_box.setObjectName('filename_box')
-        self.filename_box.reset_layout()
         self.extension_box = ActionButtonGroup("Extension")
         self.extension_box.set_action_descriptors(self.all_action_descriptors)
         self.extension_box.setObjectName('extension_box')
-        self.extension_box.reset_layout()
         self.path_lbl = QLabel('Path')
         self.filename_lbl = QLabel('Filename')
         self.extension_lbl = QLabel('Extension')
@@ -135,6 +132,7 @@ class MainWidget(QWidget):
         self.prefix_number += 1
         self.filename_index += 1
         self.extension_index += 1
+        self.main_grid.destroyed.connect(self.add_widgets)
         self.main_grid.deleteLater()
         prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number))
         prefix_box.set_action_descriptors(self.all_action_descriptors)
@@ -192,6 +190,7 @@ class ActionButtonGroup(QWidget):
         self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid = QGridLayout()
         self.button_inputs_dict = {}
+        self.reset_layout()
 
     def set_action_descriptors(self, action_descriptors):
         self.all_action_descriptors = action_descriptors
