@@ -91,9 +91,22 @@ class CharacterReplacementAction(Action):
 
 class OriginalName(Action):
     """Return the original name."""
+    def __init__(self, path_section, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_section)
+        self.untouched = untouched
+        self.uppercase = uppercase
+        self.lowercase = lowercase
+        self.titlecase = titlecase
 
     def call_on_path_part(self, file_path, path_part):
-        return path_part
+        if self.uppercase is True:
+            return path_part.upper()
+        elif self.lowercase is True:
+            return path_part.lower()
+        elif self.titlecase is True:
+            return ' '.join([name[0].upper() + name[1:] for name in path_part.split(' ')])
+        else:
+            return path_part
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
@@ -117,19 +130,16 @@ class CharacterDeletionAction(Action):
 
 class UppercaseConversionAction(Action):
     """Convert the string to UPPERCASE."""
-    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         return path_part.upper()
 
 class LowercaseConversionAction(Action):
     """Convert the string to lowercase."""
-    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         return path_part.lower()
 
 class TitlecaseConversionAction(Action):
     """Convert the string to Title Case."""
-    INPUTS = []
     def call_on_path_part(self, file_path, path_part):
         if language=="english":
             return ' '.join([name[0].upper()+name[1:] for name in path_part.split(' ')])
@@ -147,11 +157,24 @@ class CustomNameAction(Action):
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
+    def __init__(self, path_section, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_section)
+        self.untouched = untouched
+        self.uppercase = uppercase
+        self.lowercase = lowercase
+        self.titlecase = titlecase
 
     def call_on_path_part(self, file_path, path_part):
         (path, shortname, extension) = self.split_path(file_path)
-        print(shortname)
-        return path.rsplit(os.sep,1)[-1]
+        foldername = path.rsplit(os.sep,1)[-1]
+        if self.uppercase is True:
+            return foldername.upper()
+        elif self.lowercase is True:
+            return foldername.lower()
+        elif self.titlecase is True:
+            return ' '.join([name[0].upper() + name[1:] for name in foldername.split(' ')])
+        else:
+            return foldername
 
 class ModifiedTimeUsageAction(Action):
     """Use the modified time metadata as the filename."""
@@ -207,6 +230,8 @@ class PipeAction(Action):
     #directory = "/home/pierre/Desktop/test"
     #files = FilesCollection(directory, False)
     #actions=[]
+    #actions.append(UppercaseConversionAction("shortname"))
+    #print(files.call_actions(actions))
    ### action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
     #actionClass = CharacterInsertionAction
     #value_searched_in_UI = {'new_char':"test", 'index' : 0}

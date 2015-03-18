@@ -25,6 +25,11 @@ class MainWidget(QWidget):
     def __init__(self):
         QWidget.__init__(self)
         self.all_action_descriptors = []
+        original_name_inputs = []
+        original_name_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
+        original_name_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
+        original_name_inputs.append(Renamer.ActionInput('lowercase', 'lowercase', bool))
+        original_name_inputs.append(Renamer.ActionInput('titlecase', 'TitleCase', bool))
         character_replacement_inputs = []
         character_replacement_inputs.append(Renamer.ActionInput('old_char', 'replace', str))
         character_replacement_inputs.append(Renamer.ActionInput('new_char', 'with', str))
@@ -39,14 +44,20 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(Renamer.ActionInput('start_index', 'start at', int))
         counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
-        counter_inputs.append(Renamer.ActionInput('restart', 'restart', bool))
+        #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
+        counter_inputs.append(Renamer.ActionInput('restart', 'restart', "boolean"))
+        foldername_inputs = []
+        foldername_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
+        foldername_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
+        foldername_inputs.append(Renamer.ActionInput('lowercase', 'lowercase', bool))
+        foldername_inputs.append(Renamer.ActionInput('titlecase', 'TitleCase', bool))
 
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original name", None, Renamer.OriginalName))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original name", original_name_inputs, Renamer.OriginalName))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, Renamer.CustomNameAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", None, Renamer.FolderNameUsageAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", foldername_inputs, Renamer.FolderNameUsageAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
 
         #Create Button and Layout
@@ -104,6 +115,7 @@ class MainWidget(QWidget):
         self.main_layout.addWidget(self.extension_box)
         self.main_grid.addLayout(self.main_layout,0,0)
         self.main_grid.addWidget(self.tree, 1, 0)
+        self.main_grid.addWidget(self.preview_btn, 2, 0)
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
@@ -143,23 +155,37 @@ class MainWidget(QWidget):
             raise Exception("There is no prefix to remove.")
 
     def apply_action(self):
-        self.add_widgets()
         directory = "/home/pierre/Desktop/test"
         files = Renamer.FilesCollection(directory, False)
-        (path_action_descriptor, path_action_args) = self.path_box.get_inputs()
-        (filename_action_descriptor, filename_action_args) = self.filename_box.get_inputs()
-        (extension_action_descriptor, extension_action_args) = self.extension_box.get_inputs()
-        path_action_class = path_action_descriptor.action_class
-        filename_action_class = filename_action_descriptor.action_class
-        extension_action_class = extension_action_descriptor.action_class
-        path_action_instance = path_action_class('path', **path_action_args)
-        filename_action_instance = filename_action_class('shortname', **filename_action_args)
-        extension_action_instance = extension_action_class('extension', **extension_action_args)
-        actions = []
-        actions.append(path_action_instance)
-        actions.append(filename_action_instance)
-        actions.append(extension_action_instance)
-        print(files.call_actions(actions))
+        self.actions = []
+        #self.populate_actions(self.path_box, 'path')
+        self.populate_actions(self.filename_box, 'shortname')
+        #self.populate_actions(self.extension_box, 'extension')
+        #(path_action_descriptor, path_action_args) = self.path_box.get_inputs()
+        for prefix in self.prefix_boxes:
+            print(prefix)
+            self.populate_actions(prefix, "shortname")
+
+        self.actions.append(Renamer.PipeAction("shortname", Renamer.CharacterInsertionAction, {'new_char' : "shortname", 'index' : 0}))
+        #(filename_action_descriptor, filename_action_args) = self.filename_box.get_inputs()
+        #(extension_action_descriptor, extension_action_args) = self.extension_box.get_inputs()
+        #path_action_class = path_action_descriptor.action_class
+        #filename_action_class = filename_action_descriptor.action_class
+        #extension_action_class = extension_action_descriptor.action_class
+        #path_action_instance = path_action_class('path', **path_action_args)
+        #filename_action_instance = filename_action_class('shortname', **filename_action_args)
+        #extension_action_instance = extension_action_class('extension', **extension_action_args)
+        #actions.append(path_action_instance)
+        #actions.append(filename_action_instance)
+        #actions.append(extension_action_instance)
+        print(files.call_actions(self.actions))
+
+    def populate_actions(self, actiongroup, path_part):
+        (action_descriptors, action_args) = actiongroup.get_inputs()
+        action_class = action_descriptors.action_class
+        action_instance = action_class(path_part, **action_args)
+        self.actions.append(action_instance)
+
 
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
@@ -167,11 +193,15 @@ class ActionButtonGroup(QWidget):
         QWidget.__init__(self)
         self.frame_name = frame_name
         self.combobox = QComboBox()
-        self.selected_action = None
         self.action_descriptors = action_descriptors
         for element in action_descriptors:
             self.combobox.addItem(str(element))
+        self.selected_action = self.action_descriptors[0]
         self.label = QLabel(self.frame_name)
+        font = QFont()
+        font.setWeight(75)
+        font.setBold(True)
+        self.label.setFont(font)
         self.combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
         self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid = QGridLayout()
@@ -192,28 +222,34 @@ class ActionButtonGroup(QWidget):
             self.clearLayout(sub_buttons)
             sub_buttons.deleteLater()
         if self.selected_action and self.selected_action.action_inputs is not None:
-            hbox = QHBoxLayout()
+            form = QFormLayout()
             self.button_inputs_dict = {}
             for arguments in (self.selected_action.action_inputs):
-                vbox = QVBoxLayout()
                 label = QLabel()
                 label.setText(str(arguments.argument_caption))
                 if arguments.argument_type == str:
                     sub_button = QLineEdit()
                     sub_button.textChanged[str].connect(self.get_text_changed)
-                elif arguments.argument_type == bool:
+                elif arguments.argument_type == "boolean":
                     sub_button = QCheckBox()
                     sub_button.stateChanged[int].connect(self.get_state_changed)
+                elif arguments.argument_type == bool:
+                    sub_button = QRadioButton()
+                    sub_button.toggled.connect(self.radio_button_clicked)
                 elif arguments.argument_type == int:
                     sub_button = QLineEdit()
                     sub_button.textChanged[str].connect(self.get_integer_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
-                vbox.addWidget(label)
-                vbox.addWidget(sub_button)
-                hbox.addLayout(vbox)
+                form.addRow(label, sub_button)
                 self.button_inputs_dict[arguments.argument_name] = ""
-            self.grid.addLayout(hbox,2,0,1,1)
+            self.grid.addLayout(form,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
+
+    def radio_button_clicked(self, enabled):
+        if enabled:
+            self.button_inputs_dict[self.sender().objectName()] = True
+        else:
+            self.button_inputs_dict[self.sender().objectName()] = False
 
     def get_text_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = value
@@ -259,7 +295,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.setWindowTitle('Renamer')
         # setGeometry(x_pos, y_pos, width, height)
-        self.setGeometry(200,200,900,600)
+        self.setGeometry(200,200,300,400)
         # exit option for the menu bar File menu
         self.exit = QAction('Exit', self)
         # message for the status bar if mouse is over Exit
