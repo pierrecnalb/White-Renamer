@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.4
+#v.1.0.5
 import os
 import time
 import shutil
@@ -41,6 +41,7 @@ class MainWidget(QWidget):
         counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
         counter_inputs.append(Renamer.ActionInput('restart', 'restart', bool))
 
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original name", None, Renamer.OriginalName))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
@@ -72,20 +73,30 @@ class MainWidget(QWidget):
         self.path_lbl = QLabel('Path')
         self.filename_lbl = QLabel('Filename')
         self.extension_lbl = QLabel('Extension')
-        self.add_prefix_btn = QPushButton('+')
-        self.remove_prefix_btn = QPushButton('-')
-        self.add_suffix_btn = QPushButton('+')
-        self.remove_suffix_btn = QPushButton('-')
+        self.add_prefix_btn = QToolButton()
+        self.add_prefix_btn.setText('+')
+        self.remove_prefix_btn = QToolButton()
+        self.remove_prefix_btn.setText('-')
+        self.add_suffix_btn = QToolButton()
+        self.add_suffix_btn.setText('+')
+        self.remove_suffix_btn = QToolButton()
+        self.remove_suffix_btn.setText('-')
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
         self.prefix_layout = QVBoxLayout()
+        self.spacer_prefix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.prefix_layout.addWidget(QLabel())
         self.prefix_layout.addWidget(self.add_prefix_btn)
         self.prefix_layout.addWidget(self.remove_prefix_btn)
+        self.prefix_layout.addItem(self.spacer_prefix)
         self.suffix_layout = QVBoxLayout()
+        self.spacer_suffix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.suffix_layout.addWidget(QLabel())
         self.suffix_layout.addWidget(self.add_suffix_btn)
         self.suffix_layout.addWidget(self.remove_suffix_btn)
+        self.suffix_layout.addItem(self.spacer_suffix)
         self.main_layout.addWidget(self.path_box)
         self.main_layout.addLayout(self.prefix_layout)
         self.main_layout.addWidget(self.filename_box)
@@ -109,18 +120,27 @@ class MainWidget(QWidget):
         self.main_layout.insertWidget(2,self.prefix_box)
         self.prefix_boxes.append(self.prefix_box)
 
-    def remove_suffix(self):
-        pass
-
-    def remove_prefix(self):
-        self.prefix_number -= 1
-        del self.prefix_boxes[self.prefix_number]
-
     def add_suffix(self):
         self.suffix_number += 1
         self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.all_action_descriptors)
         self.main_layout.insertWidget(self.prefix_number + self.suffix_number + 3, self.suffix_box)
-        self.suffix_boxes.append(suffix_box)
+        self.suffix_boxes.append(self.suffix_box)
+
+    def remove_suffix(self):
+        if self.suffix_number > 0:
+            self.suffix_number -= 1
+            self.suffix_boxes[self.suffix_number].destruct_layout()
+            del self.suffix_boxes[self.suffix_number]
+        else:
+            raise Exception("There is no suffix to remove.")
+
+    def remove_prefix(self):
+        if self.prefix_number > 0:
+            self.prefix_number -= 1
+            self.prefix_boxes[self.prefix_number].destruct_layout()
+            del self.prefix_boxes[self.prefix_number]
+        else:
+            raise Exception("There is no prefix to remove.")
 
     def apply_action(self):
         self.add_widgets()
@@ -147,7 +167,7 @@ class ActionButtonGroup(QWidget):
         QWidget.__init__(self)
         self.frame_name = frame_name
         self.combobox = QComboBox()
-        self.selected_action = None 
+        self.selected_action = None
         self.action_descriptors = action_descriptors
         for element in action_descriptors:
             self.combobox.addItem(str(element))
@@ -220,6 +240,16 @@ class ActionButtonGroup(QWidget):
                 child.widget().deleteLater()
             elif child.layout() is not None:
                 self.clearLayout(child.layout())
+
+    def destruct_layout(self):
+        """delete all children of the specified layout"""
+        while self.grid.count():
+            child = self.grid.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                self.clearLayout(child.layout())
+        self.deleteLater()
 
     def get_inputs(self):
         return self.selected_action, self.button_inputs_dict
