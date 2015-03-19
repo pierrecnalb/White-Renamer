@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.1
+#v.1.0.2
 import os
 import time
 import shutil
@@ -61,6 +61,8 @@ class Action:
     def call(self, file_path):
         """Apply action on the specified part."""
         path, shortname, extension = self.split_path(file_path)
+        prefix = ""
+        suffix = ""
         #mode = "path|shortname"
         #flags = mode.split("|")
         #if ("shortname" in flags):
@@ -69,6 +71,10 @@ class Action:
             return os.path.join(path, self.call_on_path_part(file_path, shortname)) + extension
         elif(self.path_section == "path"):
             return os.path.join(self.call_on_path_part(file_path, path), shortname) + extension
+        elif(self.path_section == "prefix"):
+            return os.path.join(path, self.call_on_path_part(file_path, prefix) + shortname) + extension
+        elif(self.path_section == "suffix"):
+            return os.path.join(path, shortname + self.call_on_path_part(file_path, suffix)) + extension
         elif(self.path_section == "extension"):
             return os.path.join(path, shortname) + self.call_on_path_part(file_path, extension)
         else:
@@ -242,4 +248,6 @@ class PipeAction(Action):
     #actionInstance = actionClass('shortname', **actionArgs)
     #actions.append(actionInstance)
     #print(files.call_actions(actions))
+
+
 
