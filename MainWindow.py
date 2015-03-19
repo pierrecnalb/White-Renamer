@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.5
+#v.1.0.6
 import os
 import time
 import shutil
@@ -25,6 +25,7 @@ class MainWidget(QWidget):
     def __init__(self):
         QWidget.__init__(self)
         self.all_action_descriptors = []
+        #---INPUTS DEFINITION---
         original_name_inputs = []
         original_name_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
         original_name_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
@@ -44,8 +45,7 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(Renamer.ActionInput('start_index', 'start at', int))
         counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
-        #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
-        counter_inputs.append(Renamer.ActionInput('restart', 'restart', "boolean"))
+        counter_inputs.append(Renamer.ActionInput('restart', 'restart', "boolean")) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         foldername_inputs = []
         foldername_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
         foldername_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
@@ -65,56 +65,60 @@ class MainWidget(QWidget):
         self.suffix_number = 0
         self.suffix_boxes = []
         self.prefix_boxes = []
+        #---LAYOUT---
         self.main_grid = QGridLayout(self)
+        self.main_layout = QHBoxLayout()
+        self.prefix_layout = QVBoxLayout()
+        self.suffix_layout = QVBoxLayout()
+        self.spacer_prefix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.spacer_suffix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.setLayout(self.main_grid)
+        self.main_grid.addLayout(self.main_layout,0,0)
+        #directory = "/home/pierre/Desktop/test"
         directory = "/home/pierre/Desktop/test"
         self.model = QFileSystemModel();
         self.model.setRootPath(directory)
+        #---TREE VIEW---
         self.tree = QTreeView()
         self.tree.setModel(self.model)
         self.tree.setRootIndex(self.model.index(directory))
+        self.main_grid.addWidget(self.tree, 1, 0)
+        #---PATH GROUP---
         self.path_box = ActionButtonGroup("Path", self.all_action_descriptors)
-        self.main_layout = QHBoxLayout()
-        self.preview_btn = QPushButton('Preview')
-        self.preview_btn.clicked.connect(self.apply_action)
-        self.filename_box = ActionButtonGroup("Filename", self.all_action_descriptors)
-        self.filename_box.setObjectName('filename_box')
-        self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors)
-        self.extension_box.setObjectName('extension_box')
-        self.path_lbl = QLabel('Path')
-        self.filename_lbl = QLabel('Filename')
-        self.extension_lbl = QLabel('Extension')
+        self.main_layout.addWidget(self.path_box)
+        #---PREFIX GROUP---
         self.add_prefix_btn = QToolButton()
         self.add_prefix_btn.setText('+')
+        self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QToolButton()
         self.remove_prefix_btn.setText('-')
-        self.add_suffix_btn = QToolButton()
-        self.add_suffix_btn.setText('+')
-        self.remove_suffix_btn = QToolButton()
-        self.remove_suffix_btn.setText('-')
-        self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
-        self.add_suffix_btn.clicked.connect(self.add_suffix)
-        self.remove_suffix_btn.clicked.connect(self.remove_suffix)
-        self.prefix_layout = QVBoxLayout()
-        self.spacer_prefix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.prefix_layout.addWidget(QLabel())
         self.prefix_layout.addWidget(self.add_prefix_btn)
         self.prefix_layout.addWidget(self.remove_prefix_btn)
         self.prefix_layout.addItem(self.spacer_prefix)
-        self.suffix_layout = QVBoxLayout()
-        self.spacer_suffix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.suffix_layout.addWidget(QLabel())
+        self.main_layout.addLayout(self.prefix_layout)
+        #---FILENAME GROUP---
+        self.filename_box = ActionButtonGroup("Filename", self.all_action_descriptors)
+        self.main_layout.addWidget(self.filename_box)
+        #---SUFFIX GROUP---
+        self.add_suffix_btn = QToolButton()
+        self.add_suffix_btn.setText('+')
+        self.add_suffix_btn.clicked.connect(self.add_suffix)
+        self.remove_suffix_btn = QToolButton()
+        self.remove_suffix_btn.setText('-')
+        self.remove_suffix_btn.clicked.connect(self.remove_suffix)
+        self.suffix_layout.addWidget(QLabel()) #This empty label is used to get the buttons at the same level as the combobox
         self.suffix_layout.addWidget(self.add_suffix_btn)
         self.suffix_layout.addWidget(self.remove_suffix_btn)
         self.suffix_layout.addItem(self.spacer_suffix)
-        self.main_layout.addWidget(self.path_box)
-        self.main_layout.addLayout(self.prefix_layout)
-        self.main_layout.addWidget(self.filename_box)
         self.main_layout.addLayout(self.suffix_layout)
+        #---EXTENSION GROUP---
+        self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors)
         self.main_layout.addWidget(self.extension_box)
-        self.main_grid.addLayout(self.main_layout,0,0)
-        self.main_grid.addWidget(self.tree, 1, 0)
+        #
+        self.preview_btn = QPushButton('Preview')
+        self.preview_btn.clicked.connect(self.apply_action)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
 
     def clearLayout(self, layout):
@@ -155,24 +159,26 @@ class MainWidget(QWidget):
             raise Exception("There is no prefix to remove.")
 
     def apply_action(self):
-        directory = "/home/pierre/Desktop/test"
+        directory = "C:\\Users\\pblanc\\Desktop\\test"
+        #directory = "/home/pierre/Desktop/test"
         files = Renamer.FilesCollection(directory, False)
         self.actions = []
-        #self.populate_actions(self.path_box, 'path')
-        self.populate_actions(self.filename_box, 'shortname')
-        #self.populate_actions(self.extension_box, 'extension')
-        #(path_action_descriptor, path_action_args) = self.path_box.get_inputs()
+        self.populate_actions(self.path_box, 'path')
         for prefix in self.prefix_boxes:
-            print(prefix)
-            self.populate_actions(prefix, "shortname")
+            self.populate_actions(prefix, "prefix")
+        self.populate_actions(self.filename_box, 'shortname')
+        for suffix in self.suffix_boxes:
+            self.populate_actions(suffix, "suffix")
+        self.populate_actions(self.extension_box, 'extension')
+        #(path_action_descriptor, path_action_args) = self.path_box.get_inputs()
 
-        self.actions.append(Renamer.PipeAction("shortname", Renamer.CharacterInsertionAction, {'new_char' : "shortname", 'index' : 0}))
+        #self.actions.append(Renamer.PipeAction("shortname", Renamer.CharacterInsertionAction, {'new_char' : "shortname", 'index' : 0}))
         #(filename_action_descriptor, filename_action_args) = self.filename_box.get_inputs()
         #(extension_action_descriptor, extension_action_args) = self.extension_box.get_inputs()
         #path_action_class = path_action_descriptor.action_class
         #filename_action_class = filename_action_descriptor.action_class
         #extension_action_class = extension_action_descriptor.action_class
-        #path_action_instance = path_action_class('path', **path_action_args)
+        #path_action_instance = path_action_class('path', **path_action_args
         #filename_action_instance = filename_action_class('shortname', **filename_action_args)
         #extension_action_instance = extension_action_class('extension', **extension_action_args)
         #actions.append(path_action_instance)
