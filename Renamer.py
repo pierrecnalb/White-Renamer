@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.1
+#v.1.0.2
 import os
 import time
 import shutil
@@ -264,4 +264,6 @@ class PipeAction(Action):
     #actionInstance = actionClass('file', **actionArgs)
     #actions.append(actionInstance)
     #print(files.call_actions(actions))
+
+
 
