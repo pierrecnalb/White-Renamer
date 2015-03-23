@@ -1,3 +1,4 @@
+
 #author : pierrecnalb
 #copyright pierrecnalb
 #v.1.0.1
@@ -15,11 +16,25 @@ class FilesCollection:
         self.use_subdirectory = use_subdirectory
         self.original_files_paths = []
         self.modified_files_paths = []
-        for(dirpath, dirnames, filenames) in walk(self.input_path):
+        self.dirnames = []
+        self.filenames = []
+        self.data=[]
+        for (dirpath, dirnames, filenames) in (walk(self.input_path)):
+            folders = []
+            folders.append(("folder",dirnames))
+            print(dirnames)
             for filename in filenames:
+                files = []
+                files.append(("files",filename))
                 self.original_files_paths.append(os.path.join(dirpath,filename))
             if (not use_subdirectory):
                 break
+            self.data.append((folders, files))
+            self.dirnames = dirnames
+            self.filenames= filenames
+
+    def get_files(self):
+        return self.data
 
     def get_files_list(self):
         return {'old' : self.original_files_paths, 'new' : self.modified_files_paths}
@@ -49,30 +64,37 @@ class ActionInput:
         self.argument_type = arg_type
 
 class Action:
-    def __init__(self, path_section):
-        self.path_section = path_section
+    def __init__(self, path_part):
+        self.path_part = path_part
 
     def split_path(self, file_path):
         """Split the entire path into three part."""
         (self.path, self.filename)=os.path.split(file_path)
-        (self.shortname, self.extension) = os.path.splitext(self.filename)
-        return self.path, self.shortname, self.extension
+        (self.file, self.extension) = os.path.splitext(self.filename)
+        return self.path, self.file, self.extension
 
     def call(self, file_path):
         """Apply action on the specified part."""
-        path, shortname, extension = self.split_path(file_path)
-        #mode = "path|shortname"
+        entire_path, file, extension = self.split_path(file_path)
+        prefix = ""
+        suffix = ""
+        path, folder = entire_path.rsplit(os.sep,1)
+        #mode = "path|file"
         #flags = mode.split("|")
-        #if ("shortname" in flags):
+        #if ("file" in flags):
         #    pass
-        if(self.path_section == "shortname"):
-            return os.path.join(path, self.call_on_path_part(file_path, shortname)) + extension
-        elif(self.path_section == "path"):
-            return os.path.join(self.call_on_path_part(file_path, path), shortname) + extension
-        elif(self.path_section == "extension"):
-            return os.path.join(path, shortname) + self.call_on_path_part(file_path, extension)
+        if(self.path_part == "file"):
+            return os.path.join(entire_path, self.call_on_path_part(file_path, file)) + extension
+        elif(self.path_part == "folder"):
+            return os.path.join(path, self.call_on_path_part(file_path, folder), file) + extension
+        elif(self.path_part == "prefix"):
+            return os.path.join(entire_path, self.call_on_path_part(file_path, prefix) + file) + extension
+        elif(self.path_part == "suffix"):
+            return os.path.join(entire_path, file + self.call_on_path_part(file_path, suffix)) + extension
+        elif(self.path_part == "extension"):
+            return os.path.join(entire_path, file) + self.call_on_path_part(file_path, extension)
         else:
-            raise Exception("path_section not valid")
+            raise Exception("path_part not valid")
 
     def call_on_path_part(self, file_path, path_part):
         raise Exception("not implemented")
@@ -80,9 +102,9 @@ class Action:
 
 class CharacterReplacementAction(Action):
     """Replace old_char by new_char in the section of the path."""
-    """Path_section can be 'path', 'shortname' or 'extension'."""
-    def __init__(self, path_section, old_char, new_char):
-        Action.__init__(self, path_section)
+    """path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'."""
+    def __init__(self, path_part, old_char, new_char):
+        Action.__init__(self, path_part)
         self.old_char = old_char
         self.new_char = new_char
 
@@ -91,8 +113,8 @@ class CharacterReplacementAction(Action):
 
 class OriginalName(Action):
     """Return the original name."""
-    def __init__(self, path_section, untouched = False, uppercase = False, lowercase = False, titlecase = False):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_part)
         self.untouched = untouched
         self.uppercase = uppercase
         self.lowercase = lowercase
@@ -110,8 +132,8 @@ class OriginalName(Action):
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
-    def __init__(self, path_section, new_char, index):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, new_char, index):
+        Action.__init__(self, path_part)
         self.new_char = new_char
         self.index = index
 
@@ -120,8 +142,8 @@ class CharacterInsertionAction(Action):
 
 class CharacterDeletionAction(Action):
     """Delete n-character starting from index position."""
-    def __init__(self, path_section, number_of_char, index):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, number_of_char, index):
+        Action.__init__(self, path_part)
         self.number_of_char = number_of_char
         self.index = index
 
@@ -148,8 +170,8 @@ class TitlecaseConversionAction(Action):
 
 class CustomNameAction(Action):
     """Use a custom name in the filename."""
-    def __init__(self, path_section, new_name):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, new_name):
+        Action.__init__(self, path_part)
         self.new_name = new_name
 
     def call_on_path_part(self, file_path, path_part):
@@ -157,15 +179,15 @@ class CustomNameAction(Action):
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
-    def __init__(self, path_section, untouched = False, uppercase = False, lowercase = False, titlecase = False):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_part)
         self.untouched = untouched
         self.uppercase = uppercase
         self.lowercase = lowercase
         self.titlecase = titlecase
 
     def call_on_path_part(self, file_path, path_part):
-        (path, shortname, extension) = self.split_path(file_path)
+        (path, file, extension) = self.split_path(file_path)
         foldername = path.rsplit(os.sep,1)[-1]
         if self.uppercase is True:
             return foldername.upper()
@@ -186,8 +208,8 @@ class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
     """If restart==True, the counter is set to startindex at each subfolder."""
 
-    def __init__(self, path_section, start_index, increment, restart):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, start_index, increment, restart):
+        Action.__init__(self, path_part)
         self.start_index = start_index
         self.increment = increment
         self.restart = restart
@@ -195,7 +217,7 @@ class Counter(Action):
         self.previous_path = ""
 
     def call_on_path_part(self, file_path, path_part):
-        path, shortname, extension = self.split_path(file_path)
+        path, file, extension = self.split_path(file_path)
         if (path!=self.previous_path and self.restart is True):
             self.counter = self.start_index
         else:
@@ -208,8 +230,8 @@ class Counter(Action):
 
 class PipeAction(Action):
     """Execute actions inside another action."""
-    def __init__(self, path_section, main_action, sub_action):
-        Action.__init__(self, path_section)
+    def __init__(self, path_part, main_action, sub_action):
+        Action.__init__(self, path_part)
         self.main_action = main_action
         self.sub_action = sub_action
 
@@ -223,23 +245,23 @@ class PipeAction(Action):
             else:
                 argumentValues[argument_name] = argument_provider
         # Prepare right hand side for this file.
-        action = self.main_action(self.path_section, **argumentValues)
+        action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_path, path_part)
         return value
 
     #directory = "/home/pierre/Desktop/test"
     #files = FilesCollection(directory, False)
     #actions=[]
-    #actions.append(UppercaseConversionAction("shortname"))
+    #actions.append(UppercaseConversionAction("file"))
     #print(files.call_actions(actions))
-   ### action_dict = {'UPPERCASE' : UppercaseConversionAction("shortname")}
+   ### action_dict = {'UPPERCASE' : UppercaseConversionAction("file")}
     #actionClass = CharacterInsertionAction
     #value_searched_in_UI = {'new_char':"test", 'index' : 0}
     #actionArgs = {}
     #for input in actionClass.argument_inputs:
     #    actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
     ###Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
-    #actionInstance = actionClass('shortname', **actionArgs)
+    #actionInstance = actionClass('file', **actionArgs)
     #actions.append(actionInstance)
     #print(files.call_actions(actions))
 
