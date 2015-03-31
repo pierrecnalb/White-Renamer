@@ -129,32 +129,30 @@ class MainWidget(QWidget):
 
 
         #data = [
-        #    ("Alice", [
-        #        ("Keys", []),
-        #        ("Purse", [
-        #            ("Cellphone", [])
+        #    ("Folder1", [
+        #        ("Subolder1", []),
+        #        ("subdolder12", [
+        #            ("subsubfolder1", [])
         #            ])
-        #        ]),
-        #    ("Bob", [
-        #        ("Wallet", [
-        #            ("Credit card", []),
-        #            ("Money", [])
+        #        ]),("File1",[]),
+        #    ("Folder2", [
+        #        ("subfolder2", [
+        #            ("subsubfolder20", []),
+        #            ("subsubfolder21", [])
         #            ])
         #        ])
         #    ]
+        #data = [('folder',[("testtxt", [])])]
         files = Renamer.FilesCollection(directory, True)
         data = files.get_files()
         self.treeView = QTreeView()
-        
         self.model = QStandardItemModel()
         self.addItems(self.model, data)
         self.treeView.setModel(self.model)
-        
         self.model.setHorizontalHeaderLabels([self.tr("Object")])
         self.main_grid.addWidget(self.treeView, 1, 0)
 
     def addItems(self, parent, elements):
-    
         for text, children in elements:
             item = QStandardItem(text)
             parent.appendRow(item)

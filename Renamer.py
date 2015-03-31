@@ -16,23 +16,32 @@ class FilesCollection:
         self.use_subdirectory = use_subdirectory
         self.original_files_paths = []
         self.modified_files_paths = []
-        self.dirnames = []
-        self.filenames = []
-        self.data=[]
-        for (dirpath, dirnames, filenames) in (walk(self.input_path)):
-            folders = []
-            folders.append(("folder",dirnames))
-            print(dirnames)
+        self.data = []
+        for i, (dirpath, dirnames, filenames) in enumerate(walk(self.input_path)):
+            for dirname in dirnames:
+                self.original_files_paths.append(os.path.join(dirpath,dirname))
             for filename in filenames:
-                files = []
-                files.append(("files",filename))
                 self.original_files_paths.append(os.path.join(dirpath,filename))
             if (not use_subdirectory):
                 break
-            self.data.append((folders, files))
-            self.dirnames = dirnames
-            self.filenames= filenames
 
+        tree = FileDescriptor()
+        directory = "/home/pierre/Desktop/test"
+        self.data = tree.scan(directory)
+        #data = [
+         #   ("Folder1", [
+         #       ("Subolder1", []),
+         #       ("subdolder12", [
+         #           ("subsubfolder1", [])
+         #           ])
+         #       ]),("File1",[]),
+         #   ("Folder2", [
+         #       ("subfolder2", [
+         #           ("subsubfolder20", []),
+         #           ("subsubfolder21", [])
+         #           ])
+         #       ])
+         #   ]
     def get_files(self):
         return self.data
 
@@ -249,8 +258,39 @@ class PipeAction(Action):
         value = action.call_on_path_part(file_path, path_part)
         return value
 
-    #directory = "/home/pierre/Desktop/test"
-    #files = FilesCollection(directory, False)
+class FileDescriptor:
+    def __init__(self):
+        self.isfile = True # True
+        self.name = 'file1' # 'file1'
+        self.parentName = 'home/truc' # '/home/truc'
+
+    def scan(self, path):
+        children = os.listdir(path)
+        deepchildren = []
+        for child in children:
+            if os.path.isdir(os.path.join(path,child)):
+                deepchildren.append([os.path.join(path,child), self.scan(os.path.join(path,child))])
+            else:
+                deepchildren.append([os.path.join(path,child), []])
+        return deepchildren
+
+#data = []
+#folders = []
+#files = []
+#for i, (dirpath, dirnames, filenames) in enumerate(walk(directory)):
+#    for filename in filenames:
+#        print(filename)
+#        files.append((filename,[]))
+#    for dirname in dirnames:
+#        folders.append((dirname,[]))
+#    data[i]
+#    data.append(folders)
+#    data.append(files)
+
+    #if i == 1:
+    #    break
+        #print(os.path.split(new_list[i]))
+#print(data)
     #actions=[]
     #actions.append(UppercaseConversionAction("file"))
     #print(files.call_actions(actions))
