@@ -127,30 +127,31 @@ class MainWidget(QWidget):
         self.preview_btn.clicked.connect(self.apply_action)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
 
+        self.directory = "/home/pierre/Desktop/test"
+        self.files = Renamer.FilesCollection(directory, True)
+        self.data = self.files.get_files()
 
-        #data = [
-        #    ("Folder1", [
-        #        ("Subolder1", []),
-        #        ("subdolder12", [
-        #            ("subsubfolder1", [])
-        #            ])
-        #        ]),("File1",[]),
-        #    ("Folder2", [
-        #        ("subfolder2", [
-        #            ("subsubfolder20", []),
-        #            ("subsubfolder21", [])
-        #            ])
-        #        ])
-        #    ]
-        #data = [('folder',[("testtxt", [])])]
-        files = Renamer.FilesCollection(directory, True)
-        data = files.get_files()
         self.treeView = QTreeView()
         self.model = QStandardItemModel()
-        self.addItems(self.model, data)
+        self.addItems(self.model, self.data)
         self.treeView.setModel(self.model)
         self.model.setHorizontalHeaderLabels([self.tr("Object")])
         self.main_grid.addWidget(self.treeView, 1, 0)
+
+        self.dato = [
+        ["/home/pierre/Folder1", [
+        ["/home/pierre/Subolder1", []],
+        ["/home/pierre/subdolder12", [
+        ["/home/pierre/subsubfolder1", []]
+        ]]
+        ]],["/home/pierre/File1",[]],
+        ["/home/pierre/Folder2", [
+        ["/home/pierre/subfolder2", [
+        ["/home/pierre/subsubfolder20", []],
+        ["/home/pierre/subsubfolder21", []]
+        ]]
+        ]]
+        ]
 
     def addItems(self, parent, elements):
         for text, children in elements:
@@ -200,11 +201,14 @@ class MainWidget(QWidget):
             raise Exception("There is no prefix to remove.")
         self.apply_action()
 
+
     def apply_action(self):
-        #directory = "C:\\Users\\pblanc\\Desktop\\test"
-        directory = "/home/pierre/Desktop/test"
-        files = Renamer.FilesCollection(directory, True)
         self.actions = []
+        dati = list(self.dato)
+        print(self.dato)
+        print('iiiiiiii')
+        print(dati)
+        #self.data = self.files.get_files()
         self.populate_actions(self.folder_box, 'folder')
         for prefix in self.prefix_boxes:
             self.populate_actions(prefix, "prefix")
@@ -212,7 +216,13 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, 'extension')
-        print(files.call_actions(self.actions))
+        (self.files.call_actions(self.actions, dati))
+        print('-------')
+        print(self.dato)
+        print('iiiiiiii')
+        print(dati)
+
+
 
     def populate_actions(self, actiongroup, path_part):
         (action_descriptors, action_args) = actiongroup.get_inputs()

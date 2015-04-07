@@ -14,47 +14,47 @@ class FilesCollection:
     def __init__(self, input_path, use_subdirectory):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
-        self.original_files_paths = []
-        self.modified_files_paths = []
-        self.data = []
-        for i, (dirpath, dirnames, filenames) in enumerate(walk(self.input_path)):
-            for dirname in dirnames:
-                self.original_files_paths.append(os.path.join(dirpath,dirname))
-            for filename in filenames:
-                self.original_files_paths.append(os.path.join(dirpath,filename))
-            if (not use_subdirectory):
-                break
+        self.original_tree = self.scan(self.input_path)
+        self.modified_tree = list(self.original_tree)
 
-        tree = FileDescriptor()
-        directory = "/home/pierre/Desktop/test"
-        self.data = tree.scan(directory)
-        #data = [
-         #   ("Folder1", [
-         #       ("Subolder1", []),
-         #       ("subdolder12", [
-         #           ("subsubfolder1", [])
-         #           ])
-         #       ]),("File1",[]),
-         #   ("Folder2", [
-         #       ("subfolder2", [
-         #           ("subsubfolder20", []),
-         #           ("subsubfolder21", [])
-         #           ])
-         #       ])
-         #   ]
+    def scan(self, path):
+        tree = []
+        children = os.listdir(path)
+        for child in children:
+            if os.path.isdir(os.path.join(path,child)):
+                #if (not use_subdirectory):
+                #    break
+                tree.append([os.path.join(path,child), self.scan(os.path.join(path,child))])
+            else:
+                tree.append([os.path.join(path,child), []])
+        return tree
+
     def get_files(self):
+        return self.modified_tree
+
+    def reset(self):
+        self.modified_tree = list(self.original_tree)
+        return self.original_tree
+
+    def parselist(self, elements):
+        for item in elements:
+            if item[1] != []:
+                self.data.append(item[0])
+                self.parselist(item[1])
+            else:
+                self.data.append(item[0])
         return self.data
 
-    def get_files_list(self):
-        return {'old' : self.original_files_paths, 'new' : self.modified_files_paths}
-
-    def call_actions(self, actions):
-        for old_file_path in self.original_files_paths:
-            new_file_path = old_file_path
-            for action in actions:
-                new_file_path = action.call(new_file_path)
-            self.modified_files_paths.append(new_file_path)
-        return self.modified_files_paths
+    def call_actions(self, actions, tree):
+        for item in tree:
+            if item[1] != []:
+                for action in actions:
+                    item[0] = action.call(item[0])
+                self.call_actions(actions, item[1])
+            else:
+                for action in actions:
+                    item[0] = action.call(item[0])
+        return tree
 
 class ActionDescriptor:
     def __init__(self, action_name, action_inputs, action_class):
@@ -78,8 +78,13 @@ class Action:
 
     def split_path(self, file_path):
         """Split the entire path into three part."""
-        (self.path, self.filename)=os.path.split(file_path)
-        (self.file, self.extension) = os.path.splitext(self.filename)
+        if (os.path.isdir(file_path) is False):
+            (self.path, self.filename)=os.path.split(file_path)
+            (self.file, self.extension) = os.path.splitext(self.filename)
+        else:
+            self.path = file_path
+            self.file = ""
+            self.extension = ""
         return self.path, self.file, self.extension
 
     def call(self, file_path):
@@ -259,21 +264,50 @@ class PipeAction(Action):
         return value
 
 class FileDescriptor:
-    def __init__(self):
+    def __init__(self, path):
+        self.path = path
         self.isfile = True # True
         self.name = 'file1' # 'file1'
         self.parentName = 'home/truc' # '/home/truc'
 
-    def scan(self, path):
-        children = os.listdir(path)
-        deepchildren = []
-        for child in children:
-            if os.path.isdir(os.path.join(path,child)):
-                deepchildren.append([os.path.join(path,child), self.scan(os.path.join(path,child))])
-            else:
-                deepchildren.append([os.path.join(path,child), []])
-        return deepchildren
+    def is_file(self):
+        return os.path.isdir(self.path)
 
+    def get_path(self):
+        return self.path
+
+    def get_name(self):
+        return os.path.split(self.path)[-1]
+
+#def scan(path):
+#    tree = []
+#    children = os.listdir(path)
+#    for child in children:
+#        if os.path.isdir(os.path.join(path,child)):
+#            tree.append([FileDescriptor(os.path.join(path,child)), scan(os.path.join(path,child))])
+#        else:
+#            tree.append([FileDescriptor(os.path.join(path,child)), []])
+#    return tree
+
+
+#    def addItems(self, parent, elements):
+#        for text, children in elements:
+#            item = QStandardItem(text)
+#            parent.appendRow(item)
+#            if children:
+#                self.addItems(item, children)
+#
+#mylist=[]
+#def parselist(elements):
+#    for item in elements:
+#        if item[1] != []:
+#            mylist.append(item[0].get_name())
+#            parselist(item[1])
+#        else:
+#            mylist.append(item[0].get_name())
+
+directory = "/home/pierre/Desktop/test"
+FilesCollection(directory, True)
 #data = []
 #folders = []
 #files = []
