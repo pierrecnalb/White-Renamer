@@ -131,13 +131,6 @@ class MainWidget(QWidget):
         self.files = Renamer.FilesCollection(directory, True)
         self.data = self.files.get_files()
 
-        self.treeView = QTreeView()
-        self.model = QStandardItemModel()
-        self.addItems(self.model, self.data)
-        self.treeView.setModel(self.model)
-        self.model.setHorizontalHeaderLabels([self.tr("Object")])
-        self.main_grid.addWidget(self.treeView, 1, 0)
-
         self.dato = [
         ["/home/pierre/Folder1", [
         ["/home/pierre/Subolder1", []],
@@ -152,6 +145,14 @@ class MainWidget(QWidget):
         ]]
         ]]
         ]
+
+        self.treeView = QTreeView()
+        self.model = QStandardItemModel()
+        self.addItems(self.model, self.data)
+        self.treeView.setModel(self.model)
+        self.model.setHorizontalHeaderLabels([self.tr("Object")])
+        self.main_grid.addWidget(self.treeView, 1, 0)
+
 
     def addItems(self, parent, elements):
         for text, children in elements:
@@ -202,12 +203,23 @@ class MainWidget(QWidget):
         self.apply_action()
 
 
+    def call_actions(self, actions, tree):
+        for i in range(len(tree)):
+            if tree[i][1] != []:
+                for action in actions:
+                    tree[i][0] = action.call(tree[i][0])
+                self.call_actions(actions, tree[i][1])
+            else:
+                for action in actions:
+                    tree[i][0] = action.call(tree[i][0])
+        return tree
+
     def apply_action(self):
         self.actions = []
-        dati = list(self.dato)
-        print(self.dato)
-        print('iiiiiiii')
-        print(dati)
+        self.dati = []
+        self.dati = list(self.dato)
+        print(self.dati == self.dato)
+        print(self.dati is self.dato)
         #self.data = self.files.get_files()
         self.populate_actions(self.folder_box, 'folder')
         for prefix in self.prefix_boxes:
@@ -216,11 +228,10 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, 'extension')
-        (self.files.call_actions(self.actions, dati))
-        print('-------')
-        print(self.dato)
-        print('iiiiiiii')
-        print(dati)
+        print(self.call_actions(self.actions, self.dati))
+        #print(self.files.call_actions(self.actions, self.dati))
+        print(self.dati == self.dato)
+        print(self.dati is self.dato)
 
 
 

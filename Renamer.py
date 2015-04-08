@@ -45,15 +45,25 @@ class FilesCollection:
                 self.data.append(item[0])
         return self.data
 
+    #def call_actions(self, actions, tree):
+    #    for item in tree:
+    #        if item[1] != []:
+    #            for action in actions:
+    #                item[0] = action.call(item[0])
+    #            self.call_actions(actions, item[1])
+    #        else:
+    #            for action in actions:
+    #                item[0] = action.call(item[0])
+    #    return tree
     def call_actions(self, actions, tree):
-        for item in tree:
-            if item[1] != []:
+        for i in range(len(tree)):
+            if tree[i][1] != []:
                 for action in actions:
-                    item[0] = action.call(item[0])
-                self.call_actions(actions, item[1])
+                    tree[i][0] = action.call(tree[i][0])
+                self.call_actions(actions, tree[i][1])
             else:
                 for action in actions:
-                    item[0] = action.call(item[0])
+                    tree[i][0] = action.call(tree[i][0])
         return tree
 
 class ActionDescriptor:
@@ -73,8 +83,8 @@ class ActionInput:
         self.argument_type = arg_type
 
 class Action:
-    def __init__(self, path_part):
-        self.path_part = path_part
+    def __init__(self, path_type):
+        self.path_type = path_type
 
     def split_path(self, file_path):
         """Split the entire path into three part."""
@@ -97,15 +107,15 @@ class Action:
         #flags = mode.split("|")
         #if ("file" in flags):
         #    pass
-        if(self.path_part == "file"):
+        if(self.path_type == "file"):
             return os.path.join(entire_path, self.call_on_path_part(file_path, file)) + extension
-        elif(self.path_part == "folder"):
+        elif(self.path_type == "folder"):
             return os.path.join(path, self.call_on_path_part(file_path, folder), file) + extension
-        elif(self.path_part == "prefix"):
+        elif(self.path_type == "prefix"):
             return os.path.join(entire_path, self.call_on_path_part(file_path, prefix) + file) + extension
-        elif(self.path_part == "suffix"):
+        elif(self.path_type == "suffix"):
             return os.path.join(entire_path, file + self.call_on_path_part(file_path, suffix)) + extension
-        elif(self.path_part == "extension"):
+        elif(self.path_type == "extension"):
             return os.path.join(entire_path, file) + self.call_on_path_part(file_path, extension)
         else:
             raise Exception("path_part not valid")
@@ -117,8 +127,8 @@ class Action:
 class CharacterReplacementAction(Action):
     """Replace old_char by new_char in the section of the path."""
     """path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'."""
-    def __init__(self, path_part, old_char, new_char):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, old_char, new_char):
+        Action.__init__(self, path_type)
         self.old_char = old_char
         self.new_char = new_char
 
@@ -127,8 +137,8 @@ class CharacterReplacementAction(Action):
 
 class OriginalName(Action):
     """Return the original name."""
-    def __init__(self, path_part, untouched = False, uppercase = False, lowercase = False, titlecase = False):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_type)
         self.untouched = untouched
         self.uppercase = uppercase
         self.lowercase = lowercase
@@ -146,8 +156,8 @@ class OriginalName(Action):
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
-    def __init__(self, path_part, new_char, index):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, new_char, index):
+        Action.__init__(self, path_type)
         self.new_char = new_char
         self.index = index
 
@@ -156,36 +166,18 @@ class CharacterInsertionAction(Action):
 
 class CharacterDeletionAction(Action):
     """Delete n-character starting from index position."""
-    def __init__(self, path_part, number_of_char, index):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, number_of_char, index):
+        Action.__init__(self, path_type)
         self.number_of_char = number_of_char
         self.index = index
 
     def call_on_path_part(self, file_path, path_part):
         return path_part[:self.index] + path_part[self.index + self.number_of_char :]
 
-class UppercaseConversionAction(Action):
-    """Convert the string to UPPERCASE."""
-    def call_on_path_part(self, file_path, path_part):
-        return path_part.upper()
-
-class LowercaseConversionAction(Action):
-    """Convert the string to lowercase."""
-    def call_on_path_part(self, file_path, path_part):
-        return path_part.lower()
-
-class TitlecaseConversionAction(Action):
-    """Convert the string to Title Case."""
-    def call_on_path_part(self, file_path, path_part):
-        if language=="english":
-            return ' '.join([name[0].upper()+name[1:] for name in path_part.split(' ')])
-        elif language=="french":
-            return path_part.title()
-
 class CustomNameAction(Action):
     """Use a custom name in the filename."""
-    def __init__(self, path_part, new_name):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, new_name):
+        Action.__init__(self, path_type)
         self.new_name = new_name
 
     def call_on_path_part(self, file_path, path_part):
@@ -193,8 +185,8 @@ class CustomNameAction(Action):
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
-    def __init__(self, path_part, untouched = False, uppercase = False, lowercase = False, titlecase = False):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+        Action.__init__(self, path_type)
         self.untouched = untouched
         self.uppercase = uppercase
         self.lowercase = lowercase
@@ -222,8 +214,8 @@ class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
     """If restart==True, the counter is set to startindex at each subfolder."""
 
-    def __init__(self, path_part, start_index, increment, restart):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, start_index, increment, restart):
+        Action.__init__(self, path_type)
         self.start_index = start_index
         self.increment = increment
         self.restart = restart
@@ -244,8 +236,8 @@ class Counter(Action):
 
 class PipeAction(Action):
     """Execute actions inside another action."""
-    def __init__(self, path_part, main_action, sub_action):
-        Action.__init__(self, path_part)
+    def __init__(self, path_type, main_action, sub_action):
+        Action.__init__(self, path_type)
         self.main_action = main_action
         self.sub_action = sub_action
 
