@@ -1,0 +1,23 @@
+import os
+def remove_first_letters(word, nb):
+    """remove the "n" first character of the word"""
+    return word[nb:len(word)]
+
+def remove_last_letters(word, nb):
+    """remove the "n" last character of the word"""
+    return word[:(len(word)-nb)]
+
+def replace_char(word, old_char, new_char):
+    """replace old_char by new_char"""
+    return word.replace(old_char,new_char)
+
+
+
+
+
+
+#Test
+word = "Hello My Name Is.doc"
+print(remove_first_letters(word, 3))
+print(remove_last_letters(word,3))
+print(replace_char(word," ","")

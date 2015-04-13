@@ -8,65 +8,89 @@ import shutil
 import sys
 from os import walk
 import operator
+import copy
 language = "english"
+
+class FileDescriptor:
+    """Group information related to the input files."""
+    def __init__(self, path):
+        self.path = path
+        self.isfolder = True
+        self.folder = None
+        self.parents = None
+        self.filename = None
+        self.extension = None
+
+    def is_folder(self):
+        return os.path.isdir(self.path)
+
+    def get_path(self):
+        return self.path
+
+    def get_parents(self):
+        self.parents = os.path.dirname(self.path)
+        return self.parents
+
+    def get_basename(self):
+        if (self.isfolder is False):
+            (self.basename, self.extension) = os.path.splitext(self.basename)[0]
+        else:
+            self.basename = os.path.basename(self.path)
+            self.extension = ""
+        return self.basename, self.extension
 
 class FilesCollection:
     def __init__(self, input_path, use_subdirectory):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.original_tree = self.scan(self.input_path)
-        self.modified_tree = list(self.original_tree)
+        self.modified_tree = copy.deepcopy(self.original_tree)
+        self.basename_tree = []
 
     def scan(self, path):
+        """Create a nested list of FileDescriptor contained in the input directory."""
+        """Example of list : [["FileDescriptor1,["SubFileDescriptor1,[]"]],["FileDescriptor2",[]]]."""
         tree = []
         children = os.listdir(path)
         for child in children:
             if os.path.isdir(os.path.join(path,child)):
-                #if (not use_subdirectory):
-                #    break
-                tree.append([os.path.join(path,child), self.scan(os.path.join(path,child))])
+                if (not self.use_subdirectory):
+                    break
+                tree.append([FileDescriptor(os.path.join(path,child)), self.scan(os.path.join(path,child))])
             else:
-                tree.append([os.path.join(path,child), []])
+                tree.append([FileDescriptor(os.path.join(path,child)), []])
         return tree
 
     def get_files(self):
-        return self.modified_tree
-
-    def reset(self):
-        self.modified_tree = list(self.original_tree)
         return self.original_tree
 
-    def parselist(self, elements):
-        for item in elements:
-            if item[1] != []:
-                self.data.append(item[0])
-                self.parselist(item[1])
-            else:
-                self.data.append(item[0])
-        return self.data
+    def get_basename_tree(self):
+        self.basename_tree = self.parselist(self.modified_tree)
+        return self.basename_tree
 
-    #def call_actions(self, actions, tree):
-    #    for item in tree:
-    #        if item[1] != []:
-    #            for action in actions:
-    #                item[0] = action.call(item[0])
-    #            self.call_actions(actions, item[1])
-    #        else:
-    #            for action in actions:
-    #                item[0] = action.call(item[0])
-    #    return tree
+    def reset(self):
+        self.modified_tree = copy.deepcopy(self.original_tree)
+        return self.modified_tree
+
+    def parselist(self, tree, dirpath = lambda filedescriptor:filedescriptor.get_basename()[0]):
+        """"""
+        for item in tree:
+            item[0] = dirpath(item[0])
+            if item[1] != []:
+                self.parselist(item[1])
+        return tree
+
     def call_actions(self, actions, tree):
-        for i in range(len(tree)):
-            if tree[i][1] != []:
-                for action in actions:
-                    tree[i][0] = action.call(tree[i][0])
-                self.call_actions(actions, tree[i][1])
-            else:
-                for action in actions:
-                    tree[i][0] = action.call(tree[i][0])
+        """"""
+        for item in tree:
+            if item[1] != []:
+                self.call_actions(actions, item[1])
+            for action in actions:
+                item[0] = action.call(item[0])
         return tree
 
 class ActionDescriptor:
+
     def __init__(self, action_name, action_inputs, action_class):
         self.action_name = action_name
         self.action_inputs = action_inputs
@@ -97,26 +121,23 @@ class Action:
             self.extension = ""
         return self.path, self.file, self.extension
 
-    def call(self, file_path):
+    def call(self, file_descriptor):
         """Apply action on the specified part."""
-        entire_path, file, extension = self.split_path(file_path)
+        file_path = file_descriptor.get_path()
+        parents = file_descriptor.get_parents()
+        (basename, extension) = file_descriptor.get_basename()
         prefix = ""
         suffix = ""
-        path, folder = entire_path.rsplit(os.sep,1)
-        #mode = "path|file"
-        #flags = mode.split("|")
-        #if ("file" in flags):
-        #    pass
         if(self.path_type == "file"):
-            return os.path.join(entire_path, self.call_on_path_part(file_path, file)) + extension
+            return os.path.join(parents, self.call_on_path_part(file_path, basename)) + extension
         elif(self.path_type == "folder"):
-            return os.path.join(path, self.call_on_path_part(file_path, folder), file) + extension
+            return os.path.join(parents, self.call_on_path_part(file_path, basename)) + extension
         elif(self.path_type == "prefix"):
-            return os.path.join(entire_path, self.call_on_path_part(file_path, prefix) + file) + extension
+            return os.path.join(parents, self.call_on_path_part(file_path, prefix)) + extension
         elif(self.path_type == "suffix"):
-            return os.path.join(entire_path, file + self.call_on_path_part(file_path, suffix)) + extension
+            return os.path.join(parents, basename + self.call_on_path_part(file_path, suffix)) + extension
         elif(self.path_type == "extension"):
-            return os.path.join(entire_path, file) + self.call_on_path_part(file_path, extension)
+            return os.path.join(parents, basename) + self.call_on_path_part(file_path, extension)
         else:
             raise Exception("path_part not valid")
 
@@ -254,82 +275,4 @@ class PipeAction(Action):
         action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_path, path_part)
         return value
-
-class FileDescriptor:
-    def __init__(self, path):
-        self.path = path
-        self.isfile = True # True
-        self.name = 'file1' # 'file1'
-        self.parentName = 'home/truc' # '/home/truc'
-
-    def is_file(self):
-        return os.path.isdir(self.path)
-
-    def get_path(self):
-        return self.path
-
-    def get_name(self):
-        return os.path.split(self.path)[-1]
-
-#def scan(path):
-#    tree = []
-#    children = os.listdir(path)
-#    for child in children:
-#        if os.path.isdir(os.path.join(path,child)):
-#            tree.append([FileDescriptor(os.path.join(path,child)), scan(os.path.join(path,child))])
-#        else:
-#            tree.append([FileDescriptor(os.path.join(path,child)), []])
-#    return tree
-
-
-#    def addItems(self, parent, elements):
-#        for text, children in elements:
-#            item = QStandardItem(text)
-#            parent.appendRow(item)
-#            if children:
-#                self.addItems(item, children)
-#
-#mylist=[]
-#def parselist(elements):
-#    for item in elements:
-#        if item[1] != []:
-#            mylist.append(item[0].get_name())
-#            parselist(item[1])
-#        else:
-#            mylist.append(item[0].get_name())
-
-directory = "/home/pierre/Desktop/test"
-FilesCollection(directory, True)
-#data = []
-#folders = []
-#files = []
-#for i, (dirpath, dirnames, filenames) in enumerate(walk(directory)):
-#    for filename in filenames:
-#        print(filename)
-#        files.append((filename,[]))
-#    for dirname in dirnames:
-#        folders.append((dirname,[]))
-#    data[i]
-#    data.append(folders)
-#    data.append(files)
-
-    #if i == 1:
-    #    break
-        #print(os.path.split(new_list[i]))
-#print(data)
-    #actions=[]
-    #actions.append(UppercaseConversionAction("file"))
-    #print(files.call_actions(actions))
-   ### action_dict = {'UPPERCASE' : UppercaseConversionAction("file")}
-    #actionClass = CharacterInsertionAction
-    #value_searched_in_UI = {'new_char':"test", 'index' : 0}
-    #actionArgs = {}
-    #for input in actionClass.argument_inputs:
-    #    actionArgs[input.argumentName] = value_searched_in_UI[input.argumentName]#valeurquejevaischercherqqpartdanslui
-    ###Action.createAction(actionClass, 'shortnmae', **actionArgs) methode statique a implementer
-    #actionInstance = actionClass('file', **actionArgs)
-    #actions.append(actionInstance)
-    #print(files.call_actions(actions))
-
-
 

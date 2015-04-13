@@ -11,6 +11,7 @@ import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
 import Renamer
+import copy
 language = "english"
 
 def main():
@@ -25,43 +26,47 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
+        self.directory = os.path.join(os.getcwd(),"Documents","Programs","White-Renamer","test","Test Directory")
+        self.files = Renamer.FilesCollection(self.directory, True)
+        self.preview_data = self.files.get_basename_tree()
+        #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
-        original_name_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
-        original_name_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
-        original_name_inputs.append(Renamer.ActionInput('lowercase', 'lowercase', bool))
-        original_name_inputs.append(Renamer.ActionInput('titlecase', 'TitleCase', bool))
+        original_name_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool))
+        original_name_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool))
+        original_name_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool))
+        original_name_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool))
         character_replacement_inputs = []
-        character_replacement_inputs.append(Renamer.ActionInput('old_char', 'replace', str))
-        character_replacement_inputs.append(Renamer.ActionInput('new_char', 'with', str))
+        character_replacement_inputs.append(Renamer.ActionInput('old_char', 'Replace', str))
+        character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str))
         character_insertion_inputs = []
-        character_insertion_inputs.append(Renamer.ActionInput('new_char', 'insert', str))
-        character_insertion_inputs.append(Renamer.ActionInput('index', 'at position', int))
+        character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str))
+        character_insertion_inputs.append(Renamer.ActionInput('index', 'at Position', int))
         character_deletion_inputs = []
-        character_deletion_inputs.append(Renamer.ActionInput('number_of_char', 'number of character', int))
-        character_deletion_inputs.append(Renamer.ActionInput('index', 'from position', int))
+        character_deletion_inputs.append(Renamer.ActionInput('number_of_char', 'Number of Character', int))
+        character_deletion_inputs.append(Renamer.ActionInput('index', 'From Position', int))
         custom_name_inputs = []
-        custom_name_inputs.append(Renamer.ActionInput('new_name', 'new name', str))
+        custom_name_inputs.append(Renamer.ActionInput('new_name', 'New Name', str))
         counter_inputs = []
-        counter_inputs.append(Renamer.ActionInput('start_index', 'start at', int))
-        counter_inputs.append(Renamer.ActionInput('increment', 'increment by', int))
-        counter_inputs.append(Renamer.ActionInput('restart', 'restart', "boolean")) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
+        counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int))
+        counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int))
+        counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean")) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         foldername_inputs = []
-        foldername_inputs.append(Renamer.ActionInput('untouched', 'untouched', bool))
-        foldername_inputs.append(Renamer.ActionInput('uppercase', 'UPPERCASE', bool))
-        foldername_inputs.append(Renamer.ActionInput('lowercase', 'lowercase', bool))
-        foldername_inputs.append(Renamer.ActionInput('titlecase', 'TitleCase', bool))
+        foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool))
+        foldername_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool))
+        foldername_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool))
+        foldername_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool))
         #ALL ACTION DESCRIPTOR
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original name", original_name_inputs, Renamer.OriginalName))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, Renamer.CustomNameAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder name", foldername_inputs, Renamer.FolderNameUsageAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find and replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", original_name_inputs, Renamer.OriginalName))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder Name", foldername_inputs, Renamer.FolderNameUsageAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find And Replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert Characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete Characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
         #LIMITED ACTION DESCRIPTOR
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Custom name", custom_name_inputs, Renamer.CustomNameAction))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Folder name", foldername_inputs, Renamer.FolderNameUsageAction))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Folder Name", foldername_inputs, Renamer.FolderNameUsageAction))
         self.limited_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
         #Create Button and Layout
         self.prefix_number = 0
@@ -77,15 +82,13 @@ class MainWidget(QWidget):
         self.spacer_suffix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.setLayout(self.main_grid)
         self.main_grid.addLayout(self.main_layout,0,0)
-        #directory = "/home/pierre/Desktop/test"
-        directory = "/home/pierre/Desktop/test"
-        self.model = QFileSystemModel();
-        self.model.setRootPath(directory)
         #---TREE VIEW---
-        #self.tree = QTreeView()
-        #self.tree.setModel(self.model)
-        #self.tree.setRootIndex(self.model.index(directory))
-        #self.main_grid.addWidget(self.tree, 1, 0)
+        self.treeView = QTreeView()
+        self.model = QStandardItemModel()
+        self.model.setHorizontalHeaderLabels([self.tr("Directories")])
+        self.addItems(self.model, self.preview_data)
+        self.treeView.setModel(self.model)
+        self.main_grid.addWidget(self.treeView, 1, 0)
         #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors)
         self.main_layout.addWidget(self.folder_box)
@@ -127,34 +130,9 @@ class MainWidget(QWidget):
         self.preview_btn.clicked.connect(self.apply_action)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
 
-        self.directory = "/home/pierre/Desktop/test"
-        self.files = Renamer.FilesCollection(directory, True)
-        self.data = self.files.get_files()
-
-        self.dato = [
-        ["/home/pierre/Folder1", [
-        ["/home/pierre/Subolder1", []],
-        ["/home/pierre/subdolder12", [
-        ["/home/pierre/subsubfolder1", []]
-        ]]
-        ]],["/home/pierre/File1",[]],
-        ["/home/pierre/Folder2", [
-        ["/home/pierre/subfolder2", [
-        ["/home/pierre/subsubfolder20", []],
-        ["/home/pierre/subsubfolder21", []]
-        ]]
-        ]]
-        ]
-
-        self.treeView = QTreeView()
-        self.model = QStandardItemModel()
-        self.addItems(self.model, self.data)
-        self.treeView.setModel(self.model)
-        self.model.setHorizontalHeaderLabels([self.tr("Object")])
-        self.main_grid.addWidget(self.treeView, 1, 0)
-
 
     def addItems(self, parent, elements):
+        """Populate the tree with the selected directory"""
         for text, children in elements:
             item = QStandardItem(text)
             parent.appendRow(item)
@@ -216,28 +194,26 @@ class MainWidget(QWidget):
 
     def apply_action(self):
         self.actions = []
-        self.dati = []
-        self.dati = list(self.dato)
-        print(self.dati == self.dato)
-        print(self.dati is self.dato)
-        #self.data = self.files.get_files()
-        self.populate_actions(self.folder_box, 'folder')
+        self.preview_data = self.files.reset()
+        self.populate_actions(self.folder_box, "folder")
         for prefix in self.prefix_boxes:
             self.populate_actions(prefix, "prefix")
-        self.populate_actions(self.file_box, 'file')
+        self.populate_actions(self.file_box, "file")
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
-        self.populate_actions(self.extension_box, 'extension')
-        print(self.call_actions(self.actions, self.dati))
-        #print(self.files.call_actions(self.actions, self.dati))
-        print(self.dati == self.dato)
-        print(self.dati is self.dato)
-
-
+        self.populate_actions(self.extension_box, "extension")
+        self.files.call_actions(self.actions, self.files.get_files())
+        #refresh tree
+        tree = self.main_grid.itemAtPosition(1,0)
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels([self.tr("Directories")])
+        self.addItems(self.model, self.preview_data.basename_tree())
+        self.treeView.setModel(self.model)
 
     def populate_actions(self, actiongroup, path_part):
-        (action_descriptors, action_args) = actiongroup.get_inputs()
-        action_class = action_descriptors.action_class
+        """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
+        (action_descriptor, action_args) = actiongroup.get_inputs()
+        action_class = action_descriptor.action_class
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
 
@@ -344,7 +320,7 @@ class ActionButtonGroup(QWidget):
                 self.clearLayout(child.layout())
 
     def destruct_layout(self):
-        """delete all children of the specified layout"""
+        """Delete entire layout."""
         while self.grid.count():
             child = self.grid.takeAt(0)
             if child.widget() is not None:
@@ -381,9 +357,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def openFileDialog(self):
-        """
-        Opens a file dialog and sets the label to the chosen path
-        """
+        """ Opens a file dialog and sets the label to the chosen path """
         import os
         path, _ = QFileDialog.getOpenFileNames(self, "Open File", os.getcwd())
 
