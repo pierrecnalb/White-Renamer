@@ -29,6 +29,7 @@ class MainWidget(QWidget):
         self.directory = os.path.join(os.getcwd(),"Documents","Programs","White-Renamer","test","Test Directory")
         self.files = Renamer.FilesCollection(self.directory, True)
         self.preview_data = self.files.get_basename_tree()
+        print(self.files.get_files())
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
@@ -194,20 +195,23 @@ class MainWidget(QWidget):
 
     def apply_action(self):
         self.actions = []
-        self.preview_data = self.files.reset()
-        self.populate_actions(self.folder_box, "folder")
-        for prefix in self.prefix_boxes:
-            self.populate_actions(prefix, "prefix")
+        print(self.files.get_files())
+        self.files.reset()
+        self.preview_data = self.files.get_basename_tree()
+        #self.populate_actions(self.folder_box, "folder")
+        #for prefix in self.prefix_boxes:
+        #    self.populate_actions(prefix, "prefix")
         self.populate_actions(self.file_box, "file")
-        for suffix in self.suffix_boxes:
-            self.populate_actions(suffix, "suffix")
-        self.populate_actions(self.extension_box, "extension")
+        #for suffix in self.suffix_boxes:
+        #    self.populate_actions(suffix, "suffix")
+        #self.populate_actions(self.extension_box, "extension")
+        #print(self.files.get_files())
         self.files.call_actions(self.actions, self.files.get_files())
         #refresh tree
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Directories")])
-        self.addItems(self.model, self.preview_data.basename_tree())
+        self.addItems(self.model, self.preview_data)
         self.treeView.setModel(self.model)
 
     def populate_actions(self, actiongroup, path_part):
