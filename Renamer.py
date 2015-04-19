@@ -11,96 +11,93 @@ import operator
 import copy
 language = "english"
 
-class FileDescriptor:
+class FileDescriptor(object):
     """Group information related to the input files."""
     def __init__(self, input_path):
-        self.path = input_path
-        self.is_folder = os.path.isdir(self.path)
-        (self.parents, basename)=os.path.split(self.path)
+        self._path = input_path
+        self.is_folder = os.path.isdir(self._path)
+        (self._parents, self._basename)=os.path.split(self._path)
         if (self.is_folder is False):
-            (self.basename, self.extension) = os.path.splitext(basename)
-            self.filename = self.basename
-            self.foldername = ""
+            (self._filename, self._extension) = os.path.splitext(self._basename)
+            self._foldername = ""
         else:
-            self.filename = ""
-            self.basename = basename
-            self.foldername = self.basename
-            self.extension = ""
+            self._filename = ""
+            self._foldername = self._basename
+            self._extension = ""
 
     def is_folder(self):
         return self.is_folder
 
-    def _get_path(self):
+    @property
+    def path(self):
         self.update_path()
-        return self.path
+        return self._path
 
-    def _set_path(self, new_path):
-        self.path = new_path
-        return self.path
+    @path.setter
+    def path(self, value):
+        self._path = value
 
-    def _get_parents(self):
+    @property
+    def parents(self):
         self.update_path()
-        return self.parents
+        return self._parents
 
-    def _set_parents(self, new_parents):
-        self.parents = new_parents
+    @parents.setter
+    def parents(self, value):
         self.update_path()
-        return self.parents
+        self._parents = value
 
-    def _get_foldername(self):
+    @property
+    def foldername(self):
         self.update_path()
-        return self.foldername
+        return self._foldername
 
-    def _set_foldername(self, new_foldername):
-        self.foldername = new_foldername
+    @foldername.setter
+    def foldername(self, value):
+        self._foldername = value
         self.update_path()
-        return self.foldername
 
-    def _get_filename(self):
+    @property
+    def filename(self):
         self.update_path()
-        return self.filename
+        return self._filename
 
-    def _set_filename(self, new_filename):
-        self.filename = new_filename
+    @filename.setter
+    def filename(self, value):
         self.update_path()
-        return self.filename
+        self._filename = value
 
-    def _get_extension(self):
+    @property
+    def extension(self):
         self.update_path()
-        return self.extension
+        return self._extension
 
-    def _set_extension(self, new_extension):
-        self.extension = new_extension
+    @extension.setter
+    def extension(self, value):
+        self._extension = value
         self.update_path()
-        return self.extension
 
-    def _get_basename(self):
+    @property
+    def basename(self):
+        return self._basename
+
+    @basename.setter
+    def basename(self, value):
+        self._basename = value
         self.update_path()
-        return self.basename
 
     def update_path(self):
-        self.path = os.path.join(self.parents, self.foldername, self.filename) + self.extension
+        if self.is_folder is True:
+            self._path = os.path.join(self._parents, self._foldername)
+        else:
+            self._path = os.path.join(self._parents, self._foldername, self._filename) + self._extension
 
-    def _set_basename(self, new_basename):
-        self.basename = new_basename
-        self.update_path()
-        return self.basename
-
-    #list of properties
-    entire_path = property(_get_path, _set_path)
-    parents = property(_get_parents, _set_parents)
-    basename = property(_get_basename, _set_basename)
-    extension = property(_get_extension, _set_extension)
-    filename = property(_get_filename, _set_filename)
-    foldername = property(_get_foldername, _set_foldername)
-
-class FilesCollection:
+class FilesCollection(object):
     def __init__(self, input_path, use_subdirectory):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.original_tree = self.scan(self.input_path)
         self.modified_tree = copy.deepcopy(self.original_tree)
-        self.basename_tree = []
 
     def scan(self, path):
         """Create a nested list of FileDescriptor contained in the input directory."""
@@ -117,12 +114,12 @@ class FilesCollection:
         return tree
 
     def get_files(self):
-        return self.original_tree
+        return self.modified_tree
 
     def get_basename_tree(self):
-        self.basename_tree = []
-        self.basename_tree = self.parselist(self.modified_tree, path_section = lambda file_descriptor:file_descriptor.basename)
-        return self.basename_tree
+        basename_tree = []
+        basename_tree = self.parselist(self.modified_tree, path_section = lambda file_descriptor:file_descriptor.basename)
+        return basename_tree
 
     def reset(self):
         self.modified_tree = copy.deepcopy(self.original_tree)
@@ -131,9 +128,9 @@ class FilesCollection:
     def parselist(self, tree, path_section):
         """"""
         for item in tree:
-            item[0] = path_section(item[0])
             if item[1] != []:
                 self.parselist(item[1], path_section)
+            item[0] = path_section(item[0])
         return tree
 
     def call_actions(self, actions, tree):
@@ -166,35 +163,36 @@ class Action:
     def __init__(self, path_type):
         self.path_type = path_type
 
-    def split_path(self, file_path):
+    def split_path(self, file_descriptor):
         """Split the entire path into three part."""
-        if (os.path.isdir(file_path) is False):
-            (self.path, self.filename)=os.path.split(file_path)
+        if (os.path.isdir(file_descriptor) is False):
+            (self.path, self.filename)=os.path.split(file_descriptor)
             (self.file, self.extension) = os.path.splitext(self.filename)
         else:
-            self.path = file_path
+            self.path = file_descriptor
             self.file = ""
             self.extension = ""
         return self.path, self.file, self.extension
 
     def call(self, file_descriptor):
         """Apply action on the specified part."""
-        parents = file_descriptor.parents
-        basename = file_descriptor.basename
-        extension = file_descriptor.extension
         prefix = ""
         suffix = ""
         if(self.path_type == "file"):
             file_descriptor.filename = self.call_on_path_part(file_descriptor, file_descriptor.filename)
+            print(file_descriptor.filename)
+            print(file_descriptor.path)
             return file_descriptor
         elif(self.path_type == "folder"):
             file_descriptor.foldername = self.call_on_path_part(file_descriptor, file_descriptor.foldername)
             return file_descriptor
-        elif(self.path_type == "prefix"):
-            file_descriptor.filename = file_descriptor.filename + self.call_on_path_part(file_descriptor, prefix)
-            return file_descriptor
         elif(self.path_type == "suffix"):
-            file_descriptor.filename = self.call_on_path_part(file_descriptor, suffix) + file_descriptor.filename
+            file_descriptor.filename = file_descriptor.filename + self.call_on_path_part(file_descriptor, suffix)
+            return file_descriptor
+        elif(self.path_type == "prefix"):
+            file_descriptor.filename = self.call_on_path_part(file_descriptor, prefix) + file_descriptor.filename
+            print(file_descriptor.filename)
+            print(file_descriptor.path)
             return file_descriptor
         elif(self.path_type == "extension"):
             file_descriptor.extension = self.call_on_path_part(file_descriptor, file_descriptor.extension)
@@ -202,7 +200,7 @@ class Action:
         else:
             raise Exception("path_part not valid")
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         raise Exception("not implemented")
 
 
@@ -214,7 +212,7 @@ class CharacterReplacementAction(Action):
         self.old_char = old_char
         self.new_char = new_char
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         return path_part.replace(self.old_char,self.new_char)
 
 class OriginalName(Action):
@@ -243,7 +241,7 @@ class CharacterInsertionAction(Action):
         self.new_char = new_char
         self.index = index
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         return path_part[:self.index] + self.new_char + path_part[self.index:]
 
 class CharacterDeletionAction(Action):
@@ -253,7 +251,7 @@ class CharacterDeletionAction(Action):
         self.number_of_char = number_of_char
         self.index = index
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         return path_part[:self.index] + path_part[self.index + self.number_of_char :]
 
 class CustomNameAction(Action):
@@ -262,7 +260,7 @@ class CustomNameAction(Action):
         Action.__init__(self, path_type)
         self.new_name = new_name
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         return self.new_name
 
 class FolderNameUsageAction(Action):
@@ -274,21 +272,19 @@ class FolderNameUsageAction(Action):
         self.lowercase = lowercase
         self.titlecase = titlecase
 
-    def call_on_path_part(self, file_path, path_part):
-        (path, file, extension) = self.split_path(file_path)
-        foldername = path.rsplit(os.sep,1)[-1]
+    def call_on_path_part(self, file_descriptor, path_part):
         if self.uppercase is True:
-            return foldername.upper()
+            return file_descriptor.foldername.upper()
         elif self.lowercase is True:
-            return foldername.lower()
+            return file_descriptor.foldername.lower()
         elif self.titlecase is True:
-            return ' '.join([name[0].upper() + name[1:] for name in foldername.split(' ')])
+            return ' '.join([name[0].upper() + name[1:] for name in file_descriptor.foldername.split(' ')])
         else:
-            return foldername
+            return file_descriptor.foldername
 
 class ModifiedTimeUsageAction(Action):
     """Use the modified time metadata as the filename."""
-    def call(self, file_path):
+    def call(self, file_descriptor):
         (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(self.filenames)
         return time.ctime(mtime)
 
@@ -304,8 +300,8 @@ class Counter(Action):
         self.counter = 0
         self.previous_path = ""
 
-    def call_on_path_part(self, file_path, path_part):
-        path, file, extension = self.split_path(file_path)
+    def call_on_path_part(self, file_descriptor, path_part):
+        path, file, extension = self.split_path(file_descriptor)
         if (path!=self.previous_path and self.restart is True):
             self.counter = self.start_index
         else:
@@ -323,17 +319,17 @@ class PipeAction(Action):
         self.main_action = main_action
         self.sub_action = sub_action
 
-    def call_on_path_part(self, file_path, path_part):
+    def call_on_path_part(self, file_descriptor, path_part):
         # Execute all left hand side actions to get argument values for the
         # action to execute.
         argumentValues = {}
         for argument_name, argument_provider in self.sub_action.items():
             if isinstance(argument_provider, Action):
-                argumentValues[argument_name] = argument_provider.call_on_path_part(file_path, path_part)
+                argumentValues[argument_name] = argument_provider.call_on_path_part(file_descriptor, path_part)
             else:
                 argumentValues[argument_name] = argument_provider
         # Prepare right hand side for this file.
         action = self.main_action(self.path_part, **argumentValues)
-        value = action.call_on_path_part(file_path, path_part)
+        value = action.call_on_path_part(file_descriptor, path_part)
         return value
 
