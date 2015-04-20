@@ -85,7 +85,7 @@ class MainWidget(QWidget):
         #---TREE VIEW---
         self.treeView = QTreeView()
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels([self.tr("Directories")])
+        self.model.setHorizontalHeaderLabels([self.tr("Directories"),"test"])
         self.addItems(self.model, self.preview_data)
         self.treeView.setModel(self.model)
         self.main_grid.addWidget(self.treeView, 1, 0)
@@ -201,12 +201,9 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        #print(self.files.get_files())
         self.files.reset()
         self.files.call_actions(self.actions, self.files.get_files())
         #refresh tree
-
-        #print(self.files.parselist(self.files.get_files(), path_section = lambda file_descriptor:file_descriptor.basename ))
         self.preview_data = self.files.get_basename_tree()
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
