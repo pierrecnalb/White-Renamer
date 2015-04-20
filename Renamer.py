@@ -79,7 +79,12 @@ class FileDescriptor(object):
 
     @property
     def basename(self):
+        if self.is_folder is True:
+            self._basename = self._foldername
+        else:
+            self._basename = self._filename + self._extension
         return self._basename
+
 
     @basename.setter
     def basename(self, value):
@@ -180,8 +185,6 @@ class Action:
         suffix = ""
         if(self.path_type == "file"):
             file_descriptor.filename = self.call_on_path_part(file_descriptor, file_descriptor.filename)
-            print(file_descriptor.filename)
-            print(file_descriptor.path)
             return file_descriptor
         elif(self.path_type == "folder"):
             file_descriptor.foldername = self.call_on_path_part(file_descriptor, file_descriptor.foldername)
@@ -191,8 +194,6 @@ class Action:
             return file_descriptor
         elif(self.path_type == "prefix"):
             file_descriptor.filename = self.call_on_path_part(file_descriptor, prefix) + file_descriptor.filename
-            print(file_descriptor.filename)
-            print(file_descriptor.path)
             return file_descriptor
         elif(self.path_type == "extension"):
             file_descriptor.extension = self.call_on_path_part(file_descriptor, file_descriptor.extension)
@@ -273,12 +274,13 @@ class FolderNameUsageAction(Action):
         self.titlecase = titlecase
 
     def call_on_path_part(self, file_descriptor, path_part):
+        (path, folder) = os.path.split(file_descriptor.parents)
         if self.uppercase is True:
-            return file_descriptor.foldername.upper()
+            return folder.upper()
         elif self.lowercase is True:
-            return file_descriptor.foldername.lower()
+            return folder.lower()
         elif self.titlecase is True:
-            return ' '.join([name[0].upper() + name[1:] for name in file_descriptor.foldername.split(' ')])
+            return ' '.join([name[0].upper() + name[1:] for name in folder.split(' ')])
         else:
             return file_descriptor.foldername
 
@@ -301,15 +303,14 @@ class Counter(Action):
         self.previous_path = ""
 
     def call_on_path_part(self, file_descriptor, path_part):
-        path, file, extension = self.split_path(file_descriptor)
-        if (path!=self.previous_path and self.restart is True):
+        if (file_descriptor.path!=self.previous_path and self.restart is True):
             self.counter = self.start_index
         else:
             if(self.counter == 0):
                 self.counter = self.start_index
             else:
                 self.counter = self.counter + (1 * self.increment)
-        self.previous_path=path
+        self.previous_path=file_descriptor.path
         return str(self.counter)
 
 class PipeAction(Action):
