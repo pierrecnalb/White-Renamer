@@ -28,6 +28,8 @@ class MainWidget(QWidget):
         self.limited_action_descriptors = []
         self.directory = os.path.join(os.getcwd(),"Documents","Programs","White-Renamer","test","Test Directory")
         self.files = Renamer.FilesCollection(self.directory, True)
+        self.untouched_files = Renamer.FilesCollection(self.directory, True)
+        self.original_tree = self.untouched_files.get_basename_tree()
         self.preview_data = self.files.get_basename_tree()
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
@@ -84,11 +86,13 @@ class MainWidget(QWidget):
         self.main_grid.addLayout(self.main_layout,0,0)
         #---TREE VIEW---
         self.treeView = QTreeView()
+        self.treeView.setAlternatingRowColors(True)
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels([self.tr("Directories"),"test"])
-        self.addItems(self.model, self.preview_data)
+        self.addItems(self.model, self.original_tree, self.preview_data)
         self.treeView.setModel(self.model)
         self.main_grid.addWidget(self.treeView, 1, 0)
+        self.treeView.resizeColumnToContents(0)
         #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors)
         self.main_layout.addWidget(self.folder_box)
@@ -131,13 +135,27 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.preview_btn, 2, 0)
 
 
-    def addItems(self, parent, elements):
+    def addItems(self, parent, original_elements, modified_elements):
         """Populate the tree with the selected directory"""
-        for text, children in elements:
-            item = QStandardItem(text)
-            parent.appendRow(item)
-            if children:
-                self.addItems(item, children)
+        for i in range(len(original_elements)):
+        #for text, children in elements:
+            original_files = QStandardItem(original_elements[i][0])
+            modified_files = QStandardItem(modified_elements[i][0])
+            parent.appendRow([original_files,modified_files])
+            original_children = original_elements[i][1]
+            modified_children = modified_elements[i][1]
+            if original_children:
+                self.addItems(original_files, original_children, modified_children)
+
+    def modifyItems(self, parent, modified_elements):
+        """Modify the tree with the selected directory"""
+        for i in range(len(modified_elements)):
+        #for text, children in elements:
+            modified_files = QStandardItem(modified_elements[i][0])
+            parent.setItem(i,1, modified_files)
+            modified_children = modified_elements[i][1]
+            if modified_children:
+                self.modifyItems(modified_files, modified_children)
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
@@ -205,11 +223,8 @@ class MainWidget(QWidget):
         self.files.call_actions(self.actions, self.files.get_files())
         #refresh tree
         self.preview_data = self.files.get_basename_tree()
-        tree = self.main_grid.itemAtPosition(1,0)
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels([self.tr("Directories")])
-        self.addItems(self.model, self.preview_data)
-        self.treeView.setModel(self.model)
+        #print(self.model.rowCount())
+        print(self.modifyItems(self.model, self.preview_data))
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
