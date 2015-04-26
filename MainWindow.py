@@ -152,7 +152,8 @@ class MainWidget(QWidget):
         for i in range(len(modified_elements)):
         #for text, children in elements:
             modified_files = QStandardItem(modified_elements[i][0])
-            parent.setItem(i,1, modified_files)
+            print(parent.text())
+            parent.setChild(i,1, modified_files)
             modified_children = modified_elements[i][1]
             if modified_children:
                 self.modifyItems(modified_files, modified_children)
@@ -355,9 +356,12 @@ class MainWindow(QMainWindow):
         # setGeometry(x_pos, y_pos, width, height)
         self.setGeometry(200,200,300,400)
         # exit option for the menu bar File menu
+        self.openAction = QAction('Open', self)
+        self.openAction.setShortcut('Ctrl+o')
+        self.openAction.triggered.connect(self.openDirectoryDialog)
         self.exit = QAction('Exit', self)
         # message for the status bar if mouse is over Exit
-        #self.exit.setStatusTip('Exit program')
+        self.exit.setStatusTip('Exit program')
         # newer connect style (PySide/PyQT 4.5 and higher)
         #self.exit.triggered.connect(app.quit)
         # create the menu bar
@@ -367,6 +371,9 @@ class MainWindow(QMainWindow):
         file.addAction(self.exit)
         # create the status bar
         self.statusBar()
+
+        self.toolbar = self.addToolBar('Open')
+        self.toolbar.addAction(self.openAction)
         # QWidget or its instance needed for box layout
         self.widget = MainWidget()
         self.setCentralWidget(self.widget)
