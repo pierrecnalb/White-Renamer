@@ -26,11 +26,6 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
-        self.directory = os.path.join(os.getcwd(),"Documents","Programs","White-Renamer","test","Test Directory")
-        self.files = Renamer.FilesCollection(self.directory, True)
-        self.untouched_files = Renamer.FilesCollection(self.directory, True)
-        self.original_tree = self.untouched_files.get_basename_tree()
-        self.preview_data = self.files.get_basename_tree()
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
@@ -88,11 +83,9 @@ class MainWidget(QWidget):
         self.treeView = QTreeView()
         self.treeView.setAlternatingRowColors(True)
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels([self.tr("Directories"),"test"])
-        self.addItems(self.model, self.original_tree, self.preview_data)
+        self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.treeView.setModel(self.model)
         self.main_grid.addWidget(self.treeView, 1, 0)
-        self.treeView.resizeColumnToContents(0)
         #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors)
         self.main_layout.addWidget(self.folder_box)
@@ -133,6 +126,18 @@ class MainWidget(QWidget):
         self.preview_btn = QPushButton('Preview')
         self.preview_btn.clicked.connect(self.apply_action)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
+        
+    def input_directory(self, directory):
+        """Process the selected directory to create the tree and modify the files"""
+        tree = self.main_grid.itemAtPosition(1,0)
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
+        self.files = Renamer.FilesCollection(directory, True)
+        self.untouched_files = Renamer.FilesCollection(directory, True)
+        self.original_tree = self.untouched_files.get_basename_tree()
+        self.preview_data = self.files.get_basename_tree()
+        self.addItems(self.model, self.original_tree, self.preview_data)
+        self.treeView.resizeColumnToContents(0)
 
 
     def addItems(self, parent, original_elements, modified_elements):
@@ -388,7 +393,9 @@ class MainWindow(QMainWindow):
     def openDirectoryDialog(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        d = directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        self.widget.input_directory(self.directory)
+
 
 if __name__ == '__main__':
     main()
