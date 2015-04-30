@@ -155,13 +155,16 @@ class MainWidget(QWidget):
     def modifyItems(self, parent, modified_elements):
         """Modify the tree with the selected directory"""
         for i in range(len(modified_elements)):
+            print(i)
         #for text, children in elements:
-            modified_files = QStandardItem(modified_elements[i][0])
-            print(parent.text())
-            parent.setChild(i,1, modified_files)
+            modified_file = QStandardItem(modified_elements[i][0])
+            if isinstance(parent, QStandardItemModel):
+                parent.setItem(i,1,modified_file)
+            else:
+                print('je suis un enfant')
+                parent.setChild(i,1,modified_file)
             modified_children = modified_elements[i][1]
-            if modified_children:
-                self.modifyItems(modified_files, modified_children)
+            self.modifyItems(modified_file, modified_children)
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
