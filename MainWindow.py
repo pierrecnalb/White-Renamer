@@ -12,6 +12,7 @@ from PySide.QtCore import *
 from PySide.QtGui  import *
 import Renamer
 import copy
+import pdb
 language = "english"
 
 def main():
@@ -135,8 +136,8 @@ class MainWidget(QWidget):
         self.files = Renamer.FilesCollection(directory, True)
         self.untouched_files = Renamer.FilesCollection(directory, True)
         self.original_tree = self.untouched_files.get_basename_tree()
-        self.preview_data = self.files.get_basename_tree()
-        self.addItems(self.model, self.original_tree, self.preview_data)
+        self.preview_data = self.files.get_files()
+        self.addItems(self.model, self.preview_data, self.preview_data)
         self.treeView.resizeColumnToContents(0)
 
 
@@ -144,8 +145,8 @@ class MainWidget(QWidget):
         """Populate the tree with the selected directory"""
         for i in range(len(original_elements)):
         #for text, children in elements:
-            original_files = QStandardItem(original_elements[i][0])
-            modified_files = QStandardItem(modified_elements[i][0])
+            original_files = QStandardItem(original_elements[i][0].basename)
+            modified_files = QStandardItem(modified_elements[i][0].basename)
             parent.appendRow([original_files,modified_files])
             original_children = original_elements[i][1]
             modified_children = modified_elements[i][1]
@@ -155,16 +156,15 @@ class MainWidget(QWidget):
     def modifyItems(self, parent, modified_elements):
         """Modify the tree with the selected directory"""
         for i in range(len(modified_elements)):
-            print(i)
-        #for text, children in elements:
-            modified_file = QStandardItem(modified_elements[i][0])
+            modified_file = QStandardItem(modified_elements[i][0].basename)
             if isinstance(parent, QStandardItemModel):
                 parent.setItem(i,1,modified_file)
+                modified_children = modified_elements[i][1]
+                self.modifyItems(parent.item(i,0), modified_children)
             else:
-                print('je suis un enfant')
                 parent.setChild(i,1,modified_file)
-            modified_children = modified_elements[i][1]
-            self.modifyItems(modified_file, modified_children)
+                modified_children = modified_elements[i][1]
+                self.modifyItems(parent.child(i,0), modified_children)
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
@@ -231,9 +231,9 @@ class MainWidget(QWidget):
         self.files.reset()
         self.files.call_actions(self.actions, self.files.get_files())
         #refresh tree
-        self.preview_data = self.files.get_basename_tree()
+        self.preview_data = self.files.get_files()
         #print(self.model.rowCount())
-        print(self.modifyItems(self.model, self.preview_data))
+        self.modifyItems(self.model, self.preview_data)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""

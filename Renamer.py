@@ -9,6 +9,7 @@ import sys
 from os import walk
 import operator
 import copy
+import re
 language = "english"
 
 class FileDescriptor(object):
@@ -235,13 +236,22 @@ class OriginalName(Action):
         self.lowercase = lowercase
         self.titlecase = titlecase
 
+    def titlecase_converter(self, string, exceptions):
+       words = re.split(' ', string)
+       words_converted = [words[0].capitalize()]
+       exceptions = ['a', 'an', 'of', 'the', 'is']
+       for word in words[1:]:
+          words_converted.append(word in exceptions and word or word.capitalize())
+       return " ".join(words_converted)
+
     def call_on_path_part(self, file_descriptor, path_part):
         if self.uppercase is True:
             return path_part.upper()
         elif self.lowercase is True:
             return path_part.lower()
         elif self.titlecase is True:
-            return ' '.join([name[0].upper() + name[1:] for name in path_part.split(' ')])
+            return self.titlecase_converter(path_part, "exceptions")
+
         else:
             return path_part
 
