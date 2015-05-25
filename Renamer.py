@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.2
+#v.1.0.3
 import os
 import time
 import shutil
@@ -120,9 +120,10 @@ class FileDescriptor(object):
             self._path = os.path.join(self._parents, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
 
 class FilesCollection(object):
-    def __init__(self, input_path, use_subdirectory):
+    def __init__(self, input_path, use_subdirectory, show_hidden_files):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
+        self.show_hidden_files = show_hidden_files
         self.original_tree = self.scan(self.input_path)
         self.modified_tree = copy.deepcopy(self.original_tree)
 
@@ -132,9 +133,12 @@ class FilesCollection(object):
         tree = []
         children = os.listdir(path)
         for child in children:
+            if child[0] == '.' and not self.show_hidden_files:
+                continue
             if os.path.isdir(os.path.join(path,child)):
                 if (not self.use_subdirectory):
-                    break
+                    tree.append([FileDescriptor(os.path.join(path,child)), []])
+                    continue
                 tree.append([FileDescriptor(os.path.join(path,child)), self.scan(os.path.join(path,child))])
             else:
                 tree.append([FileDescriptor(os.path.join(path,child)), []])
@@ -353,4 +357,3 @@ class PipeAction(Action):
         action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_descriptor, path_part)
         return value
-
