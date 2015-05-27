@@ -21,8 +21,14 @@ def main():
     win.show()
     app.exec_()
 
+X_FRAME = 0
+FRAME_SPACE = 10
+FRAME_WIDTH = 150
+FRAME_HEIGHT = 200
+
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
+
     def __init__(self):
         QWidget.__init__(self)
         self.all_action_descriptors = []
@@ -74,16 +80,13 @@ class MainWidget(QWidget):
         #---LAYOUT---
         self.main_grid = QGridLayout(self)
         self.main_grid.setObjectName("main_grid")
-        self.main_layout = QHBoxLayout()
-        self.main_layout.setObjectName("main_layout")
-        self.prefix_layout = QVBoxLayout()
-        self.prefix_layout.setObjectName("prefix_layout")
-        self.suffix_layout = QVBoxLayout()
-        self.suffix_layout.setObjectName("suffix_layout")
-        self.spacer_prefix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.spacer_suffix = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.setLayout(self.main_grid)
-        self.main_grid.addLayout(self.main_layout,0,0)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        #self.scroll_area.setBackgroundRole(QPalette.Dark)
+        self.scroll_area_widget_contents = QWidget()
+        self.scroll_area_widget_contents.setMinimumSize(500,200)
+        self.scroll_area_widget_contents.setObjectName("scroll_area_widget_contents")
         #---TREE VIEW---
         self.treeView = QTreeView()
         self.treeView.setObjectName("treeView")
@@ -95,76 +98,53 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.treeView, 1, 0)
         #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors)
-        self.main_layout.addWidget(self.folder_box)
+        self.folder_box.setGeometry(QRect(FRAME_SPACE, FRAME_SPACE, FRAME_WIDTH, FRAME_HEIGHT))
+        self.folder_box.setParent(self.scroll_area_widget_contents)
         self.folder_box.changed.connect(self.apply_action)
         #---PREFIX GROUP---
         self.add_prefix_btn = QToolButton()
         self.add_prefix_btn.setObjectName("add_prefix_btn")
         self.add_prefix_btn.setText('+')
+        self.add_prefix_btn.setGeometry(QRect(FRAME_SPACE + FRAME_WIDTH, 10, 30, 30))
+        self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QToolButton()
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
         self.remove_prefix_btn.setText('-')
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
-        self.prefix_layout.addWidget(QLabel())
-        self.prefix_layout.addWidget(self.add_prefix_btn)
-        self.prefix_layout.addWidget(self.remove_prefix_btn)
-        self.prefix_layout.addItem(self.spacer_prefix)
+        self.remove_prefix_btn.setGeometry(QRect(FRAME_SPACE + FRAME_WIDTH, 50, 30, 30))
+        self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #self.main_layout.addLayout(self.prefix_layout)
         #---FILE GROUP---
         self.file_box = ActionButtonGroup("File", self.all_action_descriptors)
-        self.main_layout.addWidget(self.file_box)
+        self.file_box.setGeometry(QRect(200, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         #---SUFFIX GROUP---
         self.add_suffix_btn = QToolButton()
         self.add_suffix_btn.setObjectName("add_suffix_btn")
         self.add_suffix_btn.setText('+')
+        self.add_suffix_btn.setGeometry(QRect(FRAME_SPACE + 2* FRAME_WIDTH, 10, 30, 30))
+        self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.remove_suffix_btn = QToolButton()
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.setText('-')
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
-        self.suffix_layout.addWidget(QLabel()) #This empty label is used to get the buttons at the same level as the combobox
-        self.suffix_layout.addWidget(self.add_suffix_btn)
-        self.suffix_layout.addWidget(self.remove_suffix_btn)
-        self.suffix_layout.addItem(self.spacer_suffix)
-        self.main_layout.addLayout(self.suffix_layout)
+        self.remove_suffix_btn.setGeometry(QRect(FRAME_SPACE + 2* FRAME_WIDTH, 50, 30, 30))
+        self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
         self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors)
-        self.main_layout.addWidget(self.extension_box)
+        self.extension_box.setGeometry(QRect(400, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
-        #
+        #---SCROLL AREA----
         self.preview_btn = QPushButton()
         self.preview_btn.setObjectName("preview_btn")
         self.preview_btn.clicked.connect(self.apply_action)
+        self.scroll_area.setWidget(self.scroll_area_widget_contents)
+        self.main_grid.addWidget(self.scroll_area,0,0)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 259, 78))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.widget_2 = ActionButtonGroup("File", self.all_action_descriptors)
-        self.widget_2.setParent(self.scrollAreaWidgetContents)
-        self.widget_2.setGeometry(QRect(10, 10, 120, 80))
-        self.widget_2.setObjectName("widget_2")
-        self.lineEdit_2 = QLineEdit(self.widget_2)
-        self.lineEdit_2.setGeometry(QRect(10, 20, 113, 33))
-        self.lineEdit_2.setObjectName("lineEdit_2")
-        self.widget_3 = ActionButtonGroup("File", self.all_action_descriptors)
-        self.widget_3.setParent(self.scrollAreaWidgetContents)
-        self.widget_3.setGeometry(QRect(150, 10, 120, 80))
-        self.widget_3.setObjectName("widget_3")
-
-        #self.scroll_area_content= QWidget()
-        #self.scroll_area_content.setObjectName("scroll_area_content")
-        #fil_box = ActionButtonGroup("File", self.all_action_descriptors)
-        #fil_box.setGeometry(10,10,100,100)
-        #fil_box2 = ActionButtonGroup("File", self.all_action_descriptors)
-        #fil_box2.setGeometry(110,110,100,100)
-        #self.scroll_area_content.setParent(fil_box)
-        #self.scroll_area_content.setParent(fil_box2)
-        scrollArea = QScrollArea()
-        scrollArea.setBackgroundRole(QPalette.Dark)
-        scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.main_grid.addWidget(scrollArea,3,0)
         self.folder_icon = QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg")
         self.file_icon = QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/file_icon.svg")
 
@@ -218,14 +198,20 @@ class MainWidget(QWidget):
     def add_prefix(self):
         self.prefix_number += 1
         self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors)
-        self.main_layout.insertWidget(2,self.prefix_box)
+        self.prefix_box.setGeometry(QRect(600, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.prefix_box.setParent(self.scroll_area_widget_contents)
+        self.scroll_area_widget_contents.resize(750,200)
+        self.prefix_box.show()
         self.prefix_boxes.append(self.prefix_box)
         self.prefix_box.changed.connect(self.apply_action)
 
     def add_suffix(self):
         self.suffix_number += 1
         self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors)
-        self.main_layout.insertWidget(self.prefix_number + self.suffix_number + 2, self.suffix_box)
+        self.suffix_box.setGeometry(QRect(800, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.suffix_box.setParent(self.scroll_area_widget_contents)
+        self.scroll_area_widget_contents.resize(950,200)
+        self.suffix_box.show()
         self.suffix_boxes.append(self.suffix_box)
         self.suffix_box.changed.connect(self.apply_action)
 
@@ -294,7 +280,7 @@ class ActionButtonGroup(QWidget):
         self.frame.setFrameShape(QFrame.Box)
         self.frame.setFrameShadow(QFrame.Plain)
         self.frame.setLineWidth(2)
-        self.frame.setGeometry(QRect(0, 0, 150, 200))
+        self.frame.setGeometry(QRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT))
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
         self.frame_name = frame_name
