@@ -21,11 +21,6 @@ def main():
     win.show()
     app.exec_()
 
-X_FRAME = 0
-FRAME_SPACE = 10
-FRAME_WIDTH = 150
-FRAME_HEIGHT = 200
-
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
 
@@ -96,46 +91,48 @@ class MainWidget(QWidget):
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.treeView.setModel(self.model)
         self.main_grid.addWidget(self.treeView, 1, 0)
-        #---FOLDER GROUP---
-        self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors)
-        self.folder_box.setGeometry(QRect(FRAME_SPACE, FRAME_SPACE, FRAME_WIDTH, FRAME_HEIGHT))
+               #---FOLDER GROUP---
+        self.x_frame = self.frame_space
+        self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.folder_box.setGeometry(QRect(self.x_frame, self.frame_space, self.frame_width, self.frame_height))
         self.folder_box.setParent(self.scroll_area_widget_contents)
         self.folder_box.changed.connect(self.apply_action)
-        #---PREFIX GROUP---
+        #---PREFIX GROUP--
         self.add_prefix_btn = QToolButton()
         self.add_prefix_btn.setObjectName("add_prefix_btn")
         self.add_prefix_btn.setText('+')
-        self.add_prefix_btn.setGeometry(QRect(FRAME_SPACE + FRAME_WIDTH, 10, 30, 30))
+        self.add_prefix_btn.setGeometry(QRect(10 + self.frame_width, 10, 30, 30))
         self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QToolButton()
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
         self.remove_prefix_btn.setText('-')
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
-        self.remove_prefix_btn.setGeometry(QRect(FRAME_SPACE + FRAME_WIDTH, 50, 30, 30))
+        self.remove_prefix_btn.setGeometry(QRect(10 + self.frame_width, 50, 30, 30))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #self.main_layout.addLayout(self.prefix_layout)
         #---FILE GROUP---
-        self.file_box = ActionButtonGroup("File", self.all_action_descriptors)
-        self.file_box.setGeometry(QRect(200, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.x_frame += self.frame_width + 20 + 20 + self.frame_space
+        self.file_box = ActionButtonGroup("File", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.file_box.setGeometry(QRect(self.x_frame, 10, self.frame_width, self.frame_height))
         self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         #---SUFFIX GROUP---
         self.add_suffix_btn = QToolButton()
         self.add_suffix_btn.setObjectName("add_suffix_btn")
         self.add_suffix_btn.setText('+')
-        self.add_suffix_btn.setGeometry(QRect(FRAME_SPACE + 2* FRAME_WIDTH, 10, 30, 30))
+        self.add_suffix_btn.setGeometry(QRect(self.frame_space + 2* self.frame_width, 10, 30, 30))
         self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.remove_suffix_btn = QToolButton()
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.setText('-')
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
-        self.remove_suffix_btn.setGeometry(QRect(FRAME_SPACE + 2* FRAME_WIDTH, 50, 30, 30))
+        self.remove_suffix_btn.setGeometry(QRect(self.frame_space + 2* self.frame_width, 50, 30, 30))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
-        self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors)
-        self.extension_box.setGeometry(QRect(400, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.extension_box.setGeometry(QRect(400, 10, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
         #---SCROLL AREA----
@@ -147,6 +144,9 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.preview_btn, 2, 0)
         self.folder_icon = QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg")
         self.file_icon = QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/file_icon.svg")
+        
+    def update_x_frame(self):
+        self.x_frame += self.frame_width + self.space
 
     def input_directory(self, directory, recursion, show_hidden_files):
         """Process the selected directory to create the tree and modify the files"""
@@ -197,7 +197,7 @@ class MainWidget(QWidget):
 
     def add_prefix(self):
         self.prefix_number += 1
-        self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors)
+        self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
         self.prefix_box.setGeometry(QRect(600, 10, FRAME_WIDTH, FRAME_HEIGHT))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
         self.scroll_area_widget_contents.resize(750,200)
@@ -207,7 +207,7 @@ class MainWidget(QWidget):
 
     def add_suffix(self):
         self.suffix_number += 1
-        self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors)
+        self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
         self.suffix_box.setGeometry(QRect(800, 10, FRAME_WIDTH, FRAME_HEIGHT))
         self.suffix_box.setParent(self.scroll_area_widget_contents)
         self.scroll_area_widget_contents.resize(950,200)
@@ -272,7 +272,7 @@ class MainWidget(QWidget):
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
     changed = Signal() # get changes in order to refresh the preview
-    def __init__(self, frame_name, action_descriptors):
+    def __init__(self, frame_name, action_descriptors, frame_width, frame_height):
         QWidget.__init__(self)
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
@@ -280,7 +280,7 @@ class ActionButtonGroup(QWidget):
         self.frame.setFrameShape(QFrame.Box)
         self.frame.setFrameShadow(QFrame.Plain)
         self.frame.setLineWidth(2)
-        self.frame.setGeometry(QRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT))
+        self.frame.setGeometry(QRect(0, 0, frame_width, frame_height))
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
         self.frame_name = frame_name
