@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.7
+#v.1.0.8
 import os
 import time
 import shutil
@@ -28,6 +28,10 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
+        self.frame_space = 20
+        self.frame_width = 150
+        self.frame_height = 200
+        self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
@@ -92,47 +96,49 @@ class MainWidget(QWidget):
         self.treeView.setModel(self.model)
         self.main_grid.addWidget(self.treeView, 1, 0)
                #---FOLDER GROUP---
-        self.x_frame = self.frame_space
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors, self.frame_width, self.frame_height)
-        self.folder_box.setGeometry(QRect(self.x_frame, self.frame_space, self.frame_width, self.frame_height))
+        self.folder_box.setGeometry(QRect(self.frame_space, self.frame_space, self.frame_width, self.frame_height))
         self.folder_box.setParent(self.scroll_area_widget_contents)
         self.folder_box.changed.connect(self.apply_action)
         #---PREFIX GROUP--
         self.add_prefix_btn = QToolButton()
         self.add_prefix_btn.setObjectName("add_prefix_btn")
         self.add_prefix_btn.setText('+')
-        self.add_prefix_btn.setGeometry(QRect(10 + self.frame_width, 10, 30, 30))
+        x_coord = self.init_position(self.folder_box)
+        self.add_prefix_btn.setGeometry(QRect(x_coord, 10, self.button_width, self.button_width))
         self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QToolButton()
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
         self.remove_prefix_btn.setText('-')
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
-        self.remove_prefix_btn.setGeometry(QRect(10 + self.frame_width, 50, 30, 30))
+        self.remove_prefix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #self.main_layout.addLayout(self.prefix_layout)
         #---FILE GROUP---
-        self.x_frame += self.frame_width + 20 + 20 + self.frame_space
         self.file_box = ActionButtonGroup("File", self.all_action_descriptors, self.frame_width, self.frame_height)
-        self.file_box.setGeometry(QRect(self.x_frame, 10, self.frame_width, self.frame_height))
+        x_coord = self.init_position(self.add_prefix_btn)
+        self.file_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         #---SUFFIX GROUP---
         self.add_suffix_btn = QToolButton()
         self.add_suffix_btn.setObjectName("add_suffix_btn")
         self.add_suffix_btn.setText('+')
-        self.add_suffix_btn.setGeometry(QRect(self.frame_space + 2* self.frame_width, 10, 30, 30))
+        x_coord = self.init_position(self.file_box)
+        self.add_suffix_btn.setGeometry(QRect(x_coord, 10,self.button_width, self.button_width))
         self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.remove_suffix_btn = QToolButton()
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.setText('-')
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
-        self.remove_suffix_btn.setGeometry(QRect(self.frame_space + 2* self.frame_width, 50, 30, 30))
+        self.remove_suffix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
         self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors, self.frame_width, self.frame_height)
-        self.extension_box.setGeometry(QRect(400, 10, self.frame_width, self.frame_height))
+        x_coord = self.init_position(self.add_suffix_btn)
+        self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
         #---SCROLL AREA----
@@ -146,7 +152,7 @@ class MainWidget(QWidget):
         self.file_icon = QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/file_icon.svg")
         
     def update_x_frame(self):
-        self.x_frame += self.frame_width + self.space
+        self.x_frame += self.frame_width + self.frame_space
 
     def input_directory(self, directory, recursion, show_hidden_files):
         """Process the selected directory to create the tree and modify the files"""
@@ -195,20 +201,66 @@ class MainWidget(QWidget):
             elif child.layout() is not None:
                 self.clearLayout(child.layout())
 
+    def init_position(self, action_button_group):
+        x_coord = action_button_group.geometry().x()
+        x_coord += action_button_group.size().width() + self.frame_space
+        return x_coord
+
+    def move_action_button_group(self, action_button_group, is_added):
+        x_coord = action_button_group.geometry().x()
+        if(is_added):
+            x_coord += action_button_group.size().width() + self.frame_space
+        else:
+            x_coord -= (action_button_group.size().width() + self.frame_space)
+        action_button_group.move(x_coord, self.frame_space)
+
+
+
     def add_prefix(self):
         self.prefix_number += 1
+        if(self.prefix_number >= 1):
+            for prefix in self.prefix_boxes:
+                self.move_action_button_group(prefix, True)
+            self.move_action_button_group(self.file_box, True)
+            self.move_action_button_group(self.add_suffix_btn, True)
+            self.move_action_button_group(self.remove_suffix_btn, True)
+            self.move_action_button_group(self.extension_box, True)
         self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
-        self.prefix_box.setGeometry(QRect(600, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        x_left_prefix = self.add_prefix_btn.geometry().x() + self.button_width + self.frame_space
+        self.prefix_box.setGeometry(QRect(x_left_prefix, self.frame_space, self.frame_width, self.frame_height))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
-        self.scroll_area_widget_contents.resize(750,200)
+        self.scroll_area_widget_contents.resize(950,200)
+        #self.scroll_area_widget_contents.resize(self.extension_box.geometry().topRight())
         self.prefix_box.show()
         self.prefix_boxes.append(self.prefix_box)
         self.prefix_box.changed.connect(self.apply_action)
 
+    def remove_prefix(self):
+        if self.prefix_number > 0:
+            self.prefix_number -= 1
+            self.prefix_boxes[self.prefix_number].destruct_layout()
+            del self.prefix_boxes[self.prefix_number]
+            for prefix in self.prefix_boxes:
+                self.move_action_button_group(prefix, False)
+            self.move_action_button_group(self.file_box, False)
+            self.move_action_button_group(self.add_suffix_btn, False)
+            self.move_action_button_group(self.remove_suffix_btn, False)
+            self.move_action_button_group(self.extension_box, False)
+        else:
+            raise Exception("There is no prefix to remove.")
+        self.apply_action()
+
     def add_suffix(self):
         self.suffix_number += 1
+        if(self.suffix_number >= 1):
+            for suffix in self.suffix_boxes:
+                self.move_action_button_group(suffix, True)
+            self.move_action_button_group(self.add_suffix_btn, True)
+            self.move_action_button_group(self.remove_suffix_btn, True)
+            self.move_action_button_group(self.extension_box, True)
         self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
-        self.suffix_box.setGeometry(QRect(800, 10, FRAME_WIDTH, FRAME_HEIGHT))
+        x_left_suffix = self.file_box.geometry().x() + self.frame_width + self.frame_space
+        self.suffix_box.setGeometry(QRect(x_left_suffix, self.frame_space, self.frame_width, self.frame_height))
         self.suffix_box.setParent(self.scroll_area_widget_contents)
         self.scroll_area_widget_contents.resize(950,200)
         self.suffix_box.show()
@@ -220,18 +272,15 @@ class MainWidget(QWidget):
             self.suffix_number -= 1
             self.suffix_boxes[self.suffix_number].destruct_layout()
             del self.suffix_boxes[self.suffix_number]
+            for suffix in self.prefix_boxes:
+                self.move_action_button_group(suffix, False)
+            self.move_action_button_group(self.add_suffix_btn, False)
+            self.move_action_button_group(self.remove_suffix_btn, False)
+            self.move_action_button_group(self.extension_box, False)
         else:
             raise Exception("There is no suffix to remove.")
         self.apply_action()
 
-    def remove_prefix(self):
-        if self.prefix_number > 0:
-            self.prefix_number -= 1
-            self.prefix_boxes[self.prefix_number].destruct_layout()
-            del self.prefix_boxes[self.prefix_number]
-        else:
-            raise Exception("There is no prefix to remove.")
-        self.apply_action()
 
 
     def call_actions(self, actions, tree):
