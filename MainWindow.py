@@ -35,30 +35,30 @@ class MainWidget(QWidget):
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
-        original_name_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool))
-        original_name_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool))
-        original_name_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool))
-        original_name_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool))
+        original_name_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
+        original_name_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool, False))
+        original_name_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool, False))
+        original_name_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool, False))
         character_replacement_inputs = []
-        character_replacement_inputs.append(Renamer.ActionInput('old_char', 'Replace', str))
-        character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str))
+        character_replacement_inputs.append(Renamer.ActionInput('old_char', 'Replace', str, ""))
+        character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str, ""))
         character_insertion_inputs = []
-        character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str))
-        character_insertion_inputs.append(Renamer.ActionInput('index', 'at Position', int))
+        character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str, ""))
+        character_insertion_inputs.append(Renamer.ActionInput('index', 'at Position', int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(Renamer.ActionInput('number_of_char', 'Number of Character', int))
-        character_deletion_inputs.append(Renamer.ActionInput('index', 'From Position', int))
+        character_deletion_inputs.append(Renamer.ActionInput('number_of_char', 'Number of Character', int, 0))
+        character_deletion_inputs.append(Renamer.ActionInput('index', 'From Position', int, 0))
         custom_name_inputs = []
-        custom_name_inputs.append(Renamer.ActionInput('new_name', 'New Name', str))
+        custom_name_inputs.append(Renamer.ActionInput('new_name', 'New Name', str, ""))
         counter_inputs = []
-        counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int))
-        counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int))
-        counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean")) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
+        counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int, 0))
+        counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int, 1))
+        counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         foldername_inputs = []
-        foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool))
-        foldername_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool))
-        foldername_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool))
-        foldername_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool))
+        foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
+        foldername_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool, False))
+        foldername_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool, False))
+        foldername_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool, False))
         #ALL ACTION DESCRIPTOR
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", original_name_inputs, Renamer.OriginalName))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
@@ -84,7 +84,6 @@ class MainWidget(QWidget):
         self.scroll_area.setWidgetResizable(True)
         #self.scroll_area.setBackgroundRole(QPalette.Dark)
         self.scroll_area_widget_contents = QWidget()
-        self.scroll_area_widget_contents.setMinimumSize(500,200)
         self.scroll_area_widget_contents.setObjectName("scroll_area_widget_contents")
         #---TREE VIEW---
         self.treeView = QTreeView()
@@ -101,16 +100,15 @@ class MainWidget(QWidget):
         self.folder_box.setParent(self.scroll_area_widget_contents)
         self.folder_box.changed.connect(self.apply_action)
         #---PREFIX GROUP--
-        self.add_prefix_btn = QToolButton()
+        self.add_prefix_btn = QPushButton('+')
+        self.add_prefix_btn.setStyleSheet("QPushButton {border: 2px solid #8f8f91; border-radius:15px}")
         self.add_prefix_btn.setObjectName("add_prefix_btn")
-        self.add_prefix_btn.setText('+')
         x_coord = self.init_position(self.folder_box)
         self.add_prefix_btn.setGeometry(QRect(x_coord, 10, self.button_width, self.button_width))
         self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
-        self.remove_prefix_btn = QToolButton()
+        self.remove_prefix_btn = QPushButton('-')
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
-        self.remove_prefix_btn.setText('-')
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
         self.remove_prefix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
@@ -122,16 +120,14 @@ class MainWidget(QWidget):
         self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         #---SUFFIX GROUP---
-        self.add_suffix_btn = QToolButton()
+        self.add_suffix_btn = QPushButton('+')
         self.add_suffix_btn.setObjectName("add_suffix_btn")
-        self.add_suffix_btn.setText('+')
         x_coord = self.init_position(self.file_box)
         self.add_suffix_btn.setGeometry(QRect(x_coord, 10,self.button_width, self.button_width))
         self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
-        self.remove_suffix_btn = QToolButton()
+        self.remove_suffix_btn = QPushButton('-')
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
-        self.remove_suffix_btn.setText('-')
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
         self.remove_suffix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
@@ -141,6 +137,7 @@ class MainWidget(QWidget):
         self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         #---SCROLL AREA----
         self.preview_btn = QPushButton()
         self.preview_btn.setObjectName("preview_btn")
@@ -209,10 +206,10 @@ class MainWidget(QWidget):
     def move_action_button_group(self, action_button_group, is_added):
         x_coord = action_button_group.geometry().x()
         if(is_added):
-            x_coord += action_button_group.size().width() + self.frame_space
+            x_coord += self.frame_width + self.frame_space
         else:
-            x_coord -= (action_button_group.size().width() + self.frame_space)
-        action_button_group.move(x_coord, self.frame_space)
+            x_coord -= (self.frame_width + self.frame_space)
+        action_button_group.move(x_coord, action_button_group.geometry().y())
 
 
 
@@ -221,16 +218,15 @@ class MainWidget(QWidget):
         if(self.prefix_number >= 1):
             for prefix in self.prefix_boxes:
                 self.move_action_button_group(prefix, True)
-            self.move_action_button_group(self.file_box, True)
-            self.move_action_button_group(self.add_suffix_btn, True)
-            self.move_action_button_group(self.remove_suffix_btn, True)
-            self.move_action_button_group(self.extension_box, True)
+        self.move_action_button_group(self.file_box, True)
+        self.move_action_button_group(self.add_suffix_btn, True)
+        self.move_action_button_group(self.remove_suffix_btn, True)
+        self.move_action_button_group(self.extension_box, True)
         self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
         x_left_prefix = self.add_prefix_btn.geometry().x() + self.button_width + self.frame_space
         self.prefix_box.setGeometry(QRect(x_left_prefix, self.frame_space, self.frame_width, self.frame_height))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
-        self.scroll_area_widget_contents.resize(950,200)
-        #self.scroll_area_widget_contents.resize(self.extension_box.geometry().topRight())
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         self.prefix_box.show()
         self.prefix_boxes.append(self.prefix_box)
         self.prefix_box.changed.connect(self.apply_action)
@@ -248,37 +244,41 @@ class MainWidget(QWidget):
             self.move_action_button_group(self.extension_box, False)
         else:
             raise Exception("There is no prefix to remove.")
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         self.apply_action()
 
     def add_suffix(self):
         self.suffix_number += 1
-        if(self.suffix_number >= 1):
-            for suffix in self.suffix_boxes:
-                self.move_action_button_group(suffix, True)
-            self.move_action_button_group(self.add_suffix_btn, True)
-            self.move_action_button_group(self.remove_suffix_btn, True)
-            self.move_action_button_group(self.extension_box, True)
+        self.move_action_button_group(self.add_suffix_btn, True)
+        self.move_action_button_group(self.remove_suffix_btn, True)
+        self.move_action_button_group(self.extension_box, True)
         self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
-        x_left_suffix = self.file_box.geometry().x() + self.frame_width + self.frame_space
+        #x_left_suffix = self.file_box.geometry().x() + self.frame_width + self.frame_space
+        if(self.suffix_number > 1):
+            x_left_suffix = self.init_position(self.suffix_boxes[-1])
+        else:
+            x_left_suffix = self.file_box.geometry().x() + self.frame_width + self.frame_space
         self.suffix_box.setGeometry(QRect(x_left_suffix, self.frame_space, self.frame_width, self.frame_height))
         self.suffix_box.setParent(self.scroll_area_widget_contents)
-        self.scroll_area_widget_contents.resize(950,200)
+        self.scroll_area_widget_contents.baseSize()
         self.suffix_box.show()
         self.suffix_boxes.append(self.suffix_box)
         self.suffix_box.changed.connect(self.apply_action)
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
 
     def remove_suffix(self):
         if self.suffix_number > 0:
             self.suffix_number -= 1
             self.suffix_boxes[self.suffix_number].destruct_layout()
             del self.suffix_boxes[self.suffix_number]
-            for suffix in self.prefix_boxes:
+            for suffix in self.suffix_boxes:
                 self.move_action_button_group(suffix, False)
             self.move_action_button_group(self.add_suffix_btn, False)
             self.move_action_button_group(self.remove_suffix_btn, False)
             self.move_action_button_group(self.extension_box, False)
         else:
             raise Exception("There is no suffix to remove.")
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         self.apply_action()
 
 
@@ -314,6 +314,8 @@ class MainWidget(QWidget):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
         (action_descriptor, action_args) = actiongroup.get_inputs()
         action_class = action_descriptor.action_class
+        for i in action_args:
+            print(i)
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
 
@@ -352,7 +354,6 @@ class ActionButtonGroup(QWidget):
         self.grid.addWidget(self.label, 0, 0, 1, 1)
         self.grid.addWidget(self.combobox, 1, 0, 1, 1)
         self.add_sub_button()
-        #self.selected_action.sub_button.setChecked(True)
 
     def change(self):
         ''' Change occurs on the layout. '''
@@ -379,19 +380,23 @@ class ActionButtonGroup(QWidget):
                 label.setText(str(arguments.argument_caption))
                 if arguments.argument_type == str:
                     sub_button = QLineEdit()
+                    sub_button.setText(arguments.default_value)
                     sub_button.textChanged[str].connect(self.get_text_changed)
                 elif arguments.argument_type == "boolean":
                     sub_button = QCheckBox()
+                    sub_button.setChecked(arguments.default_value)
                     sub_button.stateChanged[int].connect(self.get_state_changed)
                 elif arguments.argument_type == bool:
                     sub_button = QRadioButton()
+                    sub_button.setChecked(arguments.default_value)
                     sub_button.toggled.connect(self.radio_button_clicked)
                 elif arguments.argument_type == int:
                     sub_button = QLineEdit()
+                    sub_button.setText(str(arguments.default_value))
                     sub_button.textChanged[str].connect(self.get_integer_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
                 form.addRow(label, sub_button)
-                self.button_inputs_dict[arguments.argument_name] = ""
+                self.button_inputs_dict[arguments.argument_name] = arguments.default_value
             self.grid.addLayout(form,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
         self.frame_grid.addLayout(self.grid,0,0,1,1)

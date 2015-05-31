@@ -185,10 +185,11 @@ class ActionDescriptor:
         return self.action_name
 
 class ActionInput:
-    def __init__(self, arg_name, arg_caption, arg_type):
+    def __init__(self, arg_name, arg_caption, arg_type, default_value):
         self.argument_name = arg_name
         self.argument_caption = arg_caption
         self.argument_type = arg_type
+        self.default_value = default_value
 
 class Action:
     def __init__(self, path_type):
@@ -233,7 +234,7 @@ class CharacterReplacementAction(Action):
 
 class OriginalName(Action):
     """Return the original name."""
-    def __init__(self, path_type, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+    def __init__(self, path_type, untouched = True, uppercase = False, lowercase = False, titlecase = False):
         Action.__init__(self, path_type)
         self.untouched = untouched
         self.uppercase = uppercase
@@ -255,7 +256,6 @@ class OriginalName(Action):
             return path_part.lower()
         elif self.titlecase is True:
             return self.titlecase_converter(path_part, "exceptions")
-
         else:
             return path_part
 
