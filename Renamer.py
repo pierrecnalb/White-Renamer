@@ -327,14 +327,14 @@ class Counter(Action):
         self.previous_path = ""
 
     def call_on_path_part(self, file_descriptor, path_part):
-        if (file_descriptor.path!=self.previous_path and self.restart is True):
+        if (file_descriptor.parents!=self.previous_parents and self.restart is True):
             self.counter = self.start_index
         else:
             if(self.counter == 0):
                 self.counter = self.start_index
             else:
                 self.counter = self.counter + (1 * self.increment)
-        self.previous_path=file_descriptor.path
+        self.previous_parents=file_descriptor.parents
         return str(self.counter)
 
 class PipeAction(Action):
