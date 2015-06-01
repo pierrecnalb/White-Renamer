@@ -424,9 +424,11 @@ class ActionButtonGroup(QWidget):
 
     def get_integer_changed(self, value):
         try:
+            if value is None:
+                value = 0
             self.button_inputs_dict[self.sender().objectName()] = int(value)
-        except:
-            raise Exception("Please enter an integer.")
+        except TypeError:
+            self.on_show_information("Please enter an integer.")
         self.change()
 
     def clearLayout(self, layout):
@@ -450,6 +452,10 @@ class ActionButtonGroup(QWidget):
 
     def get_inputs(self):
         return self.selected_action, self.button_inputs_dict
+        
+    def on_show_information(self, warning_message):
+        """Show the information message"""
+        QMessageBox.information(self, "Information", warning_message)
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
