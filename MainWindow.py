@@ -15,8 +15,24 @@ import copy
 import pdb
 language = "english"
 
+
 def main():
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("fusion"))
+    palette = QPalette()
+    #palette.setColor(QPalette.Window, QColor(210,210,210));
+    #palette.setColor(QPalette.WindowText, Qt.white);
+    #palette.setColor(QPalette.Base, Qt.white);
+    #palette.setColor(QPalette.AlternateBase, QColor(53,53,53));
+    #palette.setColor(QPalette.ToolTipBase, Qt.white);
+    #palette.setColor(QPalette.ToolTipText, Qt.white);
+    #palette.setColor(QPalette.Text, Qt.red);
+    #palette.setColor(QPalette.Button, QColor(53,53,53));
+    #palette.setColor(QPalette.ButtonText, Qt.red);
+    #palette.setColor(QPalette.BrightText, Qt.red);
+    #palette.setColor(QPalette.Highlight, QColor(142,45,197).lighter());
+    palette.setColor(QPalette.HighlightedText, Qt.green);
+    app.setPalette(palette);
     win = MainWindow()
     win.show()
     app.exec_()
@@ -29,7 +45,7 @@ class MainWidget(QWidget):
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
         self.frame_space = 20
-        self.frame_width = 150
+        self.frame_width = 170
         self.frame_height = 200
         self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
@@ -81,12 +97,17 @@ class MainWidget(QWidget):
         self.main_grid.setObjectName("main_grid")
         self.setLayout(self.main_grid)
         self.scroll_area = QScrollArea()
+        self.scroll_area.setObjectName("scroll_area")
+        self.scroll_area.setAutoFillBackground(False)
+        self.scroll_area.setStyleSheet("QFrame#scroll_area{border:2px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(220, 220, 220)};")
         self.scroll_area.setWidgetResizable(True)
         #self.scroll_area.setBackgroundRole(QPalette.Dark)
         self.scroll_area_widget_contents = QWidget()
         self.scroll_area_widget_contents.setObjectName("scroll_area_widget_contents")
+        self.scroll_area_widget_contents.setStyleSheet("QWidget#scroll_area_widget_contents{background-color: rgb(250, 250, 250)};")
         #---TREE VIEW---
         self.treeView = QTreeView()
+        self.treeView.setStyleSheet("QTreeView{border:2px solid rgb(213, 213, 213); border-radius: 4px};")
         self.treeView.setObjectName("treeView")
         self.treeView.setAlternatingRowColors(True)
         self.model = QStandardItemModel()
@@ -101,16 +122,18 @@ class MainWidget(QWidget):
         self.folder_box.changed.connect(self.apply_action)
         #---PREFIX GROUP--
         self.add_prefix_btn = QPushButton('+')
-        self.add_prefix_btn.setStyleSheet("QPushButton {border: 2px solid #8f8f91; border-radius:15px}")
+        #self.add_prefix_btn.setStyleSheet("QPushButton {border: 1px solid #8f8f91}")
         self.add_prefix_btn.setObjectName("add_prefix_btn")
+        self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn{background-color: rgb(200, 25, 20); border-style:outset; border-radius:15px};")
+        #self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn:pressed{background-color: rgb(20, 25, 20); border-style:inset};")
         x_coord = self.init_position(self.folder_box)
-        self.add_prefix_btn.setGeometry(QRect(x_coord, 10, self.button_width, self.button_width))
+        self.add_prefix_btn.setGeometry(QRect(x_coord, 80, self.button_width, self.button_width))
         self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QPushButton('-')
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
-        self.remove_prefix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
+        self.remove_prefix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #self.main_layout.addLayout(self.prefix_layout)
         #---FILE GROUP---
@@ -123,13 +146,13 @@ class MainWidget(QWidget):
         self.add_suffix_btn = QPushButton('+')
         self.add_suffix_btn.setObjectName("add_suffix_btn")
         x_coord = self.init_position(self.file_box)
-        self.add_suffix_btn.setGeometry(QRect(x_coord, 10,self.button_width, self.button_width))
+        self.add_suffix_btn.setGeometry(QRect(x_coord, 80,self.button_width, self.button_width))
         self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.remove_suffix_btn = QPushButton('-')
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
-        self.remove_suffix_btn.setGeometry(QRect(x_coord, 50,self.button_width, self.button_width))
+        self.remove_suffix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
         self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors, self.frame_width, self.frame_height)
@@ -137,11 +160,13 @@ class MainWidget(QWidget):
         self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
-        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
+        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+self.frame_space)
         #---SCROLL AREA----
         self.preview_btn = QPushButton()
         self.preview_btn.setObjectName("preview_btn")
         self.preview_btn.clicked.connect(self.apply_action)
+        self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
+        self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
         self.scroll_area.setWidget(self.scroll_area_widget_contents)
         self.main_grid.addWidget(self.scroll_area,0,0)
         self.main_grid.addWidget(self.preview_btn, 2, 0)
@@ -219,6 +244,9 @@ class MainWidget(QWidget):
             for prefix in self.prefix_boxes:
                 self.move_action_button_group(prefix, True)
         self.move_action_button_group(self.file_box, True)
+        if(self.suffix_number >= 0):
+            for suffix in self.suffix_boxes:
+                self.move_action_button_group(suffix, True)
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
@@ -239,13 +267,17 @@ class MainWidget(QWidget):
             for prefix in self.prefix_boxes:
                 self.move_action_button_group(prefix, False)
             self.move_action_button_group(self.file_box, False)
+            if(self.suffix_number >= 0):
+                for suffix in self.suffix_boxes:
+                    self.move_action_button_group(suffix, False)
             self.move_action_button_group(self.add_suffix_btn, False)
             self.move_action_button_group(self.remove_suffix_btn, False)
             self.move_action_button_group(self.extension_box, False)
+            self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
+            self.apply_action()
         else:
+            QMessageBox.information(self, "Information", "There is no prefix to remove.")
             raise Exception("There is no prefix to remove.")
-        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
-        self.apply_action()
 
     def add_suffix(self):
         self.suffix_number += 1
@@ -253,7 +285,6 @@ class MainWidget(QWidget):
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
         self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
-        #x_left_suffix = self.file_box.geometry().x() + self.frame_width + self.frame_space
         if(self.suffix_number > 1):
             x_left_suffix = self.init_position(self.suffix_boxes[-1])
         else:
@@ -271,15 +302,14 @@ class MainWidget(QWidget):
             self.suffix_number -= 1
             self.suffix_boxes[self.suffix_number].destruct_layout()
             del self.suffix_boxes[self.suffix_number]
-            for suffix in self.suffix_boxes:
-                self.move_action_button_group(suffix, False)
             self.move_action_button_group(self.add_suffix_btn, False)
             self.move_action_button_group(self.remove_suffix_btn, False)
             self.move_action_button_group(self.extension_box, False)
+            self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
+            self.apply_action()
         else:
+            QMessageBox.information(self, "Information", "There is no suffix to remove.")
             raise Exception("There is no suffix to remove.")
-        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
-        self.apply_action()
 
 
 
@@ -307,15 +337,12 @@ class MainWidget(QWidget):
         self.files.call_actions(self.actions, self.files.get_files())
         #refresh tree
         self.preview_data = self.files.get_files()
-        #print(self.model.rowCount())
         self.modifyItems(self.model, self.preview_data)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
         (action_descriptor, action_args) = actiongroup.get_inputs()
         action_class = action_descriptor.action_class
-        for i in action_args:
-            print(i)
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
 
@@ -327,10 +354,10 @@ class ActionButtonGroup(QWidget):
         QWidget.__init__(self)
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
-        #self.frame.setStyleSheet("background-color: rgb(210, 210, 210);")
-        self.frame.setFrameShape(QFrame.Box)
-        self.frame.setFrameShadow(QFrame.Plain)
-        self.frame.setLineWidth(2)
+        if ("Prefix" in frame_name or "Suffix" in frame_name):
+            self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(190, 190, 190); border-radius: 4px; padding:2px; background-color: rgb(230, 230, 230)};")
+        else:
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 10px; padding:2px; background-color: rgb(244, 244, 244)};")
         self.frame.setGeometry(QRect(0, 0, frame_width, frame_height))
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
@@ -354,6 +381,7 @@ class ActionButtonGroup(QWidget):
         self.grid.addWidget(self.label, 0, 0, 1, 1)
         self.grid.addWidget(self.combobox, 1, 0, 1, 1)
         self.add_sub_button()
+        self.frame_grid.addLayout(self.grid,0,0,1,1)
 
     def change(self):
         ''' Change occurs on the layout. '''
@@ -399,8 +427,6 @@ class ActionButtonGroup(QWidget):
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
             self.grid.addLayout(form,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
-        self.frame_grid.addLayout(self.grid,0,0,1,1)
-        #self.setLayout(self.frame_grid)
 
     def radio_button_clicked(self, enabled):
         if enabled:
@@ -423,11 +449,11 @@ class ActionButtonGroup(QWidget):
         self.change()
 
     def get_integer_changed(self, value):
+        if value=="":
+            value = 0
         try:
-            if value is None:
-                value = 0
             self.button_inputs_dict[self.sender().objectName()] = int(value)
-        except TypeError:
+        except ValueError:
             self.on_show_information("Please enter an integer.")
         self.change()
 
