@@ -10,6 +10,8 @@ from os import walk
 import operator
 import copy
 import re
+import shutil
+import pdb
 language = "english"
 
 class FileDescriptor(object):
@@ -131,7 +133,7 @@ class FilesCollection(object):
         """Create a nested list of FileDescriptor contained in the input directory."""
         """Example of list : [["FileDescriptor1,["SubFileDescriptor1,[]"]],["FileDescriptor2",[]]]."""
         tree = []
-        children = os.listdir(path)
+        children = sorted(os.listdir(path))
         for child in children:
             if child[0] == '.' and not self.show_hidden_files:
                 continue
@@ -144,8 +146,11 @@ class FilesCollection(object):
                 tree.append([FileDescriptor(os.path.join(path,child)), []])
         return tree
 
-    def get_files(self):
+    def get_modified_files(self):
         return self.modified_tree
+
+    def get_original_files(self):
+        return self.original_tree
 
     def get_basename_tree(self):
         basename_tree = []
@@ -172,6 +177,14 @@ class FilesCollection(object):
             for action in actions:
                 item[0] = action.call(item[0])
         return tree
+
+    def rename(self, original_tree, modified_tree):
+        #pdb.set_trace()
+        for i in range(len(modified_tree)):
+            if modified_tree[i][1] != []:
+                self.rename(original_tree[i][1], modified_tree[i][1])
+            shutil.move(original_tree[i][0].path,modified_tree[i][0].path)
+            original_tree[i][0] = copy.deepcopy(modified_tree[i][0])
 
 class ActionDescriptor:
 
@@ -324,7 +337,7 @@ class Counter(Action):
         self.increment = increment
         self.restart = restart
         self.counter = 0
-        self.previous_path = ""
+        self.previous_parents = ""
 
     def call_on_path_part(self, file_descriptor, path_part):
         if (file_descriptor.parents!=self.previous_parents and self.restart is True):

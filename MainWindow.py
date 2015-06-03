@@ -114,6 +114,8 @@ class MainWidget(QWidget):
         self.model.setObjectName("model")
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.treeView.setModel(self.model)
+        self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
+        self.treeView.setSortingEnabled(True)
         self.main_grid.addWidget(self.treeView, 1, 0)
                #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors, self.frame_width, self.frame_height)
@@ -164,7 +166,7 @@ class MainWidget(QWidget):
         #---SCROLL AREA----
         self.preview_btn = QPushButton()
         self.preview_btn.setObjectName("preview_btn")
-        self.preview_btn.clicked.connect(self.apply_action)
+        self.preview_btn.clicked.connect(self.test)
         self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
         self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
         self.scroll_area.setWidget(self.scroll_area_widget_contents)
@@ -182,9 +184,9 @@ class MainWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files)
-        self.preview_data = self.files.get_files()
+        self.preview_data = self.files.get_modified_files()
         self.addItems(self.model, self.preview_data)
-        self.treeView.resizeColumnToContents(0)
+        self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
 
     def addItems(self, parent, original_elements):
@@ -324,6 +326,9 @@ class MainWidget(QWidget):
                     tree[i][0] = action.call(tree[i][0])
         return tree
 
+    def test(self):
+        self.files.rename(self.files.get_original_files(), self.files.get_modified_files())
+
     def apply_action(self):
         self.actions = []
         self.populate_actions(self.folder_box, "folder")
@@ -334,9 +339,9 @@ class MainWidget(QWidget):
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
         self.files.reset()
-        self.files.call_actions(self.actions, self.files.get_files())
+        self.files.call_actions(self.actions, self.files.get_modified_files())
         #refresh tree
-        self.preview_data = self.files.get_files()
+        self.preview_data = self.files.get_modified_files()
         self.modifyItems(self.model, self.preview_data)
 
     def populate_actions(self, actiongroup, path_part):
