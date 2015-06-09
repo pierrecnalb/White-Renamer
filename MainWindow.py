@@ -583,13 +583,15 @@ class MainWindow(QMainWindow):
     def openFileDialog(self):
         """ Opens a file dialog and sets the label to the chosen path """
         import os
-        path, _ = QFileDialog.getOpenFileNames(self, "Open File", os.getcwd())
+        #path, _ = QFileDialog.getOpenFileNames(self, "Open File", os.getcwd())
+        path = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
 
     @Slot()
     def openDirectoryDialog(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
         self.widget.input_directory(self.directory, False, False)
 
 

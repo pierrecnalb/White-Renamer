@@ -16,9 +16,9 @@ language = "english"
 
 class FileDescriptor(object):
     """Group information related to the input files."""
-    def __init__(self, input_path):
+    def __init__(self, input_path, is_dir):
         self._path = input_path
-        self.is_folder = os.path.isdir(self._path)
+        self.is_folder = is_dir
         (self._parents, self._basename)=os.path.split(self._path)
         if (self.is_folder is False):
             (self._filename, self._extension) = os.path.splitext(self._basename)
@@ -121,30 +121,49 @@ class FileDescriptor(object):
         else:
             self._path = os.path.join(self._parents, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
 
+class FileSystemTree(object):
+    def __init__(self, rootPath):
+        self.root = FileSystemTreeNode()
+
+class FileSystemTreeNode(object):
+    def __init__(self, original_path, is_dir):
+        self.children = []
+        self.original_path = FileDescriptor(original_path, is_dir)
+        self.modified_path = copy.deepcopy(self.original_path)
+
+    def add_children(self, path, is_dir):
+        self.children.append(FileSystemTreeNode(path, is_dir))
+
+    def get_children(self):
+        print(self.children)
+        
+ 
 class FilesCollection(object):
     def __init__(self, input_path, use_subdirectory, show_hidden_files):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
+        self.file_system_tree_node = FileSystemTreeNode(self.input_path, True)
+        print(self.file_system_tree_node.get_children())
         self.original_tree = self.scan(self.input_path)
         self.modified_tree = copy.deepcopy(self.original_tree)
 
     def scan(self, path):
-        """Create a nested list of FileDescriptor contained in the input directory."""
-        """Example of list : [["FileDescriptor1,["SubFileDescriptor1,[]"]],["FileDescriptor2",[]]]."""
-        tree = []
+        """Create a nested list of FileSystemTreeNode containing original and modified FileDescriptor."""
+        pdb.set_trace()
+        #tree = FileSystemTreeNode(path, True)
         children = sorted(os.listdir(path))
         for child in children:
+            #Check for hidden files
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
                 if (not self.use_subdirectory):
-                    tree.append([FileDescriptor(os.path.join(path,child)), []])
+                    self.file_system_tree_node.add_children(os.path.join(path,child), False)
                     continue
-                tree.append([FileDescriptor(os.path.join(path,child)), self.scan(os.path.join(path,child))])
+                self.file_system_tree_node.add_children(os.path.join(path,child), True)
             else:
-                tree.append([FileDescriptor(os.path.join(path,child)), []])
-        return tree
+                self.file_system_tree_node.add_children(os.path.join(path,child), False)
 
     def get_modified_files(self):
         return self.modified_tree
@@ -179,7 +198,6 @@ class FilesCollection(object):
         return tree
 
     def rename(self, original_tree, modified_tree):
-        #pdb.set_trace()
         for i in range(len(modified_tree)):
             if modified_tree[i][1] != []:
                 self.rename(original_tree[i][1], modified_tree[i][1])
