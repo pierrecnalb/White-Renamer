@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.3
+#v.1.0.4
 import os
 import time
 import shutil
@@ -126,17 +126,32 @@ class FileSystemTree(object):
         self.root = FileSystemTreeNode()
 
 class FileSystemTreeNode(object):
+    """Contains the original and modified FileDescriptor for a given node of the selected directory.
+    The structure of the system tree node is reproduced by adding children for each subdirectory."""
     def __init__(self, original_path, is_dir):
         self.children = []
-        self.original_path = FileDescriptor(original_path, is_dir)
-        self.modified_path = copy.deepcopy(self.original_path)
+        self._original_path = FileDescriptor(original_path, is_dir)
+        self._modified_path = copy.deepcopy(self._original_path)
+        self.is_dir = is_dir
 
-    def add_children(self, path, is_dir):
-        self.children.append(FileSystemTreeNode(path, is_dir))
+    def add_children(self, file_system_tree_node):
+        self.children.append(file_system_tree_node)
+        return file_system_tree_node
 
     def get_children(self):
-        print(self.children)
+        return self.children
         
+    @property
+    def original_filedescriptor(self):
+        return self._original_path
+
+    @property
+    def modified_filedescriptor(self):
+        return self._modified_path
+
+    @modified_filedescriptor.setter
+    def modified_filedescriptor(self, value):
+        self._modified_path = FileDescriptor(value, self.is_dir)
  
 class FilesCollection(object):
     def __init__(self, input_path, use_subdirectory, show_hidden_files):
@@ -144,29 +159,31 @@ class FilesCollection(object):
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         self.file_system_tree_node = FileSystemTreeNode(self.input_path, True)
-        print(self.file_system_tree_node.get_children())
-        self.original_tree = self.scan(self.input_path)
-        self.modified_tree = copy.deepcopy(self.original_tree)
+        self.scan(self.file_system_tree_node)
+        print(self.file_system_tree_node)
 
-    def scan(self, path):
+    def scan(self, file_system_tree_node):
         """Create a nested list of FileSystemTreeNode containing original and modified FileDescriptor."""
-        pdb.set_trace()
-        #tree = FileSystemTreeNode(path, True)
+        #pdb.set_trace()
+        path = file_system_tree_node.original_filedescriptor.path
         children = sorted(os.listdir(path))
         for child in children:
             #Check for hidden files
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True)
                 if (not self.use_subdirectory):
-                    self.file_system_tree_node.add_children(os.path.join(path,child), False)
+                    file_system_tree_node.add_children(file_system_child_node)
                     continue
-                self.file_system_tree_node.add_children(os.path.join(path,child), True)
+                file_system_tree_node.add_children(file_system_child_node)
+                self.scan(file_system_child_node)
             else:
-                self.file_system_tree_node.add_children(os.path.join(path,child), False)
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False)
+                file_system_tree_node.add_children(file_system_child_node)
 
     def get_modified_files(self):
-        return self.modified_tree
+        return self.file_system_tree_node
 
     def get_original_files(self):
         return self.original_tree
