@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.8
+#v.1.0.9
 import os
 import time
 import shutil
@@ -191,15 +191,15 @@ class MainWidget(QWidget):
 
     def addItems(self, parent, original_elements):
         """Populate the tree with the selected directory"""
-        for i in range(len(original_elements)):
-            if original_elements[i][0].is_folder:
-                icon = self.folder_icon
-            else:
-                icon = self.file_icon
-            original_files = QStandardItem(icon , original_elements[i][0].basename)
-            modified_files = QStandardItem(original_elements[i][0].basename)
+        for i in range(len(original_elements.get_children())):
+            #if original_elements[i][0].is_folder:
+            #    icon = self.folder_icon
+            #else:
+            #    icon = self.file_icon
+            original_files = QStandardItem(original_elements.original_filedescriptor.basename)
+            modified_files = QStandardItem(original_elements.original_filedescriptor.basename)
             parent.appendRow([original_files, modified_files])
-            original_children = original_elements[i][1]
+            original_children = original_elements.get_children()[i]
             if original_children:
                 self.addItems(original_files, original_children)
 
@@ -591,7 +591,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        self.directory = "C:\\Users\\pblanc\\Desktop\\test"
         self.widget.input_directory(self.directory, False, False)
 
 
