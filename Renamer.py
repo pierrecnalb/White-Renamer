@@ -160,7 +160,6 @@ class FilesCollection(object):
         self.show_hidden_files = show_hidden_files
         self.file_system_tree_node = FileSystemTreeNode(self.input_path, True)
         self.scan(self.file_system_tree_node)
-        print(self.file_system_tree_node)
 
     def scan(self, file_system_tree_node):
         """Create a nested list of FileSystemTreeNode containing original and modified FileDescriptor."""
@@ -173,21 +172,30 @@ class FilesCollection(object):
                 continue
             if os.path.isdir(os.path.join(path,child)):
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True)
-                if (not self.use_subdirectory):
-                    file_system_tree_node.add_children(file_system_child_node)
-                    continue
                 file_system_tree_node.add_children(file_system_child_node)
-                self.scan(file_system_child_node)
+                if (not self.use_subdirectory):
+                    continue
+                else:
+                    self.scan(file_system_child_node)
             else:
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False)
                 file_system_tree_node.add_children(file_system_child_node)
 
-    def get_modified_files(self):
+    def get_file_system_tree_node(self):
         return self.file_system_tree_node
 
     def get_original_files(self):
         return self.original_tree
 
+    def list_children(self, tree_node):
+        children = tree_node.get_children()
+        if children:
+            for child in tree_node.get_children():
+                print(child.original_filedescriptor.basename)
+                self.list_children(child)
+        else:
+            print(tree_node.original_filedescriptor.basename)
+            
     def get_basename_tree(self):
         basename_tree = []
         basename_tree = self.parselist(self.modified_tree, path_section = lambda file_descriptor:file_descriptor.basename)
@@ -197,22 +205,31 @@ class FilesCollection(object):
         self.modified_tree = copy.deepcopy(self.original_tree)
         return self.modified_tree
 
-    def parselist(self, tree, path_section):
-        """"""
-        for item in tree:
-            if item[1] != []:
-                self.parselist(item[1], path_section)
-            item[0] = path_section(item[0])
-        return tree
+    def execute_method_on_node(self, tree_node, method):
+        children = tree_node.get_children()
+        if children:
+            for child in children:
+                method(child)
+                self.execute_method_on_node(child, method)
+        else:
+            method(tree_node)
 
-    def call_actions(self, actions, tree):
-        """"""
-        for item in tree:
-            if item[1] != []:
-                self.call_actions(actions, item[1])
-            for action in actions:
-                item[0] = action.call(item[0])
-        return tree
+    #def parselist(self, tree, path_section):
+    #    """"""
+    #    for item in tree:
+    #        if item[1] != []:
+    #            self.parselist(item[1], path_section)
+    #        item[0] = path_section(item[0])
+    #    return tree
+
+    #def call_actions(self, actions, tree):
+    #    """"""
+    #    for item in tree:
+    #        if item[1] != []:
+    #            self.call_actions(actions, item[1])
+    #        for action in actions:
+    #            item[0] = action.call(item[0])
+    #    return tree
 
     def rename(self, original_tree, modified_tree):
         for i in range(len(modified_tree)):
@@ -405,3 +422,9 @@ class PipeAction(Action):
         action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_descriptor, path_part)
         return value
+def method(arg):
+    print(arg)
+filesystem = FilesCollection("/home/pierre/Documents/Programs/White-Renamer/test/Test Directory", True, False)
+files = filesystem.get_file_system_tree_node()
+filesystem.execute_method_on_node(files , method)
+

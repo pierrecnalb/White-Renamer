@@ -188,20 +188,24 @@ class MainWidget(QWidget):
         self.addItems(self.model, self.preview_data)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
+    def list_children(self, tree_node):
+        children = tree_node.get_children()
+        if children:
+            for child in tree_node.get_children():
+                print(child.original_filedescriptor.basename)
+                self.list_children(child)
+        else:
+            print(tree_node.original_filedescriptor.basename)
 
-    def addItems(self, parent, original_elements):
+    def addItems(self, parent, tree_node):
         """Populate the tree with the selected directory"""
-        for i in range(len(original_elements.get_children())):
-            #if original_elements[i][0].is_folder:
-            #    icon = self.folder_icon
-            #else:
-            #    icon = self.file_icon
-            original_files = QStandardItem(original_elements.original_filedescriptor.basename)
-            modified_files = QStandardItem(original_elements.original_filedescriptor.basename)
-            parent.appendRow([original_files, modified_files])
-            original_children = original_elements.get_children()[i]
-            if original_children:
-                self.addItems(original_files, original_children)
+        children = tree_node.get_children()
+        original_files = QStandardItem(tree_node.original_filedescriptor.basename)
+        modified_files = QStandardItem(tree_node.original_filedescriptor.basename)
+        if children:
+            for child in children:
+                self.addItems(original_files, child)
+        parent.appendRow([original_files, modified_files])
 
     def modifyItems(self, parent, modified_elements):
         """Modify the tree with the selected directory"""
@@ -591,7 +595,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = "C:\\Users\\pblanc\\Desktop\\test"
+        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
         self.widget.input_directory(self.directory, False, False)
 
 
