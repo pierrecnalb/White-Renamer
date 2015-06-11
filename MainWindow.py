@@ -343,10 +343,10 @@ class MainWidget(QWidget):
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
         #self.files.reset()
-        self.files.call_actions(self.actions, self.files.get_file_system_tree_node())
+        self.files.execute_method_on_node(self.files.get_file_system_tree_node(),self.files.call_actions,self.actions)
         #refresh tree
         self.preview_data = self.files.get_file_system_tree_node()
-        self.modifyItems(self.model, self.preview_data)
+        #self.modifyItems(self.model, self.preview_data)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""

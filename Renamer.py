@@ -200,15 +200,16 @@ class FilesCollection(object):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return self.tree_node
 
-    def execute_method_on_node(self, tree_node, method):
-        method(tree_node)
+    def execute_method_on_node(self, tree_node, method, optional_argument = []):
+        method(tree_node, optional_argument)
         for child in tree_node.get_children():
             self.execute_method_on_node(child, method)
     
-    def call_actions(self, actions, tree_node):
-        self.execute_method_on_node(tree_node, self.reset)
+    def call_actions(self, tree_node, actions):
+        #self.execute_method_on_node(tree_node, self.reset)
         for action in actions:
-            action.call(tree_node.modified_filedescriptor)
+            tree_node.modified_filedescriptor = action.call(tree_node.modified_filedescriptor)
+        print(tree_node.modified_filedescriptor.basename)
     #def parselist(self, tree, path_section):
     #    """"""
     #    for item in tree:
@@ -256,6 +257,7 @@ class Action:
         self.path_type = path_type
 
     def call(self, file_descriptor):
+        pdb.set_trace()
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
