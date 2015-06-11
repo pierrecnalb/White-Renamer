@@ -196,24 +196,19 @@ class FilesCollection(object):
         else:
             print(tree_node.original_filedescriptor.basename)
             
-    def get_basename_tree(self):
-        basename_tree = []
-        basename_tree = self.parselist(self.modified_tree, path_section = lambda file_descriptor:file_descriptor.basename)
-        return basename_tree
-
-    def reset(self):
-        self.modified_tree = copy.deepcopy(self.original_tree)
-        return self.modified_tree
+    def reset(self, tree_node):
+        tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
+        return self.tree_node
 
     def execute_method_on_node(self, tree_node, method):
-        children = tree_node.get_children()
-        if children:
-            for child in children:
-                method(child)
-                self.execute_method_on_node(child, method)
-        else:
-            method(tree_node)
-
+        method(tree_node)
+        for child in tree_node.get_children():
+            self.execute_method_on_node(child, method)
+    
+    def call_actions(self, actions, tree_node):
+        self.execute_method_on_node(tree_node, self.reset)
+        for action in actions:
+            action.call(tree_node.modified_filedescriptor)
     #def parselist(self, tree, path_section):
     #    """"""
     #    for item in tree:
@@ -422,9 +417,9 @@ class PipeAction(Action):
         action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_descriptor, path_part)
         return value
-def method(arg):
-    print(arg)
-filesystem = FilesCollection("/home/pierre/Documents/Programs/White-Renamer/test/Test Directory", True, False)
-files = filesystem.get_file_system_tree_node()
-filesystem.execute_method_on_node(files , method)
+##def method(arg):
+#    print(arg)
+#filesystem = FilesCollection("/home/pierre/Documents/Programs/White-Renamer/test/Test Directory", True, False)
+#files = filesystem.get_file_system_tree_node()
+#filesystem.execute_method_on_node(files , filesystem.call_actions)
 

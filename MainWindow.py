@@ -184,7 +184,7 @@ class MainWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files)
-        self.preview_data = self.files.get_modified_files()
+        self.preview_data = self.files.get_file_system_tree_node()
         self.addItems(self.model, self.preview_data)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
@@ -331,7 +331,7 @@ class MainWidget(QWidget):
         return tree
 
     def test(self):
-        self.files.rename(self.files.get_original_files(), self.files.get_modified_files())
+        self.files.rename(self.files.get_original_files(), self.files.get_file_system_tree_node())
 
     def apply_action(self):
         self.actions = []
@@ -342,10 +342,10 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        self.files.reset()
-        self.files.call_actions(self.actions, self.files.get_modified_files())
+        #self.files.reset()
+        self.files.call_actions(self.actions, self.files.get_file_system_tree_node())
         #refresh tree
-        self.preview_data = self.files.get_modified_files()
+        self.preview_data = self.files.get_file_system_tree_node()
         self.modifyItems(self.model, self.preview_data)
 
     def populate_actions(self, actiongroup, path_part):
