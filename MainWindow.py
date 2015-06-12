@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.9
+#v.1.0.10
 import os
 import time
 import shutil
@@ -595,7 +595,8 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        #self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        self.directory = r"C:\Users\pblanc\Desktop\test"
         self.widget.input_directory(self.directory, False, False)
 
 
