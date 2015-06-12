@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.4
+#v.1.0.5
 import os
 import time
 import shutil
@@ -151,7 +151,7 @@ class FileSystemTreeNode(object):
 
     @modified_filedescriptor.setter
     def modified_filedescriptor(self, value):
-        self._modified_path = FileDescriptor(value, self.is_dir)
+        self._modified_path = value
  
 class FilesCollection(object):
     def __init__(self, input_path, use_subdirectory, show_hidden_files):
@@ -200,10 +200,10 @@ class FilesCollection(object):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return self.tree_node
 
-    def execute_method_on_node(self, tree_node, method, optional_argument = []):
-        method(tree_node, optional_argument)
+    def execute_method_on_node(self, tree_node, method, *optional_argument):
+        method(tree_node, *optional_argument)
         for child in tree_node.get_children():
-            self.execute_method_on_node(child, method)
+            self.execute_method_on_node(child, method, *optional_argument)
     
     def call_actions(self, tree_node, actions):
         #self.execute_method_on_node(tree_node, self.reset)
@@ -257,7 +257,6 @@ class Action:
         self.path_type = path_type
 
     def call(self, file_descriptor):
-        pdb.set_trace()
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
