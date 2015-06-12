@@ -199,18 +199,16 @@ class MainWidget(QWidget):
 
     def addItems(self, parent, tree_node):
         """Populate the tree with the selected directory"""
-        children = tree_node.get_children()
         original_files = QStandardItem(tree_node.original_filedescriptor.basename)
         modified_files = QStandardItem(tree_node.original_filedescriptor.basename)
-        if children:
-            for child in children:
-                self.addItems(original_files, child)
         parent.appendRow([original_files, modified_files])
+        for child in tree_node.get_children():
+            self.addItems(original_files, child)
 
-    def modifyItems(self, parent, modified_elements):
+    def modifyItems(self, parent, tree_node):
         """Modify the tree with the selected directory"""
-        for i in range(len(modified_elements)):
-            modified_file = QStandardItem(modified_elements[i][0].basename)
+        for enumerate(i), child in tree_node.get_children():
+            modified_file = QStandardItem(child.modified_fildescriptor.basename)
             if isinstance(parent, QStandardItemModel):
                 parent.setItem(i,1,modified_file)
                 modified_children = modified_elements[i][1]
