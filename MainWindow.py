@@ -185,49 +185,28 @@ class MainWidget(QWidget):
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files)
         self.preview_data = self.files.get_file_system_tree_node()
-        self.addItems(self.model, self.preview_data)
+        self.populate_tree(self.model, self.preview_data, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
-    def list_children(self, tree_node):
+    def populate_tree(self, parent, tree_node, reset_view):
+        """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
         children = tree_node.get_children()
-        if children:
-            for child in tree_node.get_children():
-                print(child.original_filedescriptor.basename)
-                self.list_children(child)
-        else:
-            print(tree_node.original_filedescriptor.basename)
-
-    def addItems(self, parent, tree_node):
-        """Populate the tree with the selected directory"""
-        original_files = QStandardItem(tree_node.original_filedescriptor.basename)
-        modified_files = QStandardItem(tree_node.original_filedescriptor.basename)
-        parent.appendRow([original_files, modified_files])
-        for child in tree_node.get_children():
-            self.addItems(original_files, child)
-
-    def modifyItems(self, parent, tree_node):
-        """Modify the tree with the selected directory"""
-        for enumerate(i), child in tree_node.get_children():
-            modified_file = QStandardItem(child.modified_fildescriptor.basename)
+        for i, child in enumerate(children):
+            modified_file = QStandardItem(child.modified_filedescriptor.basename)
+            original_file = QStandardItem(child.original_filedescriptor.basename)
             if isinstance(parent, QStandardItemModel):
+                if reset_view:
+                    parent.setItem(i,0,original_file)
                 parent.setItem(i,1,modified_file)
-                modified_children = modified_elements[i][1]
-                self.modifyItems(parent.item(i,0), modified_children)
+                self.populate_tree(parent.item(i,0), child, reset_view)
             else:
+                if reset_view:
+                    parent.setChild(i,0,original_file)
                 parent.setChild(i,1,modified_file)
-                modified_children = modified_elements[i][1]
-                self.modifyItems(parent.child(i,0), modified_children)
-
-    def clearLayout(self, layout):
-        """delete all children of the specified layout"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                self.clearLayout(child.layout())
+                self.populate_tree(parent.child(i,0), child, reset_view)
 
     def init_position(self, action_button_group):
+        """Initialize the position and the size of the ActionButtonGroup in the frame."""
         x_coord = action_button_group.geometry().x()
         x_coord += action_button_group.size().width() + self.frame_space
         return x_coord
@@ -239,8 +218,6 @@ class MainWidget(QWidget):
         else:
             x_coord -= (self.frame_width + self.frame_space)
         action_button_group.move(x_coord, action_button_group.geometry().y())
-
-
 
     def add_prefix(self):
         self.prefix_number += 1
@@ -315,23 +292,11 @@ class MainWidget(QWidget):
             QMessageBox.information(self, "Information", "There is no suffix to remove.")
             raise Exception("There is no suffix to remove.")
 
-
-
-    def call_actions(self, actions, tree):
-        for i in range(len(tree)):
-            if tree[i][1] != []:
-                for action in actions:
-                    tree[i][0] = action.call(tree[i][0])
-                self.call_actions(actions, tree[i][1])
-            else:
-                for action in actions:
-                    tree[i][0] = action.call(tree[i][0])
-        return tree
-
     def test(self):
         self.files.rename(self.files.get_original_files(), self.files.get_file_system_tree_node())
 
     def apply_action(self):
+        #pdb.set_trace()
         self.actions = []
         self.populate_actions(self.folder_box, "folder")
         for prefix in self.prefix_boxes:
@@ -340,11 +305,10 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        #self.files.reset()
-        self.files.execute_method_on_node(self.files.get_file_system_tree_node(),self.files.call_actions,self.actions)
+        self.files.execute_method_on_node(self.preview_data, self.files.reset)
+        self.files.execute_method_on_node(self.preview_data, self.files.call_actions,self.actions)
         #refresh tree
-        self.preview_data = self.files.get_file_system_tree_node()
-        #self.modifyItems(self.model, self.preview_data)
+        self.populate_tree(self.model, self.preview_data, False)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
@@ -438,9 +402,9 @@ class ActionButtonGroup(QWidget):
     def radio_button_clicked(self, enabled):
         if enabled:
             self.button_inputs_dict[self.sender().objectName()] = True
+            self.change()
         else:
             self.button_inputs_dict[self.sender().objectName()] = False
-        self.change()
 
     def get_text_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = value
@@ -593,8 +557,8 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        #self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
-        self.directory = r"C:\Users\pblanc\Desktop\test"
+        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.widget.input_directory(self.directory, False, False)
 
 

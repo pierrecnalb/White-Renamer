@@ -187,18 +187,9 @@ class FilesCollection(object):
     def get_original_files(self):
         return self.original_tree
 
-    def list_children(self, tree_node):
-        children = tree_node.get_children()
-        if children:
-            for child in tree_node.get_children():
-                print(child.original_filedescriptor.basename)
-                self.list_children(child)
-        else:
-            print(tree_node.original_filedescriptor.basename)
-            
     def reset(self, tree_node):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
-        return self.tree_node
+        return tree_node
 
     def execute_method_on_node(self, tree_node, method, *optional_argument):
         method(tree_node, *optional_argument)
@@ -209,7 +200,6 @@ class FilesCollection(object):
         #self.execute_method_on_node(tree_node, self.reset)
         for action in actions:
             tree_node.modified_filedescriptor = action.call(tree_node.modified_filedescriptor)
-        print(tree_node.modified_filedescriptor.basename)
     #def parselist(self, tree, path_section):
     #    """"""
     #    for item in tree:
