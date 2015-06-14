@@ -42,6 +42,7 @@ class MainWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
+        self.files = None
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
         self.frame_space = 20
@@ -192,8 +193,12 @@ class MainWidget(QWidget):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
         children = tree_node.get_children()
         for i, child in enumerate(children):
+            if child.original_filedescriptor.is_folder:
+                icon = self.folder_icon
+            else:
+                icon = self.file_icon
+            original_file = QStandardItem(icon, child.original_filedescriptor.basename)
             modified_file = QStandardItem(child.modified_filedescriptor.basename)
-            original_file = QStandardItem(child.original_filedescriptor.basename)
             if isinstance(parent, QStandardItemModel):
                 if reset_view:
                     parent.setItem(i,0,original_file)
@@ -297,6 +302,9 @@ class MainWidget(QWidget):
 
     def apply_action(self):
         #pdb.set_trace()
+        if self.files is None:
+            QMessageBox.information(self, "Information", "Please select a directory.")
+            return
         self.actions = []
         self.populate_actions(self.folder_box, "folder")
         for prefix in self.prefix_boxes:
@@ -449,7 +457,7 @@ class ActionButtonGroup(QWidget):
 
     def get_inputs(self):
         return self.selected_action, self.button_inputs_dict
-        
+
     def on_show_information(self, warning_message):
         """Show the information message"""
         QMessageBox.information(self, "Information", warning_message)
@@ -458,69 +466,78 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
         self.setWindowTitle('Renamer')
+        self.directory = None
         self.use_subfolder = False
         self.show_hidden_files = False
         # setGeometry(x_pos, y_pos, width, height)
         self.setGeometry(200,200,800,600)
-        # open option for the menu bar File menu
-        self.openAction = QAction(QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg"),'&Open', self)
-        self.openAction.setShortcut('Ctrl+o')
-        self.openAction.triggered.connect(self.openDirectoryDialog)
-        self.recursionAction = QAction('Modify Subfolders Recursively', self)
-        self.recursionAction.setShortcut('Ctrl+u')
-        self.recursionAction.triggered.connect(self.recursion)
-        self.hiddenFilesAction = QAction('Show Hidden Files', self)
-        self.hiddenFilesAction.setShortcut('Ctrl+h')
-        self.hiddenFilesAction.triggered.connect(self.hide_files)
+        
+        self.tab = QWidget()
+        self.plainTextEdit = QPlainTextEdit(self.tab)
 
-        self.exit = QAction('Exit', self)
-        # message for the status bar if mouse is over Exit
-        self.exit.setStatusTip('Exit program')
-        #self.exit.triggered.connect(app.quit)
-        # create the menu bar
+        #CREATE THE ACTIONS
+        self.action_open = QAction('&Open', self)
+        self.action_open = self.editAction(self.action_open, self.openDirectoryDialog, 'ctrl+O', "/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg" ,'Exit program.')
+        self.action_exit = QAction('&Exit', self)
+        self.action_exit = self.editAction(self.action_exit, self.close, 'ctrl+Q', None,'Open directory dialog.')
+        self.action_recursion = QAction('&Recursion', self)
+        #self.action_recursion = self.editAction(self.action_recursion, self.use_subfolder, 'ctrl+O', QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg") ,'Exit program.')                                  
+        self.action_help = QAction('&Help', self)
+        self.action_help = self.editAction(self.action_help, self.help, 'ctrl+H', None,'Show help page.')
+        self.action_about = QAction('&About', self)
+        self.action_about = self.editAction(self.action_about, self.aboutBox, 'ctrl+B', None,'Pop About Box.')
+        self.action_recursion = QAction('Recursion', self)
+        self.action_recursion = self.editAction(self.action_recursion, self.recursion, 'ctrl+R', None,'Rename subdirectories recursively.')
+        self.action_recursion.setCheckable(True)
+        self.action_hide = QAction('Show Hidden Files', self)
+        self.action_hide = self.editAction(self.action_hide, self.hide_files, 'ctrl+H', None,'Show hidden files.')
+        self.action_hide.setCheckable(True)
+        self.action_add_prefix = QAction('Add Prefix', self)
+        self.action_add_prefix = self.editAction(self.action_add_prefix, self.add_prefix, 'ctrl+P', None,'Add prefix.')
+        self.action_add_suffix = QAction('Add Suffix', self)
+        self.action_add_suffix = self.editAction(self.action_add_suffix, self.add_suffix, 'ctrl+S', None,'Add suffix.')
+        self.action_remove_prefix = QAction('Remove Prefix', self)
+        self.action_remove_prefix = self.editAction(self.action_remove_prefix, self.remove_prefix, 'alt+P', None,'Remove prefix.')
+        self.action_remove_suffix = QAction('Remove Suffix', self)
+        self.action_remove_suffix = self.editAction(self.action_remove_suffix, self.remove_suffix, 'alt+S', None,'Remove suffix.')
+        # CREATE THE MENU BAR
         menubar = self.menuBar()
-        file = menubar.addMenu('&File')
-        # now add self.exit
-        file.addAction(self.exit)
-        # create the status bar
-        self.statusBar()
-        self.main_toolbar = self.addToolBar('main_toolbar')
-        self.main_toolbar.addAction(self.openAction)
+        #FILE
+        menu_file = menubar.addMenu('&File')
+        menu_file.addAction(self.action_open)
+        menu_file.addSeparator()
+        menu_file.addAction(self.action_exit)
+        #EDIT
+        menu_edit = menubar.addMenu('&Edit')
+        menu_edit.addAction(self.action_hide)
+        menu_edit.addAction(self.action_recursion)
+        menu_edit.addSeparator()
+        menu_edit.addAction(self.action_add_prefix)
+        menu_edit.addAction(self.action_add_suffix)
+        menu_edit.addAction(self.action_remove_prefix)
+        menu_edit.addAction(self.action_remove_suffix)
+        #HELP
+        menu_help = menubar.addMenu('&Help')
+        menu_help.addAction(self.action_help)
+        menu_help.addAction(self.action_about)
+
         self.hide_files_btn = QCheckBox("Show Hidden Files")
         self.hide_files_btn.setObjectName('hide_files_btn')
         self.hide_files_btn.stateChanged[int].connect(self.hide_files)
-        
+        self.recursionAction = QAction('Modify Subfolders Recursively', self)
+        self.recursionAction.setShortcut('Ctrl+u')
+        self.recursionAction.triggered.connect(self.recursion)
+        # create the status bar
+        self.statusBar()
+        self.main_toolbar = self.addToolBar('main_toolbar')
+        self.main_toolbar.addAction(self.action_open)
+
         self.recursion_btn = QCheckBox("Show Subdirectories")
         self.recursion_btn.setObjectName('recursion_btn')
         self.recursion_btn.stateChanged[int].connect(self.recursion)
-
-        #self.folder_icon = QIcon()
-        #self.folder_icon.addPixmap(QPixmap(":/icons/Icons/folder.png"), QIcon.Normal, QIcon.On)
-    #def addActions(self, target, actions):
-    #    '''Actions are added to Tool Bar.'''
-    #    for action in actions:
-    #        if action is None:
-    #            target.addSeparator()
-    #        else:
-    #            target.addAction(action)
-    #
-    #def editAction(self, action, slot=None, shortcut=None, icon=None,
-    #                 tip=None):
-    #    '''This method adds to action: icon, shortcut, ToolTip,\
-    #    StatusTip and can connect triggered action to slot '''
-    #    if icon is not None:
-    #        action.setIcon(QIcon(":/%s.png" % (icon)))
-    #    if shortcut is not None:
-    #        action.setShortcut(shortcut)
-    #    if tip is not None:
-    #        action.setToolTip(tip)
-    #        action.setStatusTip(tip)
-    #    if slot is not None:
-    #        action.triggered.connect(slot)                        
-    #    return action
-
         self.main_toolbar.addWidget(self.hide_files_btn)
         self.main_toolbar.addWidget(self.recursion_btn)
+
         #self.recursion_toolbar = self.addToolBar('Recursion')
         #self.recursion_toolbar.addAction(self.recursionAction)
         #self.hidden_files_toolbar = self.addToolBar('Recursion')
@@ -529,12 +546,52 @@ class MainWindow(QMainWindow):
         self.widget = MainWidget()
         self.setCentralWidget(self.widget)
 
+    def editAction(self, action, slot=None, shortcut=None, icon=None,
+                     tip=None):
+        '''This method adds to action: icon, shortcut, ToolTip,\
+        StatusTip and can connect triggered action to slot '''
+        if icon is not None:
+            action.setIcon(QIcon(":/%s.png" % (icon)))
+        if shortcut is not None:
+            action.setShortcut(shortcut)
+        if tip is not None:
+            action.setToolTip(tip)
+            action.setStatusTip(tip)
+        if slot is not None:
+            action.triggered.connect(slot)
+        return action
+
+    def help(self):
+        '''Read and display a help file- currently the README.txt.'''
+        self.plainTextEdit.setPlainText(open('README.md').read())
+
+    def aboutBox(self):
+        '''Popup a box with about message.'''
+        QMessageBox.about(self, "About PySide, Platform and the like",
+                """<b>Part of Structural Analysis.</b> v %s
+                <p>Copyright &copy; 2015 Pierre BLANC. 
+                All rights reserved in accordance with
+                Creative Commons Attribution Licence (CCPL) v3
+                or later - NO WARRANTIES!
+                <p>This progam """ )
     @Slot()
     def recursion(self, value):
         if value == 0:
             self.use_subfolder = False
         elif value == 2:
             self.use_subfolder = True
+        if self.directory is None:
+            return
+        self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
+
+    @Slot()
+    def hide_files2(self, value):
+        if value == False:
+            self.show_hidden_files = False
+        elif value == True:
+            self.show_hidden_files = True
+        if self.directory is None:
+            return
         self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
 
     @Slot()
@@ -543,6 +600,8 @@ class MainWindow(QMainWindow):
             self.show_hidden_files = False
         elif value == 2:
             self.show_hidden_files = True
+        if self.directory is None:
+            return
         self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
 
     @Slot()
@@ -559,8 +618,19 @@ class MainWindow(QMainWindow):
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
         self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
-        self.widget.input_directory(self.directory, False, False)
+        self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
 
-
+    @Slot()
+    def add_prefix(self):
+        self.widget.add_prefix()
+    @Slot()
+    def add_suffix(self):
+        self.widget.add_suffix()
+    @Slot()
+    def remove_prefix(self):
+        self.widget.remove_prefix()
+    @Slot()
+    def remove_suffix(self):
+        self.widget.remove_suffix()
 if __name__ == '__main__':
     main()
