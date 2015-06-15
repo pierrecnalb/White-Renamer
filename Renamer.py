@@ -367,12 +367,12 @@ class DateAction(Action):
         self.is_modified_date = is_modified_date
         self.format_display = format_display
 
-    def call_on_path_part(self, file_descriptor):
-        if is_modified_date:
+    def call_on_path_part(self, file_descriptor, path_part):
+        if self.is_modified_date:
             file_date = os.path.getmtime(file_descriptor.path)
         else:
             file_date = os.path.getctime(file_descriptor.path)
-        return time.strftime(format_display, time.localtime(file_date))
+        return time.strftime(self.format_display, time.localtime(file_date))
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
