@@ -71,6 +71,9 @@ class MainWidget(QWidget):
         counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int, 0))
         counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int, 1))
         counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
+        date_inputs = []
+        date_inputs.append(Renamer.ActionInput('modified_date', 'Modified Date', "boolean", False))
+        date_inputs.append(Renamer.ActionInput('format_display', 'Format', str, "%Y %d %B %A %H:%M:%S"))
         foldername_inputs = []
         foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
         foldername_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool, False))
@@ -84,10 +87,12 @@ class MainWidget(QWidget):
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert Characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete Characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor("Date", date_inputs, Renamer.DateAction))
         #LIMITED ACTION DESCRIPTOR
         self.limited_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
         self.limited_action_descriptors.append(Renamer.ActionDescriptor("Folder Name", foldername_inputs, Renamer.FolderNameUsageAction))
         self.limited_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Date", date_inputs, Renamer.DateAction))
         #Create Button and Layout
         self.prefix_number = 0
         self.suffix_number = 0
@@ -395,6 +400,8 @@ class ActionButtonGroup(QWidget):
                     sub_button.stateChanged[int].connect(self.get_state_changed)
                 elif arguments.argument_type == bool:
                     sub_button = QRadioButton()
+                    sub_button.setText(str(arguments.argument_caption))
+                    label.setText("")
                     sub_button.setChecked(arguments.default_value)
                     sub_button.toggled.connect(self.radio_button_clicked)
                 elif arguments.argument_type == int:
@@ -616,8 +623,8 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
-        #self.directory = r"C:\Users\pblanc\Desktop\test"
+        #self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        self.directory = r"C:\Users\pblanc\Desktop\test"
         self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
 
     @Slot()
