@@ -72,7 +72,7 @@ class MainWidget(QWidget):
         counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int, 1))
         counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         date_inputs = []
-        date_inputs.append(Renamer.ActionInput('modified_date', 'Modified Date', "boolean", False))
+        date_inputs.append(Renamer.ActionInput('is_modified_date', 'Modified Date', "boolean", False))
         date_inputs.append(Renamer.ActionInput('format_display', 'Format', str, "%Y %d %B %A %H:%M:%S"))
         foldername_inputs = []
         foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
