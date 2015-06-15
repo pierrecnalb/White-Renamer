@@ -61,18 +61,19 @@ class MainWidget(QWidget):
         character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str, ""))
         character_insertion_inputs = []
         character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str, ""))
-        character_insertion_inputs.append(Renamer.ActionInput('index', 'at Position', int, 0))
+        character_insertion_inputs.append(Renamer.ActionInput('index', 'At Position', int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(Renamer.ActionInput('number_of_char', 'Number of Character', int, 0))
-        character_deletion_inputs.append(Renamer.ActionInput('index', 'From Position', int, 0))
+        character_deletion_inputs.append(Renamer.ActionInput('starting_position', 'From', int, 0))
+        character_deletion_inputs.append(Renamer.ActionInput('ending_position', 'To', int, 1))
         custom_name_inputs = []
         custom_name_inputs.append(Renamer.ActionInput('new_name', 'New Name', str, ""))
         counter_inputs = []
         counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int, 0))
-        counter_inputs.append(Renamer.ActionInput('increment', 'Increment By', int, 1))
+        counter_inputs.append(Renamer.ActionInput('increment', 'Increment', int, 1))
         counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         date_inputs = []
-        date_inputs.append(Renamer.ActionInput('is_modified_date', 'Modified Date', "boolean", False))
+        date_inputs.append(Renamer.ActionInput('is_modified_date', 'Modified', bool, False))
+        date_inputs.append(Renamer.ActionInput('is_created_date', 'Created', bool, True))
         date_inputs.append(Renamer.ActionInput('format_display', 'Format', str, "%Y %d %B %A %H:%M:%S"))
         foldername_inputs = []
         foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
@@ -385,6 +386,7 @@ class ActionButtonGroup(QWidget):
         if self.selected_action and self.selected_action.action_inputs is not None:
             form = QFormLayout()
             form.setObjectName("form")
+            form.rowWrapPolicy =QFormLayout.WrapLongRows
             self.button_inputs_dict = {}
             for arguments in (self.selected_action.action_inputs):
                 label = QLabel()
@@ -405,9 +407,9 @@ class ActionButtonGroup(QWidget):
                     sub_button.setChecked(arguments.default_value)
                     sub_button.toggled.connect(self.radio_button_clicked)
                 elif arguments.argument_type == int:
-                    sub_button = QLineEdit()
-                    sub_button.setText(str(arguments.default_value))
-                    sub_button.textChanged[str].connect(self.get_integer_changed)
+                    sub_button = QSpinBox()
+                    sub_button.setValue(arguments.default_value)
+                    sub_button.valueChanged[int].connect(self.get_integer_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
                 form.addRow(label, sub_button)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
@@ -438,7 +440,7 @@ class ActionButtonGroup(QWidget):
         if value=="":
             value = 0
         try:
-            self.button_inputs_dict[self.sender().objectName()] = int(value)
+            self.button_inputs_dict[self.sender().objectName()] = value
         except ValueError:
             self.on_show_information("Please enter an integer.")
         self.change()
@@ -623,8 +625,8 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        #self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
-        self.directory = r"C:\Users\pblanc\Desktop\test"
+        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
 
     @Slot()

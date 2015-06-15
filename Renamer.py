@@ -199,7 +199,7 @@ class FilesCollection(object):
     def call_actions(self, tree_node, actions):
         #self.execute_method_on_node(tree_node, self.reset)
         for action in actions:
-            tree_node.modified_filedescriptor = action.call(tree_node.modified_filedescriptor)
+            tree_node = action.call(tree_node)
     #def parselist(self, tree, path_section):
     #    """"""
     #    for item in tree:
@@ -246,29 +246,29 @@ class Action:
     def __init__(self, path_type):
         self.path_type = path_type
 
-    def call(self, file_descriptor):
+    def call(self, file_system_tree_node):
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
         if(self.path_type == "file"):
-            file_descriptor.filename = self.call_on_path_part(file_descriptor, file_descriptor.filename)
-            return file_descriptor
+            file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
+            return file_system_tree_node
         elif(self.path_type == "folder"):
-            file_descriptor.foldername = self.call_on_path_part(file_descriptor, file_descriptor.foldername)
-            return file_descriptor
+            file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
+            return file_system_tree_node
         elif(self.path_type == "suffix"):
-            file_descriptor.suffix = file_descriptor.suffix + self.call_on_path_part(file_descriptor, file_descriptor.suffix)
-            return file_descriptor
+            file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
+            return file_system_tree_node
         elif(self.path_type == "prefix"):
-            file_descriptor.prefix = self.call_on_path_part(file_descriptor, file_descriptor.prefix) + file_descriptor.prefix
-            return file_descriptor
+            file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
+            return file_system_tree_node
         elif(self.path_type == "extension"):
-            file_descriptor.extension = self.call_on_path_part(file_descriptor, file_descriptor.extension)
-            return file_descriptor
+            file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
+            return file_system_tree_node
         else:
             raise Exception("path_part not valid")
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         raise Exception("not implemented")
 
 
@@ -280,7 +280,7 @@ class CharacterReplacementAction(Action):
         self.old_char = old_char
         self.new_char = new_char
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         return path_part.replace(self.old_char,self.new_char)
 
 class OriginalName(Action):
@@ -300,7 +300,7 @@ class OriginalName(Action):
           words_converted.append(word in exceptions and word or word.capitalize())
        return " ".join(words_converted)
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         if self.uppercase is True:
             return path_part.upper()
         elif self.lowercase is True:
@@ -317,18 +317,20 @@ class CharacterInsertionAction(Action):
         self.new_char = new_char
         self.index = index
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         return path_part[:self.index] + self.new_char + path_part[self.index:]
 
 class CharacterDeletionAction(Action):
-    """Delete n-character starting from index position."""
-    def __init__(self, path_type, number_of_char, index):
+    """Delete n-character from starting_position to ending_position."""
+    def __init__(self, path_type, starting_position, ending_position):
         Action.__init__(self, path_type)
-        self.number_of_char = number_of_char
-        self.index = index
+        self.starting_position = starting_position
+        self.ending_position = ending_position
 
-    def call_on_path_part(self, file_descriptor, path_part):
-        return path_part[:self.index] + path_part[self.index + self.number_of_char :]
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        if self.starting_position > self.ending_position:
+            raise Exception("starting_position cannot be higher than ending_position.")
+        return path_part[:self.starting_position] + path_part[self.ending_position:]
 
 class CustomNameAction(Action):
     """Use a custom name in the filename."""
@@ -336,7 +338,7 @@ class CustomNameAction(Action):
         Action.__init__(self, path_type)
         self.new_name = new_name
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         return self.new_name
 
 class FolderNameUsageAction(Action):
@@ -348,8 +350,8 @@ class FolderNameUsageAction(Action):
         self.lowercase = lowercase
         self.titlecase = titlecase
 
-    def call_on_path_part(self, file_descriptor, path_part):
-        (path, folder) = os.path.split(file_descriptor.parents)
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        (path, folder) = os.path.split(file_system_tree_node.original_filedescriptor.parents)
         if self.uppercase is True:
             return folder.upper()
         elif self.lowercase is True:
@@ -362,16 +364,17 @@ class FolderNameUsageAction(Action):
 class DateAction(Action):
     """Use the created or modified date metadata as the filename."""
     """If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date."""
-    def __init__(self, path_type, is_modified_date = False, format_display = '%Y'):
+    def __init__(self, path_type, is_modified_date = False, is_created_date = True, format_display = '%Y'):
         Action.__init__(self, path_type)
         self.is_modified_date = is_modified_date
+        self.is_created_date = is_created_date
         self.format_display = format_display
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         if self.is_modified_date:
-            file_date = os.path.getmtime(file_descriptor.path)
-        else:
-            file_date = os.path.getctime(file_descriptor.path)
+            file_date = os.path.getmtime(file_system_tree_node.original_filedescriptor.path)
+        elif self.is_created_date:
+            file_date = os.path.getctime(file_system_tree_node.original_filedescriptor.path)
         return time.strftime(self.format_display, time.localtime(file_date))
 
 class Counter(Action):
@@ -386,15 +389,15 @@ class Counter(Action):
         self.counter = 0
         self.previous_parents = ""
 
-    def call_on_path_part(self, file_descriptor, path_part):
-        if (file_descriptor.parents!=self.previous_parents and self.restart is True):
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        if (file_system_tree_node.original_filedescriptor.parents!=self.previous_parents and self.restart is True):
             self.counter = self.start_index
         else:
             if(self.counter == 0):
                 self.counter = self.start_index
             else:
                 self.counter = self.counter + (1 * self.increment)
-        self.previous_parents=file_descriptor.parents
+        self.previous_parents=file_system_tree_node.original_filedescriptor.parents
         return str(self.counter)
 
 class PipeAction(Action):
@@ -404,18 +407,18 @@ class PipeAction(Action):
         self.main_action = main_action
         self.sub_action = sub_action
 
-    def call_on_path_part(self, file_descriptor, path_part):
+    def call_on_path_part(self, file_system_tree_node, path_part):
         # Execute all left hand side actions to get argument values for the
         # action to execute.
         argumentValues = {}
         for argument_name, argument_provider in self.sub_action.items():
             if isinstance(argument_provider, Action):
-                argumentValues[argument_name] = argument_provider.call_on_path_part(file_descriptor, path_part)
+                argumentValues[argument_name] = argument_provider.call_on_path_part(file_system_tree_node.modified_filedescriptor, path_part)
             else:
                 argumentValues[argument_name] = argument_provider
         # Prepare right hand side for this file.
         action = self.main_action(self.path_part, **argumentValues)
-        value = action.call_on_path_part(file_descriptor, path_part)
+        value = action.call_on_path_part(file_system_tree_node.modified_filedescriptor, path_part)
         return value
 ##def method(arg):
 #    print(arg)
