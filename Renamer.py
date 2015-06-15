@@ -359,11 +359,20 @@ class FolderNameUsageAction(Action):
         else:
             return folder
 
-class ModifiedTimeUsageAction(Action):
-    """Use the modified time metadata as the filename."""
-    def call(self, file_descriptor):
-        (mode, ino, dev, nlink, uid, gid, size, atime, mtime, ctime) = os.stat(self.filenames)
-        return time.ctime(mtime)
+class DateAction(Action):
+    """Use the created or modified date metadata as the filename."""
+    """If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date."""
+    def __init__(self, path_type, is_modified_date = False, format_display = '%Y'):
+        Action.__init__(self, path_type)
+        self.is_modified_date = is_modified_date
+        self.format_display = format_display
+
+    def call_on_path_part(self, file_descriptor):
+        if is_modified_date:
+            file_date = os.path.getmtime(file_descriptor.path)
+        else:
+            file_date = os.path.getctime(file_descriptor.path)
+        return time.strftime(format_display, time.localtime(file_date))
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
