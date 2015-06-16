@@ -121,21 +121,19 @@ class FileDescriptor(object):
         else:
             self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
 
-class FileSystemTree(object):
-    def __init__(self, rootPath):
-        self.root = FileSystemTreeNode()
-
 class FileSystemTreeNode(object):
     """Contains the original and modified FileDescriptor for a given node of the selected directory.
     The structure of the system tree node is reproduced by adding children for each subdirectory."""
-    def __init__(self, original_path, is_dir):
+    def __init__(self, original_path, is_dir, rank = 0):
         self.children = []
         self._original_path = FileDescriptor(original_path, is_dir)
         self._modified_path = copy.deepcopy(self._original_path)
         self.is_dir = is_dir
+        self._rank = rank
 
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
+        self._rank = len(self.children) 
         return file_system_tree_node
 
     def get_children(self):
@@ -145,6 +143,10 @@ class FileSystemTreeNode(object):
     def original_filedescriptor(self):
         return self._original_path
 
+    @original_filedescriptor.setter
+    def original_filedescriptor(self, value):
+        self._original_path = value
+
     @property
     def modified_filedescriptor(self):
         return self._modified_path
@@ -152,8 +154,18 @@ class FileSystemTreeNode(object):
     @modified_filedescriptor.setter
     def modified_filedescriptor(self, value):
         self._modified_path = value
+
+    @property
+    def rank(self):
+        """Give the position of the file according to the sorting criteria."""
+        return self._rank
  
+    @rank.setter
+    def rank(self, value):
+        self._rank = value
+
 class FilesCollection(object):
+    """Contains the files system structure with all subdirectories, starting from the input path."""
     def __init__(self, input_path, use_subdirectory, show_hidden_files):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
@@ -162,67 +174,49 @@ class FilesCollection(object):
         self.scan(self.file_system_tree_node)
 
     def scan(self, file_system_tree_node):
-        """Create a nested list of FileSystemTreeNode containing original and modified FileDescriptor."""
-        #pdb.set_trace()
+        """Build the files system structure with FileSystemTreeNode."""
         path = file_system_tree_node.original_filedescriptor.path
         children = sorted(os.listdir(path))
+        folder_rank = 0
+        file_rank = 0
         for child in children:
             #Check for hidden files
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
-                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True)
+                folder_rank += 1
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank)
                 file_system_tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
                 else:
                     self.scan(file_system_child_node)
             else:
-                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False)
+                file_rank += 1
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank)
                 file_system_tree_node.add_children(file_system_child_node)
 
     def get_file_system_tree_node(self):
         return self.file_system_tree_node
-
-    def get_original_files(self):
-        return self.original_tree
 
     def reset(self, tree_node):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
     def execute_method_on_node(self, tree_node, method, *optional_argument):
-        method(tree_node, *optional_argument)
+        if tree_node.original_filedescriptor.path != self.input_path:
+            #Do not apply the actions to the selected directory.
+            method(tree_node, *optional_argument)
         for child in tree_node.get_children():
             self.execute_method_on_node(child, method, *optional_argument)
     
     def call_actions(self, tree_node, actions):
-        #self.execute_method_on_node(tree_node, self.reset)
         for action in actions:
             tree_node = action.call(tree_node)
-    #def parselist(self, tree, path_section):
-    #    """"""
-    #    for item in tree:
-    #        if item[1] != []:
-    #            self.parselist(item[1], path_section)
-    #        item[0] = path_section(item[0])
-    #    return tree
 
-    #def call_actions(self, actions, tree):
-    #    """"""
-    #    for item in tree:
-    #        if item[1] != []:
-    #            self.call_actions(actions, item[1])
-    #        for action in actions:
-    #            item[0] = action.call(item[0])
-    #    return tree
-
-    def rename(self, original_tree, modified_tree):
-        for i in range(len(modified_tree)):
-            if modified_tree[i][1] != []:
-                self.rename(original_tree[i][1], modified_tree[i][1])
-            shutil.move(original_tree[i][0].path,modified_tree[i][0].path)
-            original_tree[i][0] = copy.deepcopy(modified_tree[i][0])
+    def rename(self, tree_node):
+        shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
+        tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
 
 class ActionDescriptor:
 
@@ -386,23 +380,25 @@ class Counter(Action):
         self.start_index = start_index
         self.increment = increment
         self.restart = restart
-        self.counter = self.start_index
-        self.previous_parent = ""
-        self.previous_type = ""
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        if (file_system_tree_node.original_filedescriptor.parent != self.previous_parent):
-            if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
-                if self.restart is True:
-                    self.counter = self.start_index
-                else :
-                    self.counter += self.increment
-        else:
-            if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
-                self.counter += self.increment
-        self.previous_type = file_system_tree_node.original_filedescriptor.is_folder
-        self.previous_parent = file_system_tree_node.original_filedescriptor.parent
-        return str(self.counter)
+        counter = file_system_tree_node.rank
+        counter *= self.increment
+        counter += self.start_index
+        #if (file_system_tree_node.original_filedescriptor.parent != self.previous_parent):
+        #    if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
+        #        if self.restart is True:
+        #            self.counter = self.start_index
+        #        else :
+        #            self.counter += self.increment
+        #else:
+        #    if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
+        #        self.counter += self.increment
+        #if self.previous_type == "":
+        #    self.counter = self.start_index
+        #self.previous_type = file_system_tree_node.original_filedescriptor.is_folder
+        #self.previous_parent = file_system_tree_node.original_filedescriptor.parent
+        return str(counter)
 
 class PipeAction(Action):
     """Execute actions inside another action."""
