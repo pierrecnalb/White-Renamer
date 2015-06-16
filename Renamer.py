@@ -19,7 +19,7 @@ class FileDescriptor(object):
     def __init__(self, input_path, is_dir):
         self._path = input_path
         self.is_folder = is_dir
-        (self._parents, self._basename)=os.path.split(self._path)
+        (self._parent, self._basename)=os.path.split(self._path)
         if (self.is_folder is False):
             (self._filename, self._extension) = os.path.splitext(self._basename)
             self._foldername = ""
@@ -43,14 +43,14 @@ class FileDescriptor(object):
         self._path = value
 
     @property
-    def parents(self):
+    def parent(self):
         self.update_path()
-        return self._parents
+        return self._parent
 
-    @parents.setter
-    def parents(self, value):
+    @parent.setter
+    def parent(self, value):
         self.update_path()
-        self._parents = value
+        self._parent = value
 
     @property
     def foldername(self):
@@ -117,9 +117,9 @@ class FileDescriptor(object):
 
     def update_path(self):
         if self.is_folder is True:
-            self._path = os.path.join(self._parents, self._foldername)
+            self._path = os.path.join(self._parent, self._foldername)
         else:
-            self._path = os.path.join(self._parents, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
+            self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
 
 class FileSystemTree(object):
     def __init__(self, rootPath):
@@ -351,7 +351,7 @@ class FolderNameUsageAction(Action):
         self.titlecase = titlecase
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        (path, folder) = os.path.split(file_system_tree_node.original_filedescriptor.parents)
+        (path, folder) = os.path.split(file_system_tree_node.original_filedescriptor.parent)
         if self.uppercase is True:
             return folder.upper()
         elif self.lowercase is True:
@@ -386,18 +386,22 @@ class Counter(Action):
         self.start_index = start_index
         self.increment = increment
         self.restart = restart
-        self.counter = 0
-        self.previous_parents = ""
+        self.counter = self.start_index
+        self.previous_parent = ""
+        self.previous_type = ""
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        if (file_system_tree_node.original_filedescriptor.parents!=self.previous_parents and self.restart is True):
-            self.counter = self.start_index
+        if (file_system_tree_node.original_filedescriptor.parent != self.previous_parent):
+            if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
+                if self.restart is True:
+                    self.counter = self.start_index
+                else :
+                    self.counter += self.increment
         else:
-            if(self.counter == 0):
-                self.counter = self.start_index
-            else:
-                self.counter = self.counter + (1 * self.increment)
-        self.previous_parents=file_system_tree_node.original_filedescriptor.parents
+            if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
+                self.counter += self.increment
+        self.previous_type = file_system_tree_node.original_filedescriptor.is_folder
+        self.previous_parent = file_system_tree_node.original_filedescriptor.parent
         return str(self.counter)
 
 class PipeAction(Action):
