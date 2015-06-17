@@ -187,7 +187,7 @@ class MainWidget(QWidget):
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
-        self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files)
+        self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files, "name", False)
         self.preview_data = self.files.get_file_system_tree_node()
         self.populate_tree(self.model, self.preview_data, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
@@ -215,7 +215,8 @@ class MainWidget(QWidget):
                 self.populate_tree(parent.child(i,0), child, reset_view)
     @Slot()            
     def tree_item_changed(self, selected_item):
-        print(selected_item.row())
+        pass
+        #print(selected_item.row())
 
     def init_position(self, action_button_group):
         """Initialize the position and the size of the ActionButtonGroup in the frame."""
@@ -495,8 +496,9 @@ class MainWindow(QMainWindow):
         self.action_about = QAction('&About', self)
         self.action_about = self.editAction(self.action_about, self.about_box_click, 'ctrl+B', None,'Pop About Box.')
         self.action_recursion = QAction('Recursion', self)
-        self.action_recursion = self.editAction(self.action_recursion, self.recursion_click, 'ctrl+R', None,'Rename subdirectories recursively.')
+        self.action_recursion = self.editAction(self.action_recursion, None, 'ctrl+R', None,'Rename subdirectories recursively.')
         self.action_recursion.setCheckable(True)
+        self.action_recursion.triggered[bool].connect(self.recursion_click2)
         self.action_hide = QAction('Show Hidden Files', self)
         self.action_hide = self.editAction(self.action_hide, self.hide_files_click, 'ctrl+H', None,'Show hidden files.')
         self.action_hide.setCheckable(True)
@@ -587,6 +589,13 @@ class MainWindow(QMainWindow):
                 Creative Commons Attribution Licence (CCPL) v3
                 or later - NO WARRANTIES!
                 <p>This progam """ )
+    @Slot()
+    def recursion_click2(self, value):
+        self.use_subfolder = value
+        if self.directory is None:
+            return
+        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files)
+
     @Slot()
     def recursion_click(self, value):
         if value == 0:

@@ -166,17 +166,17 @@ class FileSystemTreeNode(object):
 
 class FilesCollection(object):
     """Contains the files system structure with all subdirectories, starting from the input path."""
-    def __init__(self, input_path, use_subdirectory, show_hidden_files):
+    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         self.file_system_tree_node = FileSystemTreeNode(self.input_path, True)
-        self.scan(self.file_system_tree_node)
+        self.scan(self.file_system_tree_node, sorting_criteria, reverse_order)
 
-    def scan(self, file_system_tree_node):
+    def scan(self, file_system_tree_node, sorting_criteria, reverse_order):
         """Build the files system structure with FileSystemTreeNode."""
         path = file_system_tree_node.original_filedescriptor.path
-        children = sorted(os.listdir(path))
+        children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
         folder_rank = 0
         file_rank = 0
         for child in children:
@@ -190,11 +190,27 @@ class FilesCollection(object):
                 if (not self.use_subdirectory):
                     continue
                 else:
-                    self.scan(file_system_child_node)
+                    self.scan(file_system_child_node, sorting_criteria, reverse_order)
             else:
                 file_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank)
                 file_system_tree_node.add_children(file_system_child_node)
+
+    def get_file_sorting_criteria(self, directory, sorting_criteria):
+        """Criteria to sort the files."""
+        (protection_bits, inode_number, device, hard_link, user_id, group_id, size, acessed_time, modification_time, creation_time) = os.stat(directory)
+        if sorting_criteria == "size":
+            return size
+        elif sorting_criteria == "modified_date":
+            return modification_time
+        elif sorting_criteria ==  "creation_date":
+            return creation_time
+        elif sorting_criteria == "name":
+            return directory.lower()
+        else:
+            return None
+
+
 
     def get_file_system_tree_node(self):
         return self.file_system_tree_node
