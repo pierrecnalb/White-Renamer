@@ -203,6 +203,7 @@ class MainWidget(QWidget):
             original_file = QStandardItem(icon, child.original_filedescriptor.basename)
             modified_file = QStandardItem(child.modified_filedescriptor.basename)
             if isinstance(parent, QStandardItemModel):
+                parent.itemChanged[QStandardItem].connect(self.tree_item_changed)
                 if reset_view:
                     parent.setItem(i,0,original_file)
                 parent.setItem(i,1,modified_file)
@@ -212,6 +213,9 @@ class MainWidget(QWidget):
                     parent.setChild(i,0,original_file)
                 parent.setChild(i,1,modified_file)
                 self.populate_tree(parent.child(i,0), child, reset_view)
+    @Slot()            
+    def tree_item_changed(self, selected_item):
+        print(selected_item.row())
 
     def init_position(self, action_button_group):
         """Initialize the position and the size of the ActionButtonGroup in the frame."""
@@ -326,7 +330,6 @@ class MainWidget(QWidget):
         action_class = action_descriptor.action_class
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
-
 
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
