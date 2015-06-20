@@ -60,6 +60,7 @@ class MainWidget(QWidget):
         character_replacement_inputs = []
         character_replacement_inputs.append(Renamer.ActionInput('old_char', 'Replace', str, ""))
         character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str, ""))
+        character_replacement_inputs.append(Renamer.ActionInput('regex', 'Regex', "boolean", False))
         character_insertion_inputs = []
         character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str, ""))
         character_insertion_inputs.append(Renamer.ActionInput('index', 'At Position', int, 0))
@@ -118,12 +119,13 @@ class MainWidget(QWidget):
         self.treeView.setStyleSheet("QTreeView{border:2px solid rgb(213, 213, 213); border-radius: 4px};")
         self.treeView.setObjectName("treeView")
         self.treeView.setAlternatingRowColors(True)
+        self.treeView.setSortingEnabled(False)
+        #self.treeView.setDragDropMode(QAbstractItemView.DropOnly)
         self.model = QStandardItemModel()
         self.model.setObjectName("model")
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
-        self.treeView.setSortingEnabled(True)
         self.main_grid.addWidget(self.treeView, 1, 0)
                #---FOLDER GROUP---
         self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors, self.frame_width, self.frame_height)
@@ -134,8 +136,7 @@ class MainWidget(QWidget):
         self.add_prefix_btn = QPushButton('+')
         #self.add_prefix_btn.setStyleSheet("QPushButton {border: 1px solid #8f8f91}")
         self.add_prefix_btn.setObjectName("add_prefix_btn")
-        self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn{background-color: rgb(200, 25, 20); border-style:outset; border-radius:15px};")
-        #self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn:pressed{background-color: rgb(20, 25, 20); border-style:inset};")
+        #self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn{background-color: rgb(200, 25, 20); border-style:outset; border-radius:15px};")
         x_coord = self.init_position(self.folder_box)
         self.add_prefix_btn.setGeometry(QRect(x_coord, 80, self.button_width, self.button_width))
         self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
@@ -145,7 +146,6 @@ class MainWidget(QWidget):
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
         self.remove_prefix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
-        #self.main_layout.addLayout(self.prefix_layout)
         #---FILE GROUP---
         self.file_box = ActionButtonGroup("File", self.all_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_prefix_btn)
@@ -188,8 +188,8 @@ class MainWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
         self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
-        self.preview_data = self.files.get_file_system_tree_node()
-        self.populate_tree(self.model, self.preview_data, True)
+        self.root_tree_node = self.files.get_file_system_tree_node()
+        self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
     def populate_tree(self, parent, tree_node, reset_view):
@@ -201,6 +201,7 @@ class MainWidget(QWidget):
             else:
                 icon = self.file_icon
             original_file = QStandardItem(icon, child.original_filedescriptor.basename)
+            original_file.setEditable(False)
             modified_file = QStandardItem(child.modified_filedescriptor.basename)
             if isinstance(parent, QStandardItemModel):
                 parent.itemChanged[QStandardItem].connect(self.tree_item_changed)
@@ -306,7 +307,14 @@ class MainWidget(QWidget):
             raise Exception("There is no suffix to remove.")
 
     def rename(self):
-        self.files.execute_method_on_node(self.preview_data, self.files.rename)
+        """Rename all the files and folders."""
+        self.files.execute_method_on_nodes(self.root_tree_node, self.files.rename)
+        self.populate_tree(self.model, self.root_tree_node, True)
+
+    def undo(self):
+        """Undo the previous renaming action."""
+        self.files.execute_method_on_nodes(self.root_tree_node, self.files.undo)
+        self.populate_tree(self.model, self.root_tree_node, True)
 
     def apply_action(self):
         if self.files is None:
@@ -320,10 +328,10 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        self.files.execute_method_on_node(self.preview_data, self.files.reset)
-        self.files.execute_method_on_node(self.preview_data, self.files.call_actions,self.actions)
+        self.files.execute_method_on_nodes(self.root_tree_node, self.files.reset)
+        self.files.execute_method_on_nodes(self.root_tree_node, self.files.call_actions,self.actions)
         #refresh tree
-        self.populate_tree(self.model, self.preview_data, False)
+        self.populate_tree(self.model, self.root_tree_node, False)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
@@ -488,34 +496,46 @@ class MainWindow(QMainWindow):
 
         #CREATE THE ACTIONS
         self.action_open = QAction('&Open', self)
-        self.action_open = self.editAction(self.action_open, self.open_directory_dialog_click, None, 'ctrl+O', "folder_icon.svg" ,'Exit program.')
+        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+O', "new_icon.svg" ,'Exit program.')
         self.action_exit = QAction('&Exit', self)
-        self.action_exit = self.editAction(self.action_exit, self.close, None,'ctrl+Q', None,'Open directory dialog.')
-        self.action_recursion = QAction('&Recursion', self)
-        self.action_recursion.setData("test")
-        #self.action_recursion = self.editAction(self.action_recursion, self.use_subfolder, 'ctrl+O', QIcon("/home/pierre/Documents/Programs/White-Renamer/Icons/folder_icon.svg") ,'Exit program.')                                  
+        self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+Q', None,'Open directory dialog.')
         self.action_help = QAction('&Help', self)
-        self.action_help = self.editAction(self.action_help, self.help_click, None, 'ctrl+H', None,'Show help page.')
+        self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+H', None,'Show help page.')
         self.action_about = QAction('&About', self)
-        self.action_about = self.editAction(self.action_about, self.about_box_click, None, 'ctrl+B', None,'Pop About Box.')
+        self.action_about = self.edit_action(self.action_about, self.about_box_click, None, 'ctrl+B', None,'Pop About Box.')
         self.action_recursion = QAction('Recursion', self)
-        self.action_recursion = self.editAction(self.action_recursion, self.recursion_click, bool, 'ctrl+R', None,'Rename subdirectories recursively.')
+        self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, 'ctrl+R', "subdirectory_icon.svg",'Rename subdirectories recursively.')
         self.action_recursion.setCheckable(True)
         self.action_hide = QAction('Show Hidden Files', self)
-        self.action_hide = self.editAction(self.action_hide, self.hide_files_click, bool, 'ctrl+H', None,'Show hidden files.')
+        self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+H', "hidden_icon.svg",'Show hidden files.')
         self.action_hide.setCheckable(True)
         self.action_add_prefix = QAction('Add Prefix', self)
-        self.action_add_prefix = self.editAction(self.action_add_prefix, self.add_prefix_click, None, 'ctrl+P', None,'Add prefix.')
+        self.action_add_prefix = self.edit_action(self.action_add_prefix, self.add_prefix_click, None, 'ctrl+P', None,'Add prefix.')
         self.action_add_suffix = QAction('Add Suffix', self)
-        self.action_add_suffix = self.editAction(self.action_add_suffix, self.add_suffix_click, None, 'ctrl+S', None,'Add suffix.')
+        self.action_add_suffix = self.edit_action(self.action_add_suffix, self.add_suffix_click, None, 'ctrl+S', None,'Add suffix.')
         self.action_remove_prefix = QAction('Remove Prefix', self)
-        self.action_remove_prefix = self.editAction(self.action_remove_prefix, self.remove_prefix_click, None, 'alt+P', None,'Remove prefix.')
+        self.action_remove_prefix = self.edit_action(self.action_remove_prefix, self.remove_prefix_click, None, 'alt+P', None,'Remove prefix.')
         self.action_remove_suffix = QAction('Remove Suffix', self)
-        self.action_remove_suffix = self.editAction(self.action_remove_suffix, self.remove_suffix_click, None, 'alt+S', None,'Remove suffix.')
-        self.action_rename = QAction('Rename', self)
-        self.action_rename = self.editAction(self.action_rename, self.rename_click, None, 'ctrl+G', None,'Rename the files/folders.')
-        self.action_size_sorting = QAction('Size', self)
-        self.action_rename = self.editAction(self.action_size_sorting, self.size_sorting_click, bool, 'alt+s', None,'Sort the files/folders by size.')
+        self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, 'alt+S', None,'Remove suffix.')
+        self.action_rename = QAction('Run', self)
+        self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+G', None,'Rename the files/folders.')
+        self.action_undo = QAction('Undo', self)
+        self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', None,'Undo the previous renaming.')
+        self.action_reverse_sorting = QAction('Reverse', self)
+        self.action_reverse_sorting.setCheckable(True)
+        self.action_reverse_sorting = self.edit_action(self.action_reverse_sorting, self.reverse_sorting_click, bool, 'alt+r', "order_icon.svg",'Reverse the sorting order.')
+        self.action_name_sorting = QAction('By Name', self)
+        self.action_name_sorting.setCheckable(True)
+        self.action_name_sorting = self.edit_action(self.action_name_sorting, self.name_sorting_click, None, 'alt+s', None,'Sort the files/folders by name.')
+        self.action_size_sorting = QAction('By Size', self)
+        self.action_size_sorting.setCheckable(True)
+        self.action_size_sorting = self.edit_action(self.action_size_sorting, self.size_sorting_click, None, 'alt+s', None,'Sort the files/folders by size.')
+        self.action_modified_date_sorting = QAction('By Modified Date', self)
+        self.action_modified_date_sorting.setCheckable(True)
+        self.action_modified_date_sorting = self.edit_action(self.action_modified_date_sorting, self.modified_date_sorting_click, None, 'alt+s', None,'Sort the files/folders by modified date.')
+        self.action_creation_date_sorting = QAction('By Creation Date', self)
+        self.action_creation_date_sorting.setCheckable(True)
+        self.action_creation_date_sorting = self.edit_action(self.action_creation_date_sorting, self.creation_date_sorting_click, None, 'alt+s', None,'Sort the files/folders by creation date.')
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
@@ -528,44 +548,46 @@ class MainWindow(QMainWindow):
         menu_edit.addAction(self.action_hide)
         menu_edit.addAction(self.action_recursion)
         menu_edit.addSeparator()
-        menu_edit.addAction(self.action_add_prefix)
-        menu_edit.addAction(self.action_add_suffix)
-        menu_edit.addAction(self.action_remove_prefix)
-        menu_edit.addAction(self.action_remove_suffix)
+        menu_edit.addAction(self.action_name_sorting)
+        menu_edit.addAction(self.action_size_sorting)
+        menu_edit.addAction(self.action_creation_date_sorting)
+        menu_edit.addAction(self.action_modified_date_sorting)
+        menu_edit.addSeparator()
+        menu_edit.addAction(self.action_reverse_sorting)
+        #menu_edit.addAction(self.action_add_prefix)
+        #menu_edit.addAction(self.action_add_suffix)
+        #menu_edit.addAction(self.action_remove_prefix)
+        #menu_edit.addAction(self.action_remove_suffix)
         #TOOL
         menu_tool = menubar.addMenu('&Tool')
         menu_tool.addAction(self.action_rename)
+        menu_tool.addAction(self.action_undo)
         #HELP
         menu_help = menubar.addMenu('&Help')
         menu_help.addAction(self.action_help)
         menu_help.addAction(self.action_about)
 
-        self.hide_files_btn = QCheckBox("Show Hidden Files")
-        self.hide_files_btn.setObjectName('hide_files_btn')
-        self.hide_files_btn.toggled[bool].connect(self.hide_files_click)
-        self.recursionAction = QAction('Modify Subfolders Recursively', self)
-        self.recursionAction.setShortcut('Ctrl+u')
-        self.recursionAction.toggled[bool].connect(self.recursion_click)
-        # create the status bar
-        self.statusBar()
         self.main_toolbar = self.addToolBar('main_toolbar')
         self.main_toolbar.addAction(self.action_open)
-        self.recursion_btn = QCheckBox("Subdirectories")
-        self.recursion_btn.setObjectName('recursion_btn')
-        self.recursion_btn.toggled[bool].connect(self.recursion_click)
-        self.main_toolbar.addWidget(self.hide_files_btn)
-        self.main_toolbar.addWidget(self.recursion_btn)
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_hide)
+        self.main_toolbar.addAction(self.action_recursion)
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_name_sorting)
+        self.main_toolbar.addAction(self.action_size_sorting)
+        self.main_toolbar.addAction(self.action_creation_date_sorting)
+        self.main_toolbar.addAction(self.action_modified_date_sorting)
+        self.main_toolbar.addAction(self.action_reverse_sorting)
+        self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_rename)
+        self.main_toolbar.addAction(self.action_undo)
 
-        #self.recursion_toolbar = self.addToolBar('Recursion')
-        #self.recursion_toolbar.addAction(self.recursionAction)
-        #self.hidden_files_toolbar = self.addToolBar('Recursion')
-        #self.hidden_files_toolbar.addAction(self.hiddenFilesAction)
-        # QWidget or its instance needed for box layout
+        # create the status bar
+        self.statusBar()
         self.main_widget = MainWidget()
         self.setCentralWidget(self.main_widget)
 
-    def editAction(self, action, slot=None, type=None, shortcut=None, icon=None,
+    def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None,
                      tip=None):
         '''This method adds to action: icon, shortcut, ToolTip,\
         StatusTip and can connect triggered action to slot '''
@@ -595,32 +617,20 @@ class MainWindow(QMainWindow):
                 <p>This progam """ )
     @Slot()
     def recursion_click(self, value):
-        print(self.sender().data())
         self.use_subfolder = value
-        self.recursion_btn.setChecked(value)
-        self.action_recursion.setChecked(value)
         if self.directory is None:
             return
-        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
+        self.update_directory()
 
     @Slot()
     def hide_files_click(self, value):
-        self.hide_files_btn.setChecked(value)
-        self.action_hide.setChecked(value)
         if value == False:
             self.show_hidden_files = False
         elif value == True:
             self.show_hidden_files = True
         if self.directory is None:
             return
-        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
-
-    @Slot()
-    def openFileDialog(self):
-        """ Opens a file dialog and sets the label to the chosen path """
-        import os
-        #path, _ = QFileDialog.getOpenFileNames(self, "Open File", os.getcwd())
-        path = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        self.update_directory()
 
     @Slot()
     def open_directory_dialog_click(self):
@@ -645,13 +655,55 @@ class MainWindow(QMainWindow):
         self.main_widget.remove_suffix()
 
     @Slot()
-    def size_sorting_click(self, value):
-        if value:
-            self.sorting_criteria = "size"
+    def reverse_sorting_click(self, value):
+        self.reverse_order = value
+        self.update_directory()
+
+    @Slot()
+    def name_sorting_click(self):
+        self.action_name_sorting.setChecked(True)
+        self.action_creation_date_sorting.setChecked(False)
+        self.action_modified_date_sorting.setChecked(False)
+        self.action_size_sorting.setChecked(False)
+        self.sorting_criteria = "name"
+        self.update_directory()
+    @Slot()
+    def size_sorting_click(self):
+        self.action_size_sorting.setChecked(True)
+        self.action_name_sorting.setChecked(False)
+        self.action_creation_date_sorting.setChecked(False)
+        self.action_modified_date_sorting.setChecked(False)
+        self.sorting_criteria = "size"
+        self.update_directory()
+    @Slot()
+    def creation_date_sorting_click(self):
+        self.action_creation_date_sorting.setChecked(True)
+        self.action_name_sorting.setChecked(False)
+        self.action_modified_date_sorting.setChecked(False)
+        self.action_size_sorting.setChecked(False)
+        self.sorting_criteria = "creation_date"
+        self.update_directory()
+    @Slot()
+    def modified_date_sorting_click(self):
+        self.action_modified_date_sorting.setChecked(True)
+        self.action_name_sorting.setChecked(False)
+        self.action_creation_date_sorting.setChecked(False)
+        self.action_size_sorting.setChecked(False)
+        self.sorting_criteria = "modified_date"
+        self.update_directory()
+
+    def update_directory(self):
             self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
+            self.main_widget.apply_action()
 
     @Slot()
     def rename_click(self):
         self.main_widget.rename()
+
+    @Slot()
+    def undo_click(self):
+        self.main_widget.undo()
+
+
 if __name__ == '__main__':
     main()

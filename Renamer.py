@@ -128,6 +128,7 @@ class FileSystemTreeNode(object):
         self.children = []
         self._original_path = FileDescriptor(original_path, is_dir)
         self._modified_path = copy.deepcopy(self._original_path)
+        self._backup_path = copy.deepcopy(self._original_path)
         self.is_dir = is_dir
         self._rank = rank
 
@@ -156,6 +157,10 @@ class FileSystemTreeNode(object):
         self._modified_path = value
 
     @property
+    def backup_filedescriptor(self):
+        return self._backup_path
+
+    @property
     def rank(self):
         """Give the position of the file according to the sorting criteria."""
         return self._rank
@@ -170,12 +175,13 @@ class FilesCollection(object):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
-        self.file_system_tree_node = FileSystemTreeNode(self.input_path, True)
-        self.scan(self.file_system_tree_node, sorting_criteria, reverse_order)
+        self.root_tree_node = FileSystemTreeNode(self.input_path, True)
+        self.scan(self.root_tree_node, sorting_criteria, reverse_order)
+        self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
 
-    def scan(self, file_system_tree_node, sorting_criteria, reverse_order):
+    def scan(self, tree_node, sorting_criteria, reverse_order):
         """Build the files system structure with FileSystemTreeNode."""
-        path = file_system_tree_node.original_filedescriptor.path
+        path = tree_node.original_filedescriptor.path
         children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
         folder_rank = 0
         file_rank = 0
@@ -186,7 +192,7 @@ class FilesCollection(object):
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank)
-                file_system_tree_node.add_children(file_system_child_node)
+                tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
                 else:
@@ -194,7 +200,7 @@ class FilesCollection(object):
             else:
                 file_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank)
-                file_system_tree_node.add_children(file_system_child_node)
+                tree_node.add_children(file_system_child_node)
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
         """Criteria to sort the files."""
@@ -211,20 +217,25 @@ class FilesCollection(object):
             return None
 
 
-
     def get_file_system_tree_node(self):
-        return self.file_system_tree_node
+        return self.root_tree_node
 
     def reset(self, tree_node):
+        """Reset the modified name with the original."""
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
+    
+    def undo(self, tree_node):
+        shutil.move(tree_node.original_filedescriptor.path, tree_node.backup_filedescriptor.path)
+        tree_node.original_filedescriptor = copy.deepcopy(tree_node.backup_filedescriptor)
 
-    def execute_method_on_node(self, tree_node, method, *optional_argument):
+    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
+        """Execute a method on a given file of the tree node with zero or more optional arguments."""
         if tree_node.original_filedescriptor.path != self.input_path:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
         for child in tree_node.get_children():
-            self.execute_method_on_node(child, method, *optional_argument)
+            self.execute_method_on_nodes(child, method, *optional_argument)
     
     def call_actions(self, tree_node, actions):
         for action in actions:
@@ -285,13 +296,17 @@ class Action:
 class CharacterReplacementAction(Action):
     """Replace old_char by new_char in the section of the path."""
     """path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'."""
-    def __init__(self, path_type, old_char, new_char):
+    def __init__(self, path_type, old_char, new_char, regex):
         Action.__init__(self, path_type)
         self.old_char = old_char
         self.new_char = new_char
+        self.regex = regex
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        return path_part.replace(self.old_char,self.new_char)
+        if not self.regex:
+            return path_part.replace(self.old_char,self.new_char)
+        else:
+            return re.sub(self.old_char, self.new_char, path_part)
 
 class OriginalName(Action):
     """Return the original name."""
@@ -401,19 +416,6 @@ class Counter(Action):
         counter = file_system_tree_node.rank
         counter *= self.increment
         counter += self.start_index
-        #if (file_system_tree_node.original_filedescriptor.parent != self.previous_parent):
-        #    if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
-        #        if self.restart is True:
-        #            self.counter = self.start_index
-        #        else :
-        #            self.counter += self.increment
-        #else:
-        #    if self.previous_type == file_system_tree_node.original_filedescriptor.is_folder:
-        #        self.counter += self.increment
-        #if self.previous_type == "":
-        #    self.counter = self.start_index
-        #self.previous_type = file_system_tree_node.original_filedescriptor.is_folder
-        #self.previous_parent = file_system_tree_node.original_filedescriptor.parent
         return str(counter)
 
 class PipeAction(Action):
@@ -424,8 +426,7 @@ class PipeAction(Action):
         self.sub_action = sub_action
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        # Execute all left hand side actions to get argument values for the
-        # action to execute.
+        # Execute all left hand side actions to get argument values for the  action to execute.
         argumentValues = {}
         for argument_name, argument_provider in self.sub_action.items():
             if isinstance(argument_provider, Action):
@@ -436,9 +437,4 @@ class PipeAction(Action):
         action = self.main_action(self.path_part, **argumentValues)
         value = action.call_on_path_part(file_system_tree_node.modified_filedescriptor, path_part)
         return value
-##def method(arg):
-#    print(arg)
-#filesystem = FilesCollection("/home/pierre/Documents/Programs/White-Renamer/test/Test Directory", True, False)
-#files = filesystem.get_file_system_tree_node()
-#filesystem.execute_method_on_node(files , filesystem.call_actions)
 
