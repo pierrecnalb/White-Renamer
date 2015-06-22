@@ -231,11 +231,20 @@ class FilesCollection(object):
 
     def execute_method_on_nodes(self, tree_node, method, *optional_argument):
         """Execute a method on a given file of the tree node with zero or more optional arguments."""
+        pdb.set_trace()
+        children_names = []
+        duplicate_counter = 1
         if tree_node.original_filedescriptor.path != self.input_path:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
         for child in tree_node.get_children():
+            if (child.modified_filedescriptor.path in children_names):
+                #Check if the chosen name does not already exist in the node. If it does, append a number for the new filename.
+                child.modified_filedescriptor.path += ' (' + str(duplicate_counter) + ')'
+                duplicate_counter += 1
+            children_names.append(child.modified_filedescriptor.path)
             self.execute_method_on_nodes(child, method, *optional_argument)
+
     
     def call_actions(self, tree_node, actions):
         for action in actions:
