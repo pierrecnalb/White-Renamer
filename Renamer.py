@@ -124,8 +124,9 @@ class FileDescriptor(object):
 class FileSystemTreeNode(object):
     """Contains the original and modified FileDescriptor for a given node of the selected directory.
     The structure of the system tree node is reproduced by adding children for each subdirectory."""
-    def __init__(self, original_path, is_dir, rank = 0):
+    def __init__(self, original_path, is_dir, rank = 0, parent=None):
         self.children = []
+        self.parent = parent
         self._original_path = FileDescriptor(original_path, is_dir)
         self._modified_path = copy.deepcopy(self._original_path)
         self._backup_path = copy.deepcopy(self._original_path)
@@ -140,6 +141,9 @@ class FileSystemTreeNode(object):
     def get_children(self):
         return self.children
         
+    def get_parent(self):
+        return self.parent
+
     @property
     def original_filedescriptor(self):
         return self._original_path
@@ -175,7 +179,7 @@ class FilesCollection(object):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
-        self.root_tree_node = FileSystemTreeNode(self.input_path, True)
+        self.root_tree_node = FileSystemTreeNode(self.input_path, True, 0 ,None)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
 
@@ -191,7 +195,7 @@ class FilesCollection(object):
                 continue
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
-                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank)
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank, tree_node)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
@@ -199,7 +203,7 @@ class FilesCollection(object):
                     self.scan(file_system_child_node, sorting_criteria, reverse_order)
             else:
                 file_rank += 1
-                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank)
+                file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank, tree_node)
                 tree_node.add_children(file_system_child_node)
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
@@ -231,24 +235,19 @@ class FilesCollection(object):
 
     def execute_method_on_nodes(self, tree_node, method, *optional_argument):
         """Execute a method on a given file of the tree node with zero or more optional arguments."""
-        pdb.set_trace()
         children_names = []
         duplicate_counter = 1
         if tree_node.original_filedescriptor.path != self.input_path:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
         for child in tree_node.get_children():
-            if (child.modified_filedescriptor.path in children_names):
-                #Check if the chosen name does not already exist in the node. If it does, append a number for the new filename.
-                child.modified_filedescriptor.path += ' (' + str(duplicate_counter) + ')'
-                duplicate_counter += 1
-            children_names.append(child.modified_filedescriptor.path)
             self.execute_method_on_nodes(child, method, *optional_argument)
 
     
     def call_actions(self, tree_node, actions):
         for action in actions:
             tree_node = action.call(tree_node)
+        
 
     def rename(self, tree_node):
         try :
@@ -285,9 +284,11 @@ class Action:
         suffix = ""
         if(self.path_type == "file"):
             file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
+            self.find_duplicates(file_system_tree_node)
             return file_system_tree_node
         elif(self.path_type == "folder"):
             file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
+            self.find_duplicates(file_system_tree_node)
             return file_system_tree_node
         elif(self.path_type == "suffix"):
             file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
@@ -303,6 +304,16 @@ class Action:
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         raise Exception("not implemented")
+
+    def find_duplicates(self, file_system_tree_node):
+        children_names = []
+        duplicate_counter = 1
+        for same_level_tree_node in file_system_tree_node.parent.get_children():
+            if (same_level_tree_node.modified_filedescriptor.path in children_names):
+                same_level_tree_node.modified_filedescriptor.path += ' (' + str(duplicate_counter) + ')'
+                duplicate_counter += 1
+            else:
+                children_names.append(same_level_tree_node.modified_filedescriptor.path)
 
 
 class CharacterReplacementAction(Action):
