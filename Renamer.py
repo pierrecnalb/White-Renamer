@@ -119,7 +119,7 @@ class FileDescriptor(object):
         if self.is_folder is True:
             self._path = os.path.join(self._parent, self._foldername)
         else:
-            self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._prefix)) + self._extension
+            self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._suffix)) + self._extension
 
 class FileSystemTreeNode(object):
     """Contains the original and modified FileDescriptor for a given node of the selected directory.
