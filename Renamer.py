@@ -242,8 +242,11 @@ class FilesCollection(object):
             tree_node = action.call(tree_node)
 
     def rename(self, tree_node):
-        shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
-        tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
+        try :
+            shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
+            tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
+        except (OSError, IOError, Error), e:
+            print(sys.stderr, 'Error moving %s to %s: %s' % (sourcepath, destpath, e))
 
 class ActionDescriptor:
 
