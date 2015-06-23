@@ -1,7 +1,7 @@
 
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.5
+#v.1.0.6
 import os
 import time
 import shutil
@@ -179,8 +179,10 @@ class FilesCollection(object):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
+        self.path_registry = []
         self.root_tree_node = FileSystemTreeNode(self.input_path, True, 0 ,None)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
+        print(self.path_registry)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
@@ -196,6 +198,7 @@ class FilesCollection(object):
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank, tree_node)
+                self.path_registry.append(file_system_child_node.modified_filedescriptor.path)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
@@ -204,6 +207,7 @@ class FilesCollection(object):
             else:
                 file_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank, tree_node)
+                self.path_registry.append(file_system_child_node.modified_filedescriptor.path)
                 tree_node.add_children(file_system_child_node)
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
@@ -243,6 +247,26 @@ class FilesCollection(object):
         for child in tree_node.get_children():
             self.execute_method_on_nodes(child, method, *optional_argument)
 
+    def find_duplicates(self, tree_node):
+        children_names = []
+        files_duplicate_counter = 1
+        folders_duplicate_counter = 1
+        for same_level_tree_node in tree_node.parent.get_children():
+            if (same_level_tree_node.modified_filedescriptor.basename in children_names):
+                if same_level_tree_node.modified_filedescriptor.is_folder:
+                    same_level_tree_node.modified_filedescriptor.foldername += ' (' + str(folders_duplicate_counter) + ')'
+                    folders_duplicate_counter += 1
+                else:
+                    same_level_tree_node.modified_filedescriptor.suffix += ' (' + str(files_duplicate_counter) + ')'
+                    files_duplicate_counter += 1
+            else:
+                children_names.append(same_level_tree_node.modified_filedescriptor.basename)
+
+    def process_file_system_tree_node(self, actions):
+        self.execute_method_on_nodes(self.root_tree_node, self.reset)
+        self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions)
+        self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
+
     
     def call_actions(self, tree_node, actions):
         for action in actions:
@@ -253,7 +277,7 @@ class FilesCollection(object):
         try :
             shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
             tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
-        except (OSError, IOError, Error), e:
+        except (OSError, IOError, Error):
             print(sys.stderr, 'Error moving %s to %s: %s' % (sourcepath, destpath, e))
 
 class ActionDescriptor:
@@ -284,11 +308,9 @@ class Action:
         suffix = ""
         if(self.path_type == "file"):
             file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
-            self.find_duplicates(file_system_tree_node)
             return file_system_tree_node
         elif(self.path_type == "folder"):
             file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
-            self.find_duplicates(file_system_tree_node)
             return file_system_tree_node
         elif(self.path_type == "suffix"):
             file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
@@ -305,15 +327,6 @@ class Action:
     def call_on_path_part(self, file_system_tree_node, path_part):
         raise Exception("not implemented")
 
-    def find_duplicates(self, file_system_tree_node):
-        children_names = []
-        duplicate_counter = 1
-        for same_level_tree_node in file_system_tree_node.parent.get_children():
-            if (same_level_tree_node.modified_filedescriptor.path in children_names):
-                same_level_tree_node.modified_filedescriptor.path += ' (' + str(duplicate_counter) + ')'
-                duplicate_counter += 1
-            else:
-                children_names.append(same_level_tree_node.modified_filedescriptor.path)
 
 
 class CharacterReplacementAction(Action):
