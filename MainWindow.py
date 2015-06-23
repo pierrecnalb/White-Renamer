@@ -328,8 +328,8 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        self.files.execute_method_on_nodes(self.root_tree_node, self.files.reset)
-        self.files.execute_method_on_nodes(self.root_tree_node, self.files.call_actions,self.actions)
+        self.files.process_file_system_tree_node(self.actions)
+
         #refresh tree
         self.populate_tree(self.model, self.root_tree_node, False)
 
