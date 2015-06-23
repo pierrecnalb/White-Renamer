@@ -179,7 +179,6 @@ class FilesCollection(object):
         self.input_path = input_path
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
-        self.path_registry = []
         self.root_tree_node = FileSystemTreeNode(self.input_path, True, 0 ,None)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
         print(self.path_registry)
@@ -198,7 +197,6 @@ class FilesCollection(object):
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), True, folder_rank, tree_node)
-                self.path_registry.append(file_system_child_node.modified_filedescriptor.path)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
@@ -207,7 +205,6 @@ class FilesCollection(object):
             else:
                 file_rank += 1
                 file_system_child_node = FileSystemTreeNode(os.path.join(path,child), False, file_rank, tree_node)
-                self.path_registry.append(file_system_child_node.modified_filedescriptor.path)
                 tree_node.add_children(file_system_child_node)
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
