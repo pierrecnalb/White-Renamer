@@ -181,7 +181,6 @@ class FilesCollection(object):
         self.show_hidden_files = show_hidden_files
         self.root_tree_node = FileSystemTreeNode(self.input_path, True, 0 ,None)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
-        print(self.path_registry)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
@@ -263,19 +262,20 @@ class FilesCollection(object):
         self.execute_method_on_nodes(self.root_tree_node, self.reset)
         self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions)
         self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
-
     
     def call_actions(self, tree_node, actions):
         for action in actions:
             tree_node = action.call(tree_node)
         
-
     def rename(self, tree_node):
-        try :
             shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
             tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
-        except (OSError, IOError, Error):
-            print(sys.stderr, 'Error moving %s to %s: %s' % (sourcepath, destpath, e))
+
+    def batch_rename(self):
+        self.execute_method_on_nodes(self.root_tree_node, self.rename)
+
+    def batch_undo(self):
+        self.execute_method_on_nodes(self.root_tree_node, self.undo)
 
 class ActionDescriptor:
 

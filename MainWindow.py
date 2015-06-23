@@ -34,6 +34,9 @@ def main():
     #palette.setColor(QPalette.Highlight, QColor(142,45,197).lighter());
     palette.setColor(QPalette.HighlightedText, Qt.green);
     app.setPalette(palette);
+    translator = QTranslator()
+    translator.load('Translation/tr_fr', os.path.dirname(__file__))
+    app.installTranslator(translator)
     win = MainWindow()
     win.show()
     app.exec_()
@@ -43,7 +46,7 @@ class MainWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.files = None
+        self.files_collection = None
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
         self.frame_space = 20
@@ -53,49 +56,49 @@ class MainWidget(QWidget):
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
-        original_name_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
-        original_name_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool, False))
-        original_name_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool, False))
-        original_name_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool, False))
+        original_name_inputs.append(Renamer.ActionInput('untouched', self.tr('Untouched'), bool, True))
+        original_name_inputs.append(Renamer.ActionInput('uppercase', self.tr('Uppercase'), bool, False))
+        original_name_inputs.append(Renamer.ActionInput('lowercase', self.tr('Lowercase'), bool, False))
+        original_name_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), bool, False))
         character_replacement_inputs = []
-        character_replacement_inputs.append(Renamer.ActionInput('old_char', 'Replace', str, ""))
-        character_replacement_inputs.append(Renamer.ActionInput('new_char', 'With', str, ""))
-        character_replacement_inputs.append(Renamer.ActionInput('regex', 'Regex', "boolean", False))
+        character_replacement_inputs.append(Renamer.ActionInput('old_char', self.tr('Replace'), str, ""))
+        character_replacement_inputs.append(Renamer.ActionInput('new_char', self.tr('With'), str, ""))
+        character_replacement_inputs.append(Renamer.ActionInput('regex', self.tr('Regex'), "boolean", False))
         character_insertion_inputs = []
-        character_insertion_inputs.append(Renamer.ActionInput('new_char', 'Insert', str, ""))
-        character_insertion_inputs.append(Renamer.ActionInput('index', 'At Position', int, 0))
+        character_insertion_inputs.append(Renamer.ActionInput('new_char', self.tr('Insert'), str, ""))
+        character_insertion_inputs.append(Renamer.ActionInput('index', self.tr('At Position'), int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(Renamer.ActionInput('starting_position', 'From', int, 0))
-        character_deletion_inputs.append(Renamer.ActionInput('ending_position', 'To', int, 1))
+        character_deletion_inputs.append(Renamer.ActionInput('starting_position', self.tr('From'), int, 0))
+        character_deletion_inputs.append(Renamer.ActionInput('ending_position', self.tr('To'), int, 1))
         custom_name_inputs = []
-        custom_name_inputs.append(Renamer.ActionInput('new_name', 'New Name', str, ""))
+        custom_name_inputs.append(Renamer.ActionInput('new_name', self.tr('New Name'), str, ""))
         counter_inputs = []
-        counter_inputs.append(Renamer.ActionInput('start_index', 'Start At', int, 0))
-        counter_inputs.append(Renamer.ActionInput('increment', 'Increment', int, 1))
-        counter_inputs.append(Renamer.ActionInput('restart', 'Restart', "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
+        counter_inputs.append(Renamer.ActionInput('start_index', self.tr('Start At'), int, 0))
+        counter_inputs.append(Renamer.ActionInput('increment', self.tr('Increment'), int, 1))
+        counter_inputs.append(Renamer.ActionInput('restart', self.tr('Restart'), "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         date_inputs = []
-        date_inputs.append(Renamer.ActionInput('is_modified_date', 'Modified', bool, False))
-        date_inputs.append(Renamer.ActionInput('is_created_date', 'Created', bool, True))
-        date_inputs.append(Renamer.ActionInput('format_display', 'Format', str, "%Y %d %B %A %H:%M:%S"))
+        date_inputs.append(Renamer.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
+        date_inputs.append(Renamer.ActionInput('is_created_date', self.tr('Created'), bool, True))
+        date_inputs.append(Renamer.ActionInput('format_display', self.tr('Format'), str, "%Y %d %B %A %H:%M:%S"))
         foldername_inputs = []
-        foldername_inputs.append(Renamer.ActionInput('untouched', 'Untouched', bool, True))
-        foldername_inputs.append(Renamer.ActionInput('uppercase', 'Uppercase', bool, False))
-        foldername_inputs.append(Renamer.ActionInput('lowercase', 'Lowercase', bool, False))
-        foldername_inputs.append(Renamer.ActionInput('titlecase', 'Titlecase', bool, False))
+        foldername_inputs.append(Renamer.ActionInput('untouched', self.tr('Untouched'), bool, True))
+        foldername_inputs.append(Renamer.ActionInput('uppercase', self.tr('Uppercase'), bool, False))
+        foldername_inputs.append(Renamer.ActionInput('lowercase', self.tr('Lowercase'), bool, False))
+        foldername_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), bool, False))
         #ALL ACTION DESCRIPTOR
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Original Name", original_name_inputs, Renamer.OriginalName))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Folder Name", foldername_inputs, Renamer.FolderNameUsageAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Find And Replace", character_replacement_inputs, Renamer.CharacterReplacementAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Insert Characters", character_insertion_inputs, Renamer.CharacterInsertionAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Delete Characters", character_deletion_inputs, Renamer.CharacterDeletionAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor("Date", date_inputs, Renamer.DateAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Original Name"), original_name_inputs, Renamer.OriginalName))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, Renamer.CharacterReplacementAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, Renamer.CharacterInsertionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, Renamer.CharacterDeletionAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Counter"), counter_inputs, Renamer.Counter))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Date"), date_inputs, Renamer.DateAction))
         #LIMITED ACTION DESCRIPTOR
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Custom Name", custom_name_inputs, Renamer.CustomNameAction))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Folder Name", foldername_inputs, Renamer.FolderNameUsageAction))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Counter", counter_inputs, Renamer.Counter))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor("Date", date_inputs, Renamer.DateAction))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Counter"), counter_inputs, Renamer.Counter))
+        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Date"), date_inputs, Renamer.DateAction))
         #Create Button and Layout
         self.prefix_number = 0
         self.suffix_number = 0
@@ -123,12 +126,12 @@ class MainWidget(QWidget):
         #self.treeView.setDragDropMode(QAbstractItemView.DropOnly)
         self.model = QStandardItemModel()
         self.model.setObjectName("model")
-        self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
+        self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.main_grid.addWidget(self.treeView, 1, 0)
                #---FOLDER GROUP---
-        self.folder_box = ActionButtonGroup("Folder", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.folder_box = ActionButtonGroup(self.tr("Folder"), self.all_action_descriptors, self.frame_width, self.frame_height)
         self.folder_box.setGeometry(QRect(self.frame_space, self.frame_space, self.frame_width, self.frame_height))
         self.folder_box.setParent(self.scroll_area_widget_contents)
         self.folder_box.changed.connect(self.apply_action)
@@ -147,7 +150,7 @@ class MainWidget(QWidget):
         self.remove_prefix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #---FILE GROUP---
-        self.file_box = ActionButtonGroup("File", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.file_box = ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_prefix_btn)
         self.file_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.file_box.setParent(self.scroll_area_widget_contents)
@@ -165,7 +168,7 @@ class MainWidget(QWidget):
         self.remove_suffix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
-        self.extension_box = ActionButtonGroup("Extension", self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.extension_box = ActionButtonGroup(self.tr("Extension"), self.all_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_suffix_btn)
         self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
@@ -186,9 +189,9 @@ class MainWidget(QWidget):
         """Process the selected directory to create the tree and modify the files"""
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
-        self.model.setHorizontalHeaderLabels(["Original Files","Modified Files"])
-        self.files = Renamer.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
-        self.root_tree_node = self.files.get_file_system_tree_node()
+        self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
+        self.files_collection = Renamer.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
+        self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
 
@@ -245,7 +248,7 @@ class MainWidget(QWidget):
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
-        self.prefix_box = ActionButtonGroup("Prefix " + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
+        self.prefix_box = ActionButtonGroup(self.tr("Prefix ") + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
         x_left_prefix = self.add_prefix_btn.geometry().x() + self.button_width + self.frame_space
         self.prefix_box.setGeometry(QRect(x_left_prefix, self.frame_space, self.frame_width, self.frame_height))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
@@ -271,7 +274,7 @@ class MainWidget(QWidget):
             self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
             self.apply_action()
         else:
-            QMessageBox.information(self, "Information", "There is no prefix to remove.")
+            QMessageBox.information(self, "Information", self.tr("There is no prefix to remove."))
             raise Exception("There is no prefix to remove.")
 
     def add_suffix(self):
@@ -279,7 +282,7 @@ class MainWidget(QWidget):
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
-        self.suffix_box = ActionButtonGroup("Suffix " + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
+        self.suffix_box = ActionButtonGroup(self.tr("Suffix ") + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
         if(self.suffix_number > 1):
             x_left_suffix = self.init_position(self.suffix_boxes[-1])
         else:
@@ -303,21 +306,21 @@ class MainWidget(QWidget):
             self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
             self.apply_action()
         else:
-            QMessageBox.information(self, "Information", "There is no suffix to remove.")
+            QMessageBox.information(self, "Information", self.tr("There is no suffix to remove."))
             raise Exception("There is no suffix to remove.")
 
     def rename(self):
         """Rename all the files and folders."""
-        self.files.execute_method_on_nodes(self.root_tree_node, self.files.rename)
+        self.files_collection.batch_rename()
         self.populate_tree(self.model, self.root_tree_node, True)
 
     def undo(self):
         """Undo the previous renaming action."""
-        self.files.execute_method_on_nodes(self.root_tree_node, self.files.undo)
+        self.files_collection.batch_undo()
         self.populate_tree(self.model, self.root_tree_node, True)
 
     def apply_action(self):
-        if self.files is None:
+        if self.files_collection is None:
             QMessageBox.information(self, "Information", "Please select a directory.")
             return
         self.actions = []
@@ -328,7 +331,7 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        self.files.process_file_system_tree_node(self.actions)
+        self.files_collection.process_file_system_tree_node(self.actions)
 
         #refresh tree
         self.populate_tree(self.model, self.root_tree_node, False)
@@ -359,7 +362,7 @@ class ActionButtonGroup(QWidget):
         self.combobox.setObjectName("combobox")
         self.action_descriptors = action_descriptors
         for element in action_descriptors:
-            self.combobox.addItem(str(element))
+            self.combobox.addItem(str(element).encode("utf-8"))
         self.selected_action = self.action_descriptors[0]
         self.label = QLabel(self.frame_name)
         font = QFont()
@@ -450,7 +453,7 @@ class ActionButtonGroup(QWidget):
         try:
             self.button_inputs_dict[self.sender().objectName()] = value
         except ValueError:
-            self.on_show_information("Please enter an integer.")
+            self.on_show_information(self.tr("Please enter an integer."))
         self.change()
 
     def clearLayout(self, layout):
@@ -495,56 +498,56 @@ class MainWindow(QMainWindow):
         self.plainTextEdit = QPlainTextEdit(self.tab)
 
         #CREATE THE ACTIONS
-        self.action_open = QAction('&Open', self)
+        self.action_open = QAction(self.tr('&Open'), self)
         self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+O', "new_icon.svg" ,'Exit program.')
-        self.action_exit = QAction('&Exit', self)
+        self.action_exit = QAction(self.tr('&Exit'), self)
         self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+Q', None,'Open directory dialog.')
-        self.action_help = QAction('&Help', self)
+        self.action_help = QAction(self.tr('&Help'), self)
         self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+H', None,'Show help page.')
-        self.action_about = QAction('&About', self)
+        self.action_about = QAction(self.tr('&About'), self)
         self.action_about = self.edit_action(self.action_about, self.about_box_click, None, 'ctrl+B', None,'Pop About Box.')
-        self.action_recursion = QAction('Recursion', self)
+        self.action_recursion = QAction(self.tr('Recursion'), self)
         self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, 'ctrl+R', "subdirectory_icon.svg",'Rename subdirectories recursively.')
         self.action_recursion.setCheckable(True)
-        self.action_hide = QAction('Show Hidden Files', self)
+        self.action_hide = QAction(self.tr('Show Hidden Files'), self)
         self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+H', "hidden_icon.svg",'Show hidden files.')
         self.action_hide.setCheckable(True)
-        self.action_add_prefix = QAction('Add Prefix', self)
+        self.action_add_prefix = QAction(self.tr('Add Prefix'), self)
         self.action_add_prefix = self.edit_action(self.action_add_prefix, self.add_prefix_click, None, 'ctrl+P', None,'Add prefix.')
-        self.action_add_suffix = QAction('Add Suffix', self)
+        self.action_add_suffix = QAction(self.tr('Add Suffix'), self)
         self.action_add_suffix = self.edit_action(self.action_add_suffix, self.add_suffix_click, None, 'ctrl+S', None,'Add suffix.')
-        self.action_remove_prefix = QAction('Remove Prefix', self)
+        self.action_remove_prefix = QAction(self.tr('Remove Prefix'), self)
         self.action_remove_prefix = self.edit_action(self.action_remove_prefix, self.remove_prefix_click, None, 'alt+P', None,'Remove prefix.')
-        self.action_remove_suffix = QAction('Remove Suffix', self)
+        self.action_remove_suffix = QAction(self.tr('Remove Suffix'), self)
         self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, 'alt+S', None,'Remove suffix.')
-        self.action_rename = QAction('Run', self)
+        self.action_rename = QAction(self.tr('Run'), self)
         self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+G', None,'Rename the files/folders.')
-        self.action_undo = QAction('Undo', self)
+        self.action_undo = QAction(self.tr('Undo'), self)
         self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', None,'Undo the previous renaming.')
-        self.action_reverse_sorting = QAction('Reverse', self)
+        self.action_reverse_sorting = QAction(self.tr('Reverse'), self)
         self.action_reverse_sorting.setCheckable(True)
         self.action_reverse_sorting = self.edit_action(self.action_reverse_sorting, self.reverse_sorting_click, bool, 'alt+r', "order_icon.svg",'Reverse the sorting order.')
-        self.action_name_sorting = QAction('By Name', self)
+        self.action_name_sorting = QAction(self.tr('By Name'), self)
         self.action_name_sorting.setCheckable(True)
         self.action_name_sorting = self.edit_action(self.action_name_sorting, self.name_sorting_click, None, 'alt+s', None,'Sort the files/folders by name.')
-        self.action_size_sorting = QAction('By Size', self)
+        self.action_size_sorting = QAction(self.tr('By Size'), self)
         self.action_size_sorting.setCheckable(True)
         self.action_size_sorting = self.edit_action(self.action_size_sorting, self.size_sorting_click, None, 'alt+s', None,'Sort the files/folders by size.')
-        self.action_modified_date_sorting = QAction('By Modified Date', self)
+        self.action_modified_date_sorting = QAction(self.tr('By Modified Date'), self)
         self.action_modified_date_sorting.setCheckable(True)
         self.action_modified_date_sorting = self.edit_action(self.action_modified_date_sorting, self.modified_date_sorting_click, None, 'alt+s', None,'Sort the files/folders by modified date.')
-        self.action_creation_date_sorting = QAction('By Creation Date', self)
+        self.action_creation_date_sorting = QAction(self.tr('By Creation Date'), self)
         self.action_creation_date_sorting.setCheckable(True)
         self.action_creation_date_sorting = self.edit_action(self.action_creation_date_sorting, self.creation_date_sorting_click, None, 'alt+s', None,'Sort the files/folders by creation date.')
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
-        menu_file = menubar.addMenu('&File')
+        menu_file = menubar.addMenu(self.tr('&File'))
         menu_file.addAction(self.action_open)
         menu_file.addSeparator()
         menu_file.addAction(self.action_exit)
         #EDIT
-        menu_edit = menubar.addMenu('&Edit')
+        menu_edit = menubar.addMenu(self.tr('&Edit'))
         menu_edit.addAction(self.action_hide)
         menu_edit.addAction(self.action_recursion)
         menu_edit.addSeparator()
@@ -559,11 +562,11 @@ class MainWindow(QMainWindow):
         #menu_edit.addAction(self.action_remove_prefix)
         #menu_edit.addAction(self.action_remove_suffix)
         #TOOL
-        menu_tool = menubar.addMenu('&Tool')
+        menu_tool = menubar.addMenu(self.tr('&Tool'))
         menu_tool.addAction(self.action_rename)
         menu_tool.addAction(self.action_undo)
         #HELP
-        menu_help = menubar.addMenu('&Help')
+        menu_help = menubar.addMenu(self.tr('&Help'))
         menu_help.addAction(self.action_help)
         menu_help.addAction(self.action_about)
 
