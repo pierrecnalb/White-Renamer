@@ -363,7 +363,7 @@ class ActionButtonGroup(QWidget):
         self.combobox.setObjectName("combobox")
         self.action_descriptors = action_descriptors
         for element in action_descriptors:
-            self.combobox.addItem(str(element).encode("utf-8"))
+            self.combobox.addItem(str(element))
         self.selected_action = self.action_descriptors[0]
         self.label = QLabel(self.frame_name)
         font = QFont()
@@ -522,9 +522,9 @@ class MainWindow(QMainWindow):
         self.action_remove_suffix = QAction(self.tr('Remove Suffix'), self)
         self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, 'alt+S', None,'Remove suffix.')
         self.action_rename = QAction(self.tr('Run'), self)
-        self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+G', None,'Rename the files/folders.')
+        self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+G', "run_icon.svg",'Rename the files/folders.')
         self.action_undo = QAction(self.tr('Undo'), self)
-        self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', None,'Undo the previous renaming.')
+        self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', "undo_icon.svg",'Undo the previous renaming.')
         self.action_reverse_sorting = QAction(self.tr('Reverse'), self)
         self.action_reverse_sorting.setCheckable(True)
         self.action_reverse_sorting = self.edit_action(self.action_reverse_sorting, self.reverse_sorting_click, bool, 'alt+r', "order_icon.svg",'Reverse the sorting order.')
@@ -641,7 +641,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = "/home/pierre/Documents/Programs/White-Renamer/test/Test Directory"
+        self.directory = os.path.join(os.path.dirname(__file__),"test","Test Directory")
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
 

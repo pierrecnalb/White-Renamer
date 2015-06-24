@@ -5,6 +5,10 @@
     <file alias="hidden_icon.svg">Icons/hidden_icon.svg</file>
     <file alias="new_icon.svg">Icons/new_icon.svg</file>
     <file alias="order_icon.svg">Icons/order_icon.svg</file>
+    <file alias="run_icon.svg">Icons/run_icon.svg</file>
+    <file alias="undo_icon.svg">Icons/undo_icon.svg</file>
     <file alias="subdirectory_icon.svg">Icons/subdirectory_icon.svg</file>
+    <file alias="help_icon.svg">Icons/help_icon.svg</file>
+    <file alias="exit_icon.svg">Icons/exit_icon.svg</file>
   </qresource>
 </RCC>
