@@ -10,6 +10,7 @@ import operator
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
+from PySide.QtSvg  import *
 import Renamer
 import copy
 import pdb
