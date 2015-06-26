@@ -12,6 +12,7 @@ import copy
 import re
 import shutil
 import pdb
+import io
 language = "english"
 
 class FileDescriptor(object):
@@ -182,6 +183,7 @@ class FilesCollection(object):
         self.root_tree_node = FileSystemTreeNode(self.input_path, True, 0 ,None)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
+        self.flat_tree_list = []
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
         """Build the files system structure with FileSystemTreeNode."""
@@ -276,6 +278,21 @@ class FilesCollection(object):
 
     def batch_undo(self):
         self.execute_method_on_nodes(self.root_tree_node, self.undo)
+
+    def convert_tree_to_list(self):
+        flat_tree_list = []
+        self.execute_method_on_nodes(self.root_tree_node, flat_tree_list.append)
+        for tree_node in flat_tree_list:
+            self.flat_tree_list.append(tree_node.modified_filedescriptor.path)
+        return self.flat_tree_list
+
+    def save_result_to_file(self, name, input_list):
+        directory = os.path.join(os.path.dirname(__file__),"UnitTest", "Models", name)
+        file = io.open(directory, 'x')
+        for line in input_list:
+            file.writelines(line + '\n')
+        file.close()
+
 
 class ActionDescriptor:
 
@@ -420,8 +437,23 @@ class FolderNameUsageAction(Action):
             return folder
 
 class DateAction(Action):
-    """Use the created or modified date metadata as the filename."""
-    """If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date."""
+    """Use the created or modified date metadata as the filename.
+    If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date.
+    Commonly used format_display are :
+    %Y  Year with century as a decimal number.
+    %m  Month as a decimal number [01,12].
+    %d  Day of the month as a decimal number [01,31].
+    %H  Hour (24-hour clock) as a decimal number [00,23].
+    %M  Minute as a decimal number [00,59].
+    %S  Second as a decimal number [00,61].
+    %z  Time zone offset from UTC.
+    %a  Locale's abbreviated weekday name.
+    %A  Locale's full weekday name.
+    %b  Locale's abbreviated month name.
+    %B  Locale's full month name.
+    %c  Locale's appropriate date and time representation.
+    %I  Hour (12-hour clock) as a decimal number [01,12].
+    %p  Locale's equivalent of either AM or PM."""
     def __init__(self, path_type, is_modified_date = False, is_created_date = True, format_display = '%Y'):
         Action.__init__(self, path_type)
         self.is_modified_date = is_modified_date
@@ -437,13 +469,10 @@ class DateAction(Action):
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
-    """If restart==True, the counter is set to startindex at each subfolder."""
-
-    def __init__(self, path_type, start_index, increment, restart):
+    def __init__(self, path_type, start_index, increment):
         Action.__init__(self, path_type)
         self.start_index = start_index
         self.increment = increment
-        self.restart = restart
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         counter = file_system_tree_node.rank

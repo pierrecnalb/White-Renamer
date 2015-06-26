@@ -9,16 +9,20 @@ import Renamer
 
 class TestCases(unittest.TestCase):
     """TestCases used to verify the functions from the module 'Renamer'."""
-    def setUp(self):
+    def set_up(self, recursion, show_hidden_files, sorting_criteria, reverse_order):
         """Initialisation of the input arguments."""
-        directory = os.path.join(os.getcwd(), "Documents","Programs","White-Renamer","test","Test Directory")
-        self.files = Renamer.FilesCollection(directory, False)
+
+        self.directory = os.path.join(os.path.dirname(__file__),"Test Directory")
+        self.files_collection = Renamer.FilesCollection(self.directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
         self.liste = list(range(10))
         self.actions = []
 
-    def uppercase_folder_test(self):
+
+
+    def test_uppercase_folder(self):
+        self.set_up(True, False, "name", False)
         action_descriptor = Renamer.OriginalName
-        files = self.files
+        files = self.files_collection
         action_args = {'untouched' : False, 'uppercase': True, 'lowercase': False, 'titlecase': False}
         self.apply_actions(files, action_descriptor, action_args, 'file')
         print(files)
@@ -31,7 +35,11 @@ class TestCases(unittest.TestCase):
 
     def apply_actions(self, input_path, action_descriptor, action_args, path_type):
         self.actions = []
-        self.data = self.files.get_files()
         self.populate_actions(action_descriptor, action_args, path_type)
-        input_path.call_actions(self.actions, self.data)
+        self.files_collection.process_file_system_tree_node(self.actions)
+
+if __name__ == '__main__':
+    unittest.main()
+
+
 

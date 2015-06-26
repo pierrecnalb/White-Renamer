@@ -36,7 +36,7 @@ def main():
     palette.setColor(QPalette.HighlightedText, Qt.green);
     app.setPalette(palette);
     translator = QTranslator()
-    translator.load('Translation/tr_fr', os.path.dirname(__file__))
+    translator.load('i18n/tr_fr', os.path.dirname(__file__))
     app.installTranslator(translator)
     win = MainWindow()
     win.show()
@@ -76,11 +76,10 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(Renamer.ActionInput('start_index', self.tr('Start At'), int, 0))
         counter_inputs.append(Renamer.ActionInput('increment', self.tr('Increment'), int, 1))
-        counter_inputs.append(Renamer.ActionInput('restart', self.tr('Restart'), "boolean", True)) #The type "boolean" is to make the difference between checkbox and radiobutton that are both bool.
         date_inputs = []
         date_inputs.append(Renamer.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
         date_inputs.append(Renamer.ActionInput('is_created_date', self.tr('Created'), bool, True))
-        date_inputs.append(Renamer.ActionInput('format_display', self.tr('Format'), str, "%Y %d %B %A %H:%M:%S"))
+        date_inputs.append(Renamer.ActionInput('format_display', self.tr('Format'), str, "%Y/%m/%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
         foldername_inputs.append(Renamer.ActionInput('untouched', self.tr('Untouched'), bool, True))
         foldername_inputs.append(Renamer.ActionInput('uppercase', self.tr('Uppercase'), bool, False))
@@ -314,6 +313,9 @@ class MainWidget(QWidget):
         """Rename all the files and folders."""
         self.files_collection.batch_rename()
         self.populate_tree(self.model, self.root_tree_node, True)
+        flat_list = self.files_collection.convert_tree_to_list()
+        self.files_collection.save_result_to_file("UpperCase", flat_list)
+
 
     def undo(self):
         """Undo the previous renaming action."""
@@ -333,7 +335,6 @@ class MainWidget(QWidget):
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
         self.files_collection.process_file_system_tree_node(self.actions)
-
         #refresh tree
         self.populate_tree(self.model, self.root_tree_node, False)
 
@@ -637,7 +638,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"test","Test Directory")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
 
