@@ -17,9 +17,9 @@ language = "english"
 
 class FileDescriptor(object):
     """Group information related to the input files."""
-    def __init__(self, input_path, is_dir):
+    def __init__(self, input_path, is_folder):
         self._path = input_path
-        self.is_folder = is_dir
+        self.is_folder = is_folder
         (self._parent, self._basename)=os.path.split(self._path)
         if (self.is_folder is False):
             (self._filename, self._extension) = os.path.splitext(self._basename)
@@ -125,13 +125,13 @@ class FileDescriptor(object):
 class FileSystemTreeNode(object):
     """Contains the original and modified FileDescriptor for a given node of the selected directory.
     The structure of the system tree node is reproduced by adding children for each subdirectory."""
-    def __init__(self, original_path, is_dir, rank = 0, parent=None):
+    def __init__(self, original_path, is_folder, rank = 0, parent=None):
         self.children = []
         self.parent = parent
-        self._original_path = FileDescriptor(original_path, is_dir)
+        self._original_path = FileDescriptor(original_path, is_folder)
         self._modified_path = copy.deepcopy(self._original_path)
         self._backup_path = copy.deepcopy(self._original_path)
-        self.is_dir = is_dir
+        self.is_folder = is_folder
         self._rank = rank
 
     def add_children(self, file_system_tree_node):
@@ -239,11 +239,12 @@ class FilesCollection(object):
         """Execute a method on a given file of the tree node with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
+        for child in tree_node.get_children():
+            self.execute_method_on_nodes(child, method, *optional_argument)
         if tree_node.original_filedescriptor.path != self.input_path:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
-        for child in tree_node.get_children():
-            self.execute_method_on_nodes(child, method, *optional_argument)
+        print(tree_node.modified_filedescriptor.path)
 
     def find_duplicates(self, tree_node):
         children_names = []
@@ -264,17 +265,24 @@ class FilesCollection(object):
         self.execute_method_on_nodes(self.root_tree_node, self.reset)
         self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions)
         self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
-    
+
     def call_actions(self, tree_node, actions):
         for action in actions:
             tree_node = action.call(tree_node)
-        
-    def rename(self, tree_node):
+
+    def rename_files(self, tree_node):
+        if(tree_node.is_folder is False):
+            shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
+            tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
+
+    def rename_folders(self, tree_node):
+        if(tree_node.is_folder is True):
             shutil.move(tree_node.original_filedescriptor.path, tree_node.modified_filedescriptor.path)
             tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
 
     def batch_rename(self):
-        self.execute_method_on_nodes(self.root_tree_node, self.rename)
+        self.execute_method_on_nodes(self.root_tree_node, self.rename_files)
+        self.execute_method_on_nodes(self.root_tree_node, self.rename_folders)
 
     def batch_undo(self):
         self.execute_method_on_nodes(self.root_tree_node, self.undo)
@@ -287,8 +295,8 @@ class FilesCollection(object):
         return self.flat_tree_list
 
     def save_result_to_file(self, name, input_list):
-        directory = os.path.join(os.path.dirname(__file__),"UnitTest", "Models", name)
-        file = io.open(directory, 'x')
+        directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1_Models", name)
+        file = io.open(directory, 'w+')
         for line in input_list:
             file.writelines(line + '\n')
         file.close()
@@ -322,21 +330,17 @@ class Action:
         suffix = ""
         if(self.path_type == "file"):
             file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
-            return file_system_tree_node
         elif(self.path_type == "folder"):
             file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
-            return file_system_tree_node
         elif(self.path_type == "suffix"):
             file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
-            return file_system_tree_node
         elif(self.path_type == "prefix"):
             file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
-            return file_system_tree_node
         elif(self.path_type == "extension"):
             file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
-            return file_system_tree_node
         else:
             raise Exception("path_part not valid")
+        return file_system_tree_node
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         raise Exception("not implemented")

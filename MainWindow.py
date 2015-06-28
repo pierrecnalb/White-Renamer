@@ -5,7 +5,6 @@ import os
 import time
 import shutil
 import sys
-from os import walk
 import operator
 import PySide
 from PySide.QtCore import *
@@ -15,6 +14,7 @@ import Renamer
 import copy
 import pdb
 import resource_rc
+import io
 language = "english"
 
 
@@ -181,6 +181,30 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.scroll_area,0,0)
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
+        #generatefile
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
+        self.create_folder("TestCase1")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1")
+        self.create_folder("FOLDER1")
+        self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
+        self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
+        self.create_folder("folder 2")
+        self.create_file("file.with.dots.txt")
+        self.create_file("file with é è.txt")
+        self.create_file("file_with_underscore.txt")
+        self.create_file("l'appostrophe.txt")
+        self.create_file(os.path.join("FOLDER1","folder1-file1.txt"))
+        self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
+        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
+        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
+
+    def create_file(self, name):
+        file = io.open(os.path.join(self.directory, name), 'w')
+        file.write(name)
+        file.close()
+
+    def create_folder(self, name):
+        os.makedirs(os.path.join(self.directory, name))
         
     def update_x_frame(self):
         self.x_frame += self.frame_width + self.frame_space
@@ -314,7 +338,8 @@ class MainWidget(QWidget):
         self.files_collection.batch_rename()
         self.populate_tree(self.model, self.root_tree_node, True)
         flat_list = self.files_collection.convert_tree_to_list()
-        self.files_collection.save_result_to_file("UpperCase", flat_list)
+        self.files_collection.save_result_to_file("CustomName", flat_list)
+        shutil.rmtree(self.directory)
 
 
     def undo(self):
@@ -638,7 +663,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","TestCase1")
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
 

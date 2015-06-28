@@ -1,0 +1,12 @@
+Documents/Programs/White-Renamer/UnitTest/TestCase1/PREFIX FILE WITH É ÈSUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/PREFIX FILE.WITH.DOTSSUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/PREFIX FILE_WITH_UNDERSCORESUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER 2
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/PREFIX FOLDER1-FILE1SUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/PREFIX FOLDER1-SUB FILE #2SUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/SUB FOLDER_1
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/sub fOlder_1/PREFIX SUB FILE 1SUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/sub fOlder_1/PREFIX SUB FILE 2SUFFIX .TXT
+Documents/Programs/White-Renamer/UnitTest/TestCase1/FOLDER1/SUB.FOLDER 2
+Documents/Programs/White-Renamer/UnitTest/TestCase1/PREFIX L'APPOSTROPHESUFFIX .TXT
