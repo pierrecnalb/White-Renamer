@@ -16,7 +16,12 @@ import io
 language = "english"
 
 class FileDescriptor(object):
-    """Group information related to the input files."""
+    """
+    Group information related to the input files.
+    Parameters:
+        --input_path: string that represents the relative path to the selected root folder.
+        --is_folder: boolean that tells if the current FileDescriptor is a directory or a file.
+    """
     def __init__(self, input_path, is_folder):
         self._path = input_path
         self.is_folder = is_folder
@@ -122,9 +127,16 @@ class FileDescriptor(object):
             self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._suffix)) + self._extension
 
 class FileSystemTreeNode(object):
-    """Contains the original, modified and backup FileDescriptor for a given node of the selected directory.
+    """
+    Contains the original, modified and backup FileDescriptor for a given node of the specified directory.
     The structure of the system tree node is reproduced by adding children for each subdirectory.
-    The FileDescriptor path is relative to the root_folder"""
+
+    Parameters:
+        --parent: the FileSystemTreeNode parent of the current FileSystemTreeNode.
+        --original_basename: represents the current file or directory basename.
+        --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
+        --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
+    """
     def __init__(self, parent, original_basename, is_folder, rank = 0):
         self.children = []
         self._original_basename = original_basename
@@ -144,23 +156,15 @@ class FileSystemTreeNode(object):
 
     def get_children(self):
         return self.children
-        
+
     def get_parent(self):
         return self._parent
 
-
     def get_original_path(self):
-        #pdb.set_trace()
         if self._parent != None:
             return os.path.join(self._parent.get_original_path(), self._original_basename)
         else:
             return self._original_basename
-
-    def get_updated_path(self, basename):
-        if self._parent != None:
-            return os.path.join(self._parent.get_updated_path(basename), basename)
-        else:
-            return basename
 
     @property
     def original_filedescriptor(self):
@@ -168,7 +172,7 @@ class FileSystemTreeNode(object):
 
     @original_filedescriptor.setter
     def original_filedescriptor(self, value):
-         self._original_filedescriptor = value
+        self._original_filedescriptor = value
 
     @property
     def modified_filedescriptor(self):
@@ -176,7 +180,7 @@ class FileSystemTreeNode(object):
 
     @modified_filedescriptor.setter
     def modified_filedescriptor(self, value):
-         self._modified_filedescriptor = value
+        self._modified_filedescriptor = value
 
     @property
     def backup_filedescriptor(self):
@@ -184,19 +188,28 @@ class FileSystemTreeNode(object):
 
     @backup_filedescriptor.setter
     def original_filedescriptor(self, value):
-         self._backup_filedescriptor = value
+        self._backup_filedescriptor = value
 
     @property
     def rank(self):
         """Give the position of the file according to the sorting criteria."""
         return self._rank
- 
+
     @rank.setter
     def rank(self, value):
         self._rank = value
 
 class FilesCollection(object):
-    """Contains the files system structure with all subdirectories, starting from the input path."""
+    """
+    Contains all the FilesSystemTreeNodes representing the files system structure with all subdirectories, starting from the input path.
+    Parameters:
+        --input_path: string that represents the root directory to start the files collection from.
+        --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
+        --show_hidden_files: boolean that tells to look at hidden files or not.
+        --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
+        --reverse_order: boolean that specifies the sorting order. Default is 'False'.
+    """
+
     def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False):
         self.input_path = input_path
         (self.root_folder, basename)=os.path.split(self.input_path)
@@ -208,7 +221,7 @@ class FilesCollection(object):
         self.flat_tree_list = []
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
-        """Build the files system structure with FileSystemTreeNode."""
+        """Creates the files system structure with FileSystemTreeNode."""
         path = tree_node.original_filedescriptor.path
         children = sorted(os.listdir(self.get_full_path(path)), key = lambda file : self.get_file_sorting_criteria(self.get_full_path(path, file), sorting_criteria), reverse=reverse_order)
         folder_rank = 0
@@ -234,7 +247,12 @@ class FilesCollection(object):
         return os.path.join(self.root_folder, *children)
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
-        """Criteria to sort the files."""
+        """
+        Criteria to sort the files.
+        Parameters:
+            --directory: path to the specified file/folder.
+            --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
+        """
         (protection_bits, inode_number, device, hard_link, user_id, group_id, size, acessed_time, modification_time, creation_time) = os.stat(directory)
         if sorting_criteria == "size":
             return size
@@ -252,16 +270,16 @@ class FilesCollection(object):
         return self.root_tree_node
 
     def reset(self, tree_node):
-        """Reset the modified name with the original."""
+        """Reset the modified filedescriptor with the original one."""
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
-    
+
     def undo(self, tree_node):
         shutil.move(tree_node.original_filedescriptor.path, tree_node.backup_filedescriptor.path)
         tree_node.original_filedescriptor = copy.deepcopy(tree_node.backup_filedescriptor)
 
     def execute_method_on_nodes(self, tree_node, method, *optional_argument):
-        """Execute a method on a given file of the tree node with zero or more optional arguments."""
+        """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
         for child in tree_node.get_children():
@@ -271,6 +289,7 @@ class FilesCollection(object):
             method(tree_node, *optional_argument)
 
     def find_duplicates(self, tree_node):
+        """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
         children_names = []
         files_duplicate_counter = 1
         folders_duplicate_counter = 1
@@ -327,8 +346,14 @@ class FilesCollection(object):
         file.close()
 
 
-class ActionDescriptor:
-
+class ActionDescriptor(object):
+    """
+    Describes the actions by names, inputs and classes.
+    Parameters:
+        --action_name: string that represents the name of the action.
+        --action_inputs: list of ActionInput that represents the inputs properties of the acion.
+        --action_class: string that represents the name of the class used for the action.
+    """
     def __init__(self, action_name, action_inputs, action_class):
         self.action_name = action_name
         self.action_inputs = action_inputs
@@ -338,14 +363,27 @@ class ActionDescriptor:
         """override string representation of the class"""
         return self.action_name
 
-class ActionInput:
+class ActionInput(object):
+    """
+    Describes the inputs properties of the action.
+    Parameters:
+        --arg_name: string that represents the name of the given parameter.
+        --arg_caption: string that represents the caption of the given parameter.
+        --arg_type: specifies which type is the given parameter.
+        --default_value: specifies the default value of the given parameter.
+    """
     def __init__(self, arg_name, arg_caption, arg_type, default_value):
         self.argument_name = arg_name
         self.argument_caption = arg_caption
         self.argument_type = arg_type
         self.default_value = default_value
 
-class Action:
+class Action(object):
+    """
+    Describes how the action is applied on the FileSystemTreeNodes. This class is inherited by all the specific actions.
+    Parameters:
+        --path_type: string that represents where the action will be applied. path_type can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
+    """
     def __init__(self, path_type):
         self.path_type = path_type
 
@@ -374,8 +412,10 @@ class Action:
 
 
 class CharacterReplacementAction(Action):
-    """Replace old_char by new_char in the section of the path."""
-    """path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'."""
+    """
+    Replace old_char by new_char in the section of the path.
+    path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
+    """
     def __init__(self, path_type, old_char, new_char, regex):
         Action.__init__(self, path_type)
         self.old_char = old_char
@@ -398,22 +438,22 @@ class OriginalName(Action):
         self.titlecase = titlecase
 
     def titlecase_converter(self, string, exceptions):
-       words = re.split(' ', string)
-       words_converted = [words[0].capitalize()]
-       exceptions = ['a', 'an', 'of', 'the', 'is']
-       for word in words[1:]:
-          words_converted.append(word in exceptions and word or word.capitalize())
-       return " ".join(words_converted)
+        words = re.split(' ', string)
+        words_converted = [words[0].capitalize()]
+        exceptions = ['a', 'an', 'of', 'the', 'is']
+        for word in words[1:]:
+            words_converted.append(word in exceptions and word or word.capitalize())
+        return " ".join(words_converted)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        if self.uppercase is True:
-            return path_part.upper()
-        elif self.lowercase is True:
-            return path_part.lower()
-        elif self.titlecase is True:
-            return self.titlecase_converter(path_part, "exceptions")
-        else:
-            return path_part
+       if self.uppercase is True:
+           return path_part.upper()
+       elif self.lowercase is True:
+           return path_part.lower()
+       elif self.titlecase is True:
+           return self.titlecase_converter(path_part, "exceptions")
+       else:
+           return path_part
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
@@ -467,7 +507,8 @@ class FolderNameUsageAction(Action):
             return folder
 
 class DateAction(Action):
-    """Use the created or modified date metadata as the filename.
+    """
+    Use the created or modified date metadata as the filename.
     If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date.
     Commonly used format_display are :
     %Y  Year with century as a decimal number.
@@ -483,7 +524,8 @@ class DateAction(Action):
     %B  Locale's full month name.
     %c  Locale's appropriate date and time representation.
     %I  Hour (12-hour clock) as a decimal number [01,12].
-    %p  Locale's equivalent of either AM or PM."""
+    %p  Locale's equivalent of either AM or PM.
+    """
     def __init__(self, path_type, is_modified_date = False, is_created_date = True, format_display = '%Y'):
         Action.__init__(self, path_type)
         self.is_modified_date = is_modified_date

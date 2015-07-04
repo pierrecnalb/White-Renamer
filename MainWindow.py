@@ -339,7 +339,7 @@ class MainWidget(QWidget):
         self.populate_tree(self.model, self.root_tree_node, True)
         flat_list = self.files_collection.convert_tree_to_list()
         self.files_collection.save_result_to_file("CustomName", flat_list)
-        #shutil.rmtree(self.directory)
+        shutil.rmtree(self.directory)
 
 
     def undo(self):
