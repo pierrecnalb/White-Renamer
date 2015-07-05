@@ -183,20 +183,20 @@ class MainWidget(QWidget):
         self.file_icon = QIcon(":/file_icon.svg")
         #generatefile
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
-        self.create_folder("TestCase1")
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1")
-        self.create_folder("FOLDER1")
-        self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
-        self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
-        self.create_folder("folder 2")
-        self.create_file("file.with.dots.txt")
-        self.create_file("file with é è.txt")
-        self.create_file("file_with_underscore.txt")
-        self.create_file("l'appostrophe.txt")
-        self.create_file(os.path.join("FOLDER1","folder1-file1.txt"))
-        self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
-        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
-        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
+        #self.create_folder("TestCase1")
+        #self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1")
+        #self.create_folder("FOLDER1")
+        #self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
+        #self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
+        #self.create_folder("folder 2")
+        #self.create_file("file.with.dots.txt")
+        #self.create_file("file with é è.txt")
+        #self.create_file("file_with_underscore.txt")
+        #self.create_file("l'appostrophe.txt")
+        #self.create_file(os.path.join("FOLDER1","folder1-file1.txt"))
+        #self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
+        #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
+        #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
 
     def create_file(self, name):
         file = io.open(os.path.join(self.directory, name), 'w')
@@ -663,7 +663,8 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","TestCase1")
+        #self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Folder")
+        self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
 

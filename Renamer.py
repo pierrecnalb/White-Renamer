@@ -19,13 +19,12 @@ class FileDescriptor(object):
     """
     Group information related to the input files.
     Parameters:
-        --input_path: string that represents the relative path to the selected root folder.
+        --basename: string that represents the name of the file or folder.
         --is_folder: boolean that tells if the current FileDescriptor is a directory or a file.
     """
-    def __init__(self, input_path, is_folder):
-        self._path = input_path
+    def __init__(self, basename, is_folder):
+        self._basename = basename
         self.is_folder = is_folder
-        (self._parent, self._basename)=os.path.split(self._path)
         if (self.is_folder is False):
             (self._filename, self._extension) = os.path.splitext(self._basename)
             self._foldername = ""
@@ -40,91 +39,60 @@ class FileDescriptor(object):
         return self.is_folder
 
     @property
-    def path(self):
-        self.update_path()
-        return self._path
-
-    @path.setter
-    def path(self, value):
-        self._path = value
-
-    @property
-    def parent(self):
-        return self._parent
-
-    @parent.setter
-    def parent(self, value):
-        self.update_path()
-        self._parent = value
-
-    @property
     def foldername(self):
-        self.update_path()
+        self.update_basename()
         return self._foldername
 
     @foldername.setter
     def foldername(self, value):
         self._foldername = value
-        self.update_path()
+        self.update_basename()
 
     @property
     def suffix(self):
-        self.update_path()
+        self.update_basename()
         return self._suffix
 
     @suffix.setter
     def suffix(self, value):
-        self.update_path()
+        self.update_basename()
         self._suffix = value
 
     @property
     def prefix(self):
-        self.update_path()
+        self.update_basename()
         return self._prefix
 
     @prefix.setter
     def prefix(self, value):
-        self.update_path()
+        self.update_basename()
         self._prefix = value
 
     @property
     def filename(self):
-        self.update_path()
+        self.update_basename()
         return self._filename
 
     @filename.setter
     def filename(self, value):
-        self.update_path()
+        self.update_basename()
         self._filename = value
 
     @property
     def extension(self):
-        self.update_path()
+        self.update_basename()
         return self._extension
 
     @extension.setter
     def extension(self, value):
         self._extension = value
-        self.update_path()
+        self.update_basename()
 
-    @property
-    def basename(self):
+    def update_basename(self):
         if self.is_folder is True:
             self._basename = self._foldername
         else:
             self._basename = self._prefix + self._filename + self._suffix + self._extension
-        return self._basename
-
-    @basename.setter
-    def basename(self, value):
-        self._basename = value
-        self.update_path()
-
-    def update_path(self):
-        if self.is_folder is True:
-            self._path = os.path.join(self._parent, self._foldername)
-        else:
-            self._path = os.path.join(self._parent, self._foldername, (self._prefix + self._filename + self._suffix)) + self._extension
 
 class FileSystemTreeNode(object):
     """
@@ -165,6 +133,29 @@ class FileSystemTreeNode(object):
             return os.path.join(self._parent.get_original_path(), self._original_basename)
         else:
             return self._original_basename
+
+    def get_modified_path(self):
+        if self._parent != None:
+            return os.path.join(self._parent.get_original_path(), self._modified_basename)
+        else:
+            return self._original_basename
+
+    @property
+    def original_basename(self):
+        return self._original_basename
+
+    @original_basename.setter
+    def original_basename(self, value):
+        self._original_basename = value
+
+    @property
+    def modified_basename(self):
+        return self._modified_basename
+
+    @modified_basename.setter
+    def modified_basename(self, value):
+        self._modified_basename = value
+        self._modified_filedescriptor = FileDescriptor(self.get_modified_path(), self.is_folder)
 
     @property
     def original_filedescriptor(self):
@@ -325,8 +316,8 @@ class FilesCollection(object):
             tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
 
     def batch_rename(self):
-        self.execute_method_on_nodes(self.root_tree_node, self.rename_files)
         self.execute_method_on_nodes(self.root_tree_node, self.rename_folders)
+        self.execute_method_on_nodes(self.root_tree_node, self.rename_files)
 
     def batch_undo(self):
         self.execute_method_on_nodes(self.root_tree_node, self.undo)
@@ -391,6 +382,7 @@ class Action(object):
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
+        #pdb.set_trace()
         if(self.path_type == "file"):
             file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
         elif(self.path_type == "folder"):
