@@ -176,7 +176,7 @@ class FileSystemTreeNode(object):
         return self._backup_filedescriptor
 
     @backup_filedescriptor.setter
-    def original_filedescriptor(self, value):
+    def backup_filedescriptor(self, value):
         self._backup_filedescriptor = value
 
     @property
@@ -272,11 +272,11 @@ class FilesCollection(object):
         """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
-        for child in tree_node.get_children():
-            self.execute_method_on_nodes(child, method, *optional_argument)
         if tree_node.get_original_path() != os.path.split(self.input_path)[-1]:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
+        for child in tree_node.get_children():
+            self.execute_method_on_nodes(child, method, *optional_argument)
 
     def find_duplicates(self, tree_node):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
@@ -305,10 +305,8 @@ class FilesCollection(object):
             tree_node = action.call(tree_node)
 
     def rename(self, tree_node):
-        print(tree_node.get_original_path())
-        print(tree_node.get_modified_path())
         shutil.move(self.get_full_path(tree_node.get_original_path()), self.get_full_path(tree_node.get_modified_path()))
-        tree_node.original_filedescriptor = copy.deepcopy(tree_node.modified_filedescriptor)
+        tree_node.original_filedescriptor = tree_node.modified_filedescriptor
 
     def batch_rename(self):
         self.execute_method_on_nodes(self.root_tree_node, self.rename)
