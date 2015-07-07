@@ -112,13 +112,15 @@ class FileSystemTreeNode(object):
     The structure of the system tree node is reproduced by adding children for each subdirectory.
 
     Parameters:
+        --root_path: string that represents the whole path of the current file or directory.
         --parent: the FileSystemTreeNode parent of the current FileSystemTreeNode.
         --original_filedescriptor: represents the current file or directory basename.
         --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
         --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
     """
-    def __init__(self, parent, original_filedescriptor, is_folder, rank = 0):
+    def __init__(self, root_path, parent, original_filedescriptor, is_folder, rank = 0):
         self.children = []
+        self._root_path = root_path
         self._original_filedescriptor = original_filedescriptor
         self._modified_filedescriptor = self._original_filedescriptor
         self._parent = parent
@@ -137,23 +139,32 @@ class FileSystemTreeNode(object):
     def get_parent(self):
         return self._parent
 
-    def get_original_path(self):
+    def get_original_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_original_path(), self._original_filedescriptor.basename)
+            return os.path.join(self._parent.get_original_relative_path(), self._original_filedescriptor.basename)
         else:
             return self._original_filedescriptor.basename
 
-    def get_modified_path(self):
+    def get_modified_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_modified_path(), self._modified_filedescriptor.basename)
+            return os.path.join(self._parent.get_modified_relative_path(), self._modified_filedescriptor.basename)
         else:
             return self._modified_filedescriptor.basename
 
-    def get_backup_path(self):
+    def get_backup_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_backup_path(), self._backup_filedescriptor.basename)
+            return os.path.join(self._parent.get_backup_relative_path(), self._backup_filedescriptor.basename)
         else:
             return self._backup_filedescriptor.basename
+
+    def get_original_path(self):
+        return os.path.join(self._root_path, self.get_original_relative_path())
+
+    def get_modified_path(self):
+        return os.path.join(self._root_path, self.get_modified_relative_path())
+
+    def get_backup_path(self):
+        return os.path.join(self._root_path, self.get_backup_relative_path())
 
     @property
     def original_filedescriptor(self):
@@ -205,24 +216,24 @@ class FilesCollection(object):
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         root_filedescriptor = FileDescriptor(basename, True)
-        self.root_tree_node = FileSystemTreeNode(None, root_filedescriptor, True, 0)
+        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, 0)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
         self.flat_tree_list = []
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
         """Creates the files system structure with FileSystemTreeNode."""
-        path = os.path.join(self.get_full_path(tree_node.get_original_path()))
-        children = sorted(os.listdir(self.get_full_path(path)), key = lambda file : self.get_file_sorting_criteria(self.get_full_path(path, file), sorting_criteria), reverse=reverse_order)
+        path = self.get_full_path(tree_node.get_original_relative_path())
+        children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
         folder_rank = 0
         file_rank = 0
         for child in children:
             #Check for hidden files
             if child[0] == '.' and not self.show_hidden_files:
                 continue
-            if os.path.isdir(self.get_full_path(path,child)):
+            if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
-                file_system_child_node = FileSystemTreeNode(tree_node, FileDescriptor(child, True), True, folder_rank)
+                file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, folder_rank)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
@@ -230,7 +241,7 @@ class FilesCollection(object):
                     self.scan(file_system_child_node, sorting_criteria, reverse_order)
             else:
                 file_rank += 1
-                file_system_child_node = FileSystemTreeNode(tree_node, FileDescriptor(child, False), False, file_rank)
+                file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
                 tree_node.add_children(file_system_child_node)
 
     def get_full_path(self, *children):
@@ -264,15 +275,11 @@ class FilesCollection(object):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
-    def undo(self, tree_node):
-        shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
-        tree_node.original_filedescriptor = copy.deepcopy(tree_node.backup_filedescriptor)
-
     def execute_method_on_nodes(self, tree_node, method, *optional_argument):
         """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
-        if tree_node.get_original_path() != os.path.split(self.input_path)[-1]:
+        if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
             #Do not apply the actions to the selected directory.
             method(tree_node, *optional_argument)
         for child in tree_node.get_children():
@@ -305,8 +312,14 @@ class FilesCollection(object):
             tree_node = action.call(tree_node)
 
     def rename(self, tree_node):
-        shutil.move(self.get_full_path(tree_node.get_original_path()), self.get_full_path(tree_node.get_modified_path()))
+        shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
         tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+
+    def undo(self, tree_node):
+        print(tree_node.get_original_path())
+        print(tree_node.get_backup_path())
+        shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
+        tree_node.original_filedescriptor = tree_node.backup_filedescriptor
 
     def batch_rename(self):
         self.execute_method_on_nodes(self.root_tree_node, self.rename)
@@ -480,7 +493,7 @@ class FolderNameUsageAction(Action):
         self.titlecase = titlecase
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        (path, folder) = os.path.split(file_system_tree_node.original_filedescriptor.parent)
+        folder = file_system_tree_node.get_parent().original_filedescriptor.basename
         if self.uppercase is True:
             return folder.upper()
         elif self.lowercase is True:
