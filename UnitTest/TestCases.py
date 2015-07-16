@@ -20,8 +20,8 @@ os.path.join("TestDirectory","FOLDER1"),
 os.path.join("TestDirectory","FOLDER1","FOLDER1-FILE1.TXT"),
 os.path.join("TestDirectory","FOLDER1","FOLDER1-SUB FILE #2.TXT"),
 os.path.join("TestDirectory","FOLDER1","SUB FOLDER_1"),
-os.path.join("TestDirectory","FOLDER1","SUB FOLDER_1/SUB FILE 1.TXT"),
-os.path.join("TestDirectory","FOLDER1","SUB FOLDER_1/SUB FILE 2.TXT"),
+os.path.join("TestDirectory","FOLDER1","SUB FOLDER_1","SUB FILE 1.TXT"),
+os.path.join("TestDirectory","FOLDER1","SUB FOLDER_1","SUB FILE 2.TXT"),
 os.path.join("TestDirectory","FOLDER1","SUB.FOLDER 2"),
 os.path.join("TestDirectory","L'APPOSTROPHE.TXT")]
 
@@ -34,10 +34,116 @@ os.path.join("TestDirectory","folder1"),
 os.path.join("TestDirectory","folder1","folder1-file1.txt"),
 os.path.join("TestDirectory","folder1","folder1-sub file #2.txt"),
 os.path.join("TestDirectory","folder1","sub folder_1"),
-os.path.join("TestDirectory","folder1","sub folder_1/sub file 1.txt"),
-os.path.join("TestDirectory","folder1","sub folder_1/sub file 2.txt"),
+os.path.join("TestDirectory","folder1","sub folder_1","sub file 1.txt"),
+os.path.join("TestDirectory","folder1","sub folder_1","sub file 2.txt"),
 os.path.join("TestDirectory","folder1","sub.folder 2"),
 os.path.join("TestDirectory","l'appostrophe.txt")]
+
+#delete first letter for folders, second for files and third for extension.
+Main_Delete = [
+os.path.join("TestDirectory","fle with é è.tt"),
+os.path.join("TestDirectory","fle.with.dots.tt"),
+os.path.join("TestDirectory","fle_with_underscore.tt"),
+os.path.join("TestDirectory","lappostrophe.tt"),
+os.path.join("TestDirectory","older 2"),
+os.path.join("TestDirectory","OLDER1"),
+os.path.join("TestDirectory","OLDER1","flder1-file1.tt"),
+os.path.join("TestDirectory","OLDER1","flder1-sub file #2.tt"),
+os.path.join("TestDirectory","OLDER1","ub fOlder_1"),
+os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 1.tt"),
+os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 2.tt"),
+os.path.join("TestDirectory","OLDER1","ub.FOLDER 2")]
+
+#replace e with 3 and .txt with .ogg.
+Main_Replace_without_regex = [
+os.path.join("TestDirectory","fil3 with é è.ogg"),
+os.path.join("TestDirectory","fil3.with.dots.ogg"),
+os.path.join("TestDirectory","fil3_with_und3rscor3.ogg"),
+os.path.join("TestDirectory","fold3r 2"),
+os.path.join("TestDirectory","FOLDER1"),
+os.path.join("TestDirectory","FOLDER1","fold3r1-fil31.ogg"),
+os.path.join("TestDirectory","FOLDER1","fold3r1-sub fil3 #2.ogg"),
+os.path.join("TestDirectory","FOLDER1","sub fOld3r_1"),
+os.path.join("TestDirectory","FOLDER1","sub fOld3r_1","sub fil3 1.ogg"),
+os.path.join("TestDirectory","FOLDER1","sub fOld3r_1","sub fil3 2.ogg"),
+os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
+os.path.join("TestDirectory","l'appostroph3.ogg")]
+
+#Insert A at position 0 for folder, position 3 for files and position 99 for extension.
+Main_Insert = [
+os.path.join("TestDirectory","Afolder 2"),
+os.path.join("TestDirectory","AFOLDER1"),
+os.path.join("TestDirectory","AFOLDER1","Asub fOlder_1"),
+os.path.join("TestDirectory","AFOLDER1","Asub fOlder_1","subA file 1.txtA"),
+os.path.join("TestDirectory","AFOLDER1","Asub fOlder_1","subA file 2.txtA"),
+os.path.join("TestDirectory","AFOLDER1","Asub.FOLDER 2"),
+os.path.join("TestDirectory","AFOLDER1","folAder1-file1.txtA"),
+os.path.join("TestDirectory","AFOLDER1","folAder1-sub file #2.txtA"),
+os.path.join("TestDirectory","filAe with é è.txtA"),
+os.path.join("TestDirectory","filAe.with.dots.txtA"),
+os.path.join("TestDirectory","filAe_with_underscore.txtA"),
+os.path.join("TestDirectory","l'aAppostrophe.txtA")]
+
+#Name all folders 'folder', files 'file' and extensions '.ext'.
+Main_CustomName = [
+os.path.join("TestDirectory","file (1).ext"),
+os.path.join("TestDirectory","file (2).ext"),
+os.path.join("TestDirectory","file (3).ext"),
+os.path.join("TestDirectory","file.ext"),
+os.path.join("TestDirectory","folder"),
+os.path.join("TestDirectory","folder (1)"),
+os.path.join("TestDirectory","folder (1)","file (1).ext"),
+os.path.join("TestDirectory","folder (1)","file.ext"),
+os.path.join("TestDirectory","folder (1)","folder"),
+os.path.join("TestDirectory","folder (1)","folder/file (1).ext"),
+os.path.join("TestDirectory","folder (1)","folder/file.ext"),
+os.path.join("TestDirectory","folder (1)","folder (1)")]
+
+#use lowercase foldername for folders, uppercase foldername for files and untouched foldername for extensions.
+Main_FolderName = [
+os.path.join("TestDirectory","testdirectory"),
+os.path.join("TestDirectory","testdirectory (1)"),
+os.path.join("TestDirectory","testdirectory (1)","folder1"),
+os.path.join("TestDirectory","testdirectory (1)","folder1","SUB FOLDER_1 (1)sub fOlder_1"),
+os.path.join("TestDirectory","testdirectory (1)","folder1","SUB FOLDER_1sub fOlder_1"),
+os.path.join("TestDirectory","testdirectory (1)","folder1 (1)"),
+os.path.join("TestDirectory","testdirectory (1)","FOLDER1 (1)FOLDER1"),
+os.path.join("TestDirectory","testdirectory (1)","FOLDER1FOLDER1"),
+os.path.join("TestDirectory","TESTDIRECTORY (1)TestDirectory"),
+os.path.join("TestDirectory","TESTDIRECTORY (2)TestDirectory"),
+os.path.join("TestDirectory","TESTDIRECTORY (3)TestDirectory"),
+os.path.join("TestDirectory","TESTDIRECTORYTestDirectory")]
+
+#Add a prefix 'prefix ' and a suffix ' suffix'.
+Main_Custom_Prefix_Suffix = [
+os.path.join("TestDirectory","folder 2"),
+os.path.join("TestDirectory","FOLDER1"),
+os.path.join("TestDirectory","FOLDER1","prefix folder1-file1 suffix.txt"),
+os.path.join("TestDirectory","FOLDER1","prefix folder1-sub file #2 suffix.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","prefix sub file 1 suffix.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","prefix sub file 2 suffix.txt"),
+os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
+os.path.join("TestDirectory","prefix file with é è suffix.txt"),
+os.path.join("TestDirectory","prefix file.with.dots suffix.txt"),
+os.path.join("TestDirectory","prefix file_with_underscore suffix.txt"),
+os.path.join("TestDirectory","prefix l'appostrophe suffix.txt")]
+
+#Add two prefixes with foldername (first uppercase, second lowercase) and one suffix with foldername untouched.
+Main_FolderName_Prefix_Suffix = [
+os.path.join("folder 2"),
+os.path.join("FOLDER1"),
+os.path.join("FOLDER1","FOLDER1folder1FOLDER1-FILE1FOLDER1"),
+os.path.join("FOLDER1","FOLDER1folder1FOLDER1-SUB FILE #2FOLDER1"),
+os.path.join("FOLDER1","sub fOlder_1"),
+os.path.join("FOLDER1","sub fOlder_1","sub fOlder_1sub folder_1SUB FILE 1sub fOlder_1"),
+os.path.join("FOLDER1","sub fOlder_1","sub fOlder_1sub folder_1SUB FILE 2sub fOlder_1"),
+os.path.join("FOLDER1","sub.FOLDER 2"),
+os.path.join("TestCase2testcase2FILE WITH É ÈTestCase2"),
+os.path.join("TestCase2testcase2FILE.WITH.DOTSTestCase2"),
+os.path.join("TestCase2testcase2FILE_WITH_UNDERSCORETestCase2"),
+os.path.join("TestCase2testcase2L'APPOSTROPHETestCase2")]
+
 
 class TestCases(unittest.TestCase):
     """TestCases used to verify the functions from the module 'Renamer'."""
@@ -79,9 +185,92 @@ class TestCases(unittest.TestCase):
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(Main_Lowercase)
 
+    def test_main_delete(self):
+        """Delete first letter for folders, second for files and third for extension."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.CharacterDeletionAction
+        files = self.files_collection
+        action_args_folder = {'starting_position' : 0, 'ending_position' : 1}
+        action_args_file = {'starting_position' : 1, 'ending_position' : 2}
+        action_args_extension = {'starting_position' : 2, 'ending_position' : 3}
+        self.apply_actions(files, action_descriptor, action_args_folder, 'folder')
+        self.apply_actions(files, action_descriptor, action_args_file, 'file')
+        self.apply_actions(files, action_descriptor, action_args_extension, 'extension')
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_Delete)
+
+    def test_main_replace_without_regex(self):
+        """Replace e with 3 and .txt with .ogg."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.CharacterReplacementAction
+        files = self.files_collection
+        action_args_folder = {'old_char' : 'e', 'new_char' : '3', 'regex': False}
+        action_args_file = {'old_char' : 'e', 'new_char' : '3', 'regex': False}
+        action_args_extension = {'old_char' : '.txt', 'new_char' : '.ogg', 'regex': False}
+        self.apply_actions(files, action_descriptor, action_args_folder, 'folder')
+        self.apply_actions(files, action_descriptor, action_args_file, 'file')
+        self.apply_actions(files, action_descriptor, action_args_extension, 'extension')
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_Replace_without_regex)
+
+    def test_main_insert(self):
+        """Insert A at position 0 for folder, position 3 for files and position 99 for extension."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.CharacterInsertionAction
+        files = self.files_collection
+        action_args_folder = {'new_char' : 'A', 'index': 0}
+        action_args_file = {'new_char' : 'A', 'index': 3}
+        action_args_extension = {'new_char' : 'A', 'index': 99}
+        self.apply_actions(files, action_descriptor, action_args_folder, 'folder')
+        self.apply_actions(files, action_descriptor, action_args_file, 'file')
+        self.apply_actions(files, action_descriptor, action_args_extension, 'extension')
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_Insert)
+
+    def test_main_custom_name(self):
+        """Name all folders 'folder', files 'file' and extensions '.ext'."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.CustomNameAction
+        files = self.files_collection
+        action_args_folder = {'new_name' : 'folder'}
+        action_args_file = {'new_name' : 'file'}
+        action_args_extension = {'new_name' : '.ext'}
+        self.apply_actions(files, action_descriptor, action_args_folder, 'folder')
+        self.apply_actions(files, action_descriptor, action_args_file, 'file')
+        self.apply_actions(files, action_descriptor, action_args_extension, 'extension')
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_CustomName)
+
+    def test_main_folder_name(self):
+        """Use lowercase foldername for folders, uppercase foldername for files and untouched foldername for extensions."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.FolderNameUsageAction
+        files = self.files_collection
+        action_args_folder = {'untouched' : False, 'uppercase': False, 'lowercase': True, 'titlecase': False}
+        action_args_file = {'untouched' : False, 'uppercase': True, 'lowercase': False, 'titlecase': False}
+        action_args_extension = {'untouched' : True, 'uppercase': False, 'lowercase': False, 'titlecase': False}
+        self.apply_actions(files, action_descriptor, action_args_folder, 'folder')
+        self.apply_actions(files, action_descriptor, action_args_file, 'file')
+        self.apply_actions(files, action_descriptor, action_args_extension, 'extension')
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_FolderName)
+
+    def test_main_custom_prefix_suffix(self):
+        """Add a prefix 'prefix ' and a suffix ' suffix'."""
+        self.init(True, False, "name", False)
+        action_descriptor = Renamer.CustomNameAction
+        files = self.files_collection
+        action_args_prefix = {'new_name' : 'prefix '}
+        action_args_suffix = {'new_name' : ' suffix'}
+        self.apply_actions(files, action_descriptor, action_args_prefix, 'prefix')
+        self.apply_actions(files, action_descriptor, action_args_suffix, 'suffix')
+        self.apply_actions(files, action_descriptor, action_args_suffix, 'suffix')#The last apply actions does not work for some strange reasons...
+        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        self.compare_with_model_file(Main_Custom_Prefix_Suffix)
+
     def compare_with_model_file(self, model_file):
-        self.assertEqual(self.files_list, model_file)
         shutil.rmtree(self.directory)
+        self.assertEqual(self.files_list, model_file)
 
     def apply_actions(self, files_collection, action_descriptor, action_args, path_type):
         self.actions = []

@@ -183,8 +183,8 @@ class MainWidget(QWidget):
         self.file_icon = QIcon(":/file_icon.svg")
         #generatefile
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
-        self.create_folder("TestCase1")
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1")
+        self.create_folder("TestCase2")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase2")
         self.create_folder("FOLDER1")
         self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
         self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
@@ -211,6 +211,10 @@ class MainWidget(QWidget):
 
     def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order):
         """Process the selected directory to create the tree and modify the files"""
+        self.recursion = recursion
+        self.show_hidden_files = show_hidden_files
+        self.sorting_criteria = sorting_criteria
+        self.reverse_order = reverse_order
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
@@ -337,9 +341,9 @@ class MainWidget(QWidget):
         """Rename all the files and folders."""
         self.files_collection.batch_rename()
         self.populate_tree(self.model, self.root_tree_node, True)
-        flat_list = self.files_collection.convert_tree_to_list()
-        self.files_collection.save_result_to_file("CustomName", flat_list)
-        #shutil.rmtree(self.directory)
+        self.files_collection.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
+        self.files_collection.get_renamed_files()
+        shutil.rmtree(self.directory)
 
 
     def undo(self):
@@ -663,7 +667,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","TestCase1")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","TestCase2")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)

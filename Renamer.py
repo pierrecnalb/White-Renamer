@@ -220,6 +220,7 @@ class FilesCollection(object):
         self.scan(self.root_tree_node, sorting_criteria, reverse_order)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
         self.flat_tree_list = []
+        self.renamed_files_list = []
 
     def scan(self, tree_node, sorting_criteria, reverse_order):
         """Creates the files system structure with FileSystemTreeNode."""
@@ -233,11 +234,15 @@ class FilesCollection(object):
                 continue
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
+                print(folder_rank)
+                print(tree_node.get_original_path())
+                print('---')
                 file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, folder_rank)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
                 else:
+                    folder_rank = 0
                     self.scan(file_system_child_node, sorting_criteria, reverse_order)
             else:
                 file_rank += 1
@@ -316,8 +321,6 @@ class FilesCollection(object):
         tree_node.original_filedescriptor = tree_node.modified_filedescriptor
 
     def undo(self, tree_node):
-        print(tree_node.get_original_path())
-        print(tree_node.get_backup_path())
         shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
         tree_node.original_filedescriptor = tree_node.backup_filedescriptor
 
@@ -341,6 +344,24 @@ class FilesCollection(object):
             file.writelines(line + '\n')
         file.close()
 
+    def parse_renamed_files(self, input_path, sorting_criteria, reverse_order):
+        input_path = os.path.abspath(input_path)
+        directory_files = sorted(os.listdir(input_path), key = lambda file : self.get_file_sorting_criteria(os.path.join(input_path, file), sorting_criteria), reverse=reverse_order)
+        for filename in directory_files:
+            filepath = os.path.join(input_path, filename)
+            if filename[0] == '.' and not self.show_hidden_files:
+                continue
+            if os.path.isdir(filepath):
+                self.renamed_files_list.append(os.path.relpath(filepath, self.root_folder))
+                if (not self.use_subdirectory):
+                    continue
+                else:
+                    self.parse_renamed_files(filepath, sorting_criteria, reverse_order)
+            else:
+                self.renamed_files_list.append(os.path.relpath(filepath, self.root_folder))
+
+    def get_renamed_files(self):
+        self.save_result_to_file("hooh", self.renamed_files_list)
 
 class ActionDescriptor(object):
     """
@@ -493,7 +514,7 @@ class FolderNameUsageAction(Action):
         self.titlecase = titlecase
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        folder = file_system_tree_node.get_parent().original_filedescriptor.basename
+        folder = file_system_tree_node.get_parent().backup_filedescriptor.basename
         if self.uppercase is True:
             return folder.upper()
         elif self.lowercase is True:
