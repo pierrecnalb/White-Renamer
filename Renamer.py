@@ -44,6 +44,7 @@ class FileDescriptor(object):
 
     @property
     def basename(self):
+        self.update_basename()
         return self._basename
 
     @basename.setter
@@ -52,7 +53,6 @@ class FileDescriptor(object):
 
     @property
     def foldername(self):
-        self.update_basename()
         return self._foldername
 
     @foldername.setter
@@ -62,37 +62,33 @@ class FileDescriptor(object):
 
     @property
     def suffix(self):
-        self.update_basename()
         return self._suffix
 
     @suffix.setter
     def suffix(self, value):
-        self.update_basename()
         self._suffix = value
+        self.update_basename()
 
     @property
     def prefix(self):
-        self.update_basename()
         return self._prefix
 
     @prefix.setter
     def prefix(self, value):
-        self.update_basename()
         self._prefix = value
+        self.update_basename()
 
     @property
     def filename(self):
-        self.update_basename()
         return self._filename
 
     @filename.setter
     def filename(self, value):
-        self.update_basename()
         self._filename = value
+        self.update_basename()
 
     @property
     def extension(self):
-        self.update_basename()
         return self._extension
 
     @extension.setter
@@ -118,7 +114,7 @@ class FileSystemTreeNode(object):
         --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
         --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
     """
-    def __init__(self, root_path, parent, original_filedescriptor, is_folder, rank = 0):
+    def __init__(self, root_path, parent, original_filedescriptor, is_folder, rank):
         self.children = []
         self._root_path = root_path
         self._original_filedescriptor = original_filedescriptor
@@ -130,7 +126,6 @@ class FileSystemTreeNode(object):
 
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
-        self._rank = len(self.children) 
         return file_system_tree_node
 
     def get_children(self):
@@ -226,23 +221,19 @@ class FilesCollection(object):
         """Creates the files system structure with FileSystemTreeNode."""
         path = self.get_full_path(tree_node.get_original_relative_path())
         children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
-        folder_rank = 0
-        file_rank = 0
+        folder_rank = -1
+        file_rank = -1
         for child in children:
             #Check for hidden files
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
                 folder_rank += 1
-                print(folder_rank)
-                print(tree_node.get_original_path())
-                print('---')
                 file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, folder_rank)
                 tree_node.add_children(file_system_child_node)
                 if (not self.use_subdirectory):
                     continue
                 else:
-                    folder_rank = 0
                     self.scan(file_system_child_node, sorting_criteria, reverse_order)
             else:
                 file_rank += 1
@@ -317,8 +308,11 @@ class FilesCollection(object):
             tree_node = action.call(tree_node)
 
     def rename(self, tree_node):
-        shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
-        tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+        try:
+            shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
+            tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+        except IOError as e:
+            raise Exception(str(e))
 
     def undo(self, tree_node):
         shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
@@ -492,7 +486,7 @@ class CharacterDeletionAction(Action):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         if self.starting_position > self.ending_position:
-            raise Exception("starting_position cannot be higher than ending_position.")
+            raise Exception("Starting position cannot be higher than ending position.")
         return path_part[:self.starting_position] + path_part[self.ending_position:]
 
 class CustomNameAction(Action):

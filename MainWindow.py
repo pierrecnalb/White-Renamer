@@ -183,20 +183,20 @@ class MainWidget(QWidget):
         self.file_icon = QIcon(":/file_icon.svg")
         #generatefile
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
-        self.create_folder("TestCase2")
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase2")
-        self.create_folder("FOLDER1")
-        self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
-        self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
-        self.create_folder("folder 2")
-        self.create_file("file.with.dots.txt")
-        self.create_file("file with é è.txt")
-        self.create_file("file_with_underscore.txt")
-        self.create_file("l'appostrophe.txt")
-        self.create_file(os.path.join("FOLDER1","folder1-file1.txt"))
-        self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
-        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
-        self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
+        #self.create_folder("TestCase2")
+        #self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase2")
+        #self.create_folder("FOLDER1")
+        #self.create_folder(os.path.join("FOLDER1","sub fOlder_1"))
+        #self.create_folder(os.path.join("FOLDER1","sub.FOLDER 2"))
+        #self.create_folder("folder 2")
+        #self.create_file("file.with.dots.txt")
+        #self.create_file("file with é è.txt")
+        #self.create_file("file_with_underscore.txt")
+        #self.create_file("l'appostrophe.txt")
+        #self.create_file(os.path.join("FOLDER1","folder1-file1.txt"))
+        #self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
+        #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
+        #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
 
     def create_file(self, name):
         file = io.open(os.path.join(self.directory, name), 'w')
@@ -303,7 +303,6 @@ class MainWidget(QWidget):
             self.apply_action()
         else:
             QMessageBox.information(self, "Information", self.tr("There is no prefix to remove."))
-            raise Exception("There is no prefix to remove.")
 
     def add_suffix(self):
         self.suffix_number += 1
@@ -335,15 +334,17 @@ class MainWidget(QWidget):
             self.apply_action()
         else:
             QMessageBox.information(self, "Information", self.tr("There is no suffix to remove."))
-            raise Exception("There is no suffix to remove.")
 
     def rename(self):
         """Rename all the files and folders."""
-        self.files_collection.batch_rename()
+        try:
+            self.files_collection.batch_rename()
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
         self.populate_tree(self.model, self.root_tree_node, True)
         self.files_collection.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
         self.files_collection.get_renamed_files()
-        shutil.rmtree(self.directory)
+        #shutil.rmtree(self.directory)
 
 
     def undo(self):
@@ -363,7 +364,11 @@ class MainWidget(QWidget):
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
         self.populate_actions(self.extension_box, "extension")
-        self.files_collection.process_file_system_tree_node(self.actions)
+        try:
+            self.files_collection.process_file_system_tree_node(self.actions)
+        except Exception as e:
+            QMessageBox.warning(self, "Warning", str(e))
+
         #refresh tree
         self.populate_tree(self.model, self.root_tree_node, False)
 
@@ -481,10 +486,7 @@ class ActionButtonGroup(QWidget):
     def get_integer_changed(self, value):
         if value=="":
             value = 0
-        try:
-            self.button_inputs_dict[self.sender().objectName()] = value
-        except ValueError:
-            self.on_show_information(self.tr("Please enter an integer."))
+        self.button_inputs_dict[self.sender().objectName()] = value
         self.change()
 
     def clearLayout(self, layout):
@@ -667,7 +669,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","TestCase2")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
