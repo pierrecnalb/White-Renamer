@@ -440,14 +440,15 @@ class CharacterReplacementAction(Action):
         else:
             return re.sub(self.old_char, self.new_char, path_part)
 
-class OriginalName(Action):
-    """Return the original name."""
-    def __init__(self, path_type, untouched = True, uppercase = False, lowercase = False, titlecase = False):
+class CaseChangeAction(Action):
+    """
+    Return the original name with a chosen casing option.
+    Available options are : 'untouched', 'uppercase', 'lowercase', 'first_letter' and 'first_letters'.
+    """
+    def __init__(self, path_type, case_choice, after_letters):
         Action.__init__(self, path_type)
-        self.untouched = untouched
-        self.uppercase = uppercase
-        self.lowercase = lowercase
-        self.titlecase = titlecase
+        self.option = case_choice
+        self.after_letters = after_letters
 
     def titlecase_converter(self, string, exceptions):
         words = re.split(' ', string)
@@ -457,12 +458,26 @@ class OriginalName(Action):
             words_converted.append(word in exceptions and word or word.capitalize())
         return " ".join(words_converted)
 
+    def first_letter(self, string):
+        return string[0].upper() + string[1:]
+
+    def first_letters(self, string):
+        for i, char in enumerate(string):
+            if char in self.after_letters:
+                special_char_position.append(i+1)
+        for position in special_char_position:
+            string[position] = string[position].upper()
+        return string
+
+
     def call_on_path_part(self, file_system_tree_node, path_part):
-       if self.uppercase is True:
+       if self.option is "uppercase":
            return path_part.upper()
-       elif self.lowercase is True:
+       elif self.option is "lowercase":
            return path_part.lower()
-       elif self.titlecase is True:
+       elif self.option is "first_letter":
+           return path_part.capitalize()
+       elif self.option is "first_letters":
            return self.titlecase_converter(path_part, "exceptions")
        else:
            return path_part
