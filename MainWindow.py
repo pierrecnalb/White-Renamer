@@ -57,14 +57,14 @@ class MainWidget(QWidget):
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
-        original_name_inputs.append(Renamer.ActionInput('untouched', self.tr('Unchanged'), bool, True))
-        original_name_inputs.append(Renamer.ActionInput('uppercase', self.tr('Uppercase'), bool, False))
-        original_name_inputs.append(Renamer.ActionInput('lowercase', self.tr('Lowercase'), bool, False))
-        original_name_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), bool, False))
+        original_name_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "untouched", [('untouched',self.tr('Untouched')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),('titlecase', self.tr('Titlecase'))]))
+        original_name_inputs.append(Renamer.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
+        original_name_inputs.append(Renamer.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
+        #original_name_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
         character_replacement_inputs = []
         character_replacement_inputs.append(Renamer.ActionInput('old_char', self.tr('Replace'), str, ""))
         character_replacement_inputs.append(Renamer.ActionInput('new_char', self.tr('With'), str, ""))
-        character_replacement_inputs.append(Renamer.ActionInput('regex', self.tr('Regex'), "boolean", False))
+        character_replacement_inputs.append(Renamer.ActionInput('regex', self.tr('Regex'), "checkable", False))
         character_insertion_inputs = []
         character_insertion_inputs.append(Renamer.ActionInput('new_char', self.tr('Insert'), str, ""))
         character_insertion_inputs.append(Renamer.ActionInput('index', self.tr('At Position'), int, 0))
@@ -86,7 +86,7 @@ class MainWidget(QWidget):
         foldername_inputs.append(Renamer.ActionInput('lowercase', self.tr('Lowercase'), bool, False))
         foldername_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), bool, False))
         #ALL ACTION DESCRIPTOR
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), original_name_inputs, Renamer.OriginalName))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), original_name_inputs, Renamer.CaseChangeAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, Renamer.CharacterReplacementAction))
@@ -443,7 +443,7 @@ class ActionButtonGroup(QWidget):
                     sub_button = QLineEdit()
                     sub_button.setText(arguments.default_value)
                     sub_button.textChanged[str].connect(self.get_text_changed)
-                elif arguments.argument_type == "boolean":
+                elif arguments.argument_type == "checkable":
                     sub_button = QCheckBox()
                     sub_button.setChecked(arguments.default_value)
                     sub_button.stateChanged[int].connect(self.get_state_changed)
@@ -457,6 +457,11 @@ class ActionButtonGroup(QWidget):
                     sub_button = QSpinBox()
                     sub_button.setValue(arguments.default_value)
                     sub_button.valueChanged[int].connect(self.get_integer_changed)
+                elif arguments.argument_type == "combo":
+                    sub_button = QComboBox()
+                    for enum in arguments.optional_argument:
+                        sub_button.addItem(enum[1], enum[0])
+                    sub_button.currentIndexChanged[int].connect(self.get_combobox_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
                 form.addRow(label, sub_button)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
@@ -487,6 +492,12 @@ class ActionButtonGroup(QWidget):
         if value=="":
             value = 0
         self.button_inputs_dict[self.sender().objectName()] = value
+        self.change()
+
+    def get_combobox_changed(self, value):
+        self.button_inputs_dict[self.sender().objectName()] = self.sender().itemData(value)
+        print(self.sender().objectName())
+        print(self.sender().itemData(value))
         self.change()
 
     def clearLayout(self, layout):
@@ -669,7 +680,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test")
+        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)

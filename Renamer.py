@@ -382,12 +382,14 @@ class ActionInput(object):
         --arg_caption: string that represents the caption of the given parameter.
         --arg_type: specifies which type is the given parameter.
         --default_value: specifies the default value of the given parameter.
+        --optional_argument: gives the possibility to add an optional argument for storing data.
     """
-    def __init__(self, arg_name, arg_caption, arg_type, default_value):
+    def __init__(self, arg_name, arg_caption, arg_type, default_value, optional_argument = None):
         self.argument_name = arg_name
         self.argument_caption = arg_caption
         self.argument_type = arg_type
         self.default_value = default_value
+        self.optional_argument = optional_argument
 
 class Action(object):
     """
@@ -443,44 +445,39 @@ class CharacterReplacementAction(Action):
 class CaseChangeAction(Action):
     """
     Return the original name with a chosen casing option.
-    Available options are : 'untouched', 'uppercase', 'lowercase', 'first_letter' and 'first_letters'.
+    Available options are : 'untouched', 'uppercase', 'lowercase', 'titlecase'.
+    Parameters:
+        --case_choise: option to specify the case : 'untouched', 'uppercase', 'lowercase', 'titlecase'.
+        --first_letter: boolean making first letter uppercase or lowercase.
+        --after_symbols: list of symbols after which the letters are capitalized.
     """
-    def __init__(self, path_type, case_choice, after_letters):
+    def __init__(self, path_type, case_choice, first_letter = True, after_symbols = ""):
         Action.__init__(self, path_type)
         self.option = case_choice
-        self.after_letters = after_letters
-
-    def titlecase_converter(self, string, exceptions):
-        words = re.split(' ', string)
-        words_converted = [words[0].capitalize()]
-        exceptions = ['a', 'an', 'of', 'the', 'is']
-        for word in words[1:]:
-            words_converted.append(word in exceptions and word or word.capitalize())
-        return " ".join(words_converted)
-
-    def first_letter(self, string):
-        return string[0].upper() + string[1:]
+        self.first_letter = first_letter
+        self.after_symbols = after_symbols
 
     def first_letters(self, string):
-        for i, char in enumerate(string):
-            if char in self.after_letters:
+        special_char_position = []
+        stringlist = list(string)
+        for i, char in enumerate(stringlist):
+            if char in self.after_symbols:
                 special_char_position.append(i+1)
         for position in special_char_position:
-            string[position] = string[position].upper()
-        return string
+            stringlist[position] = stringlist[position].upper()
+        return ''.join(stringlist)
 
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-       if self.option is "uppercase":
-           return path_part.upper()
-       elif self.option is "lowercase":
-           return path_part.lower()
-       elif self.option is "first_letter":
-           return path_part.capitalize()
-       elif self.option is "first_letters":
-           return self.titlecase_converter(path_part, "exceptions")
-       else:
-           return path_part
+       if self.option == "uppercase":
+           path_part = path_part.upper()
+       elif self.option == "lowercase":
+           path_part = path_part.lower()
+       elif self.option == "titlecase":
+           path_part = self.first_letters(path_part)
+           if self.first_letter:
+               path_part = path_part[0].upper() + path_part[1:]
+       return path_part
 
 class CharacterInsertionAction(Action):
     """Insert new_char at index position."""
@@ -515,23 +512,12 @@ class CustomNameAction(Action):
 
 class FolderNameUsageAction(Action):
     """Use the parent foldername as the filename."""
-    def __init__(self, path_type, untouched = False, uppercase = False, lowercase = False, titlecase = False):
+    def __init__(self, path_type):
         Action.__init__(self, path_type)
-        self.untouched = untouched
-        self.uppercase = uppercase
-        self.lowercase = lowercase
-        self.titlecase = titlecase
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         folder = file_system_tree_node.get_parent().backup_filedescriptor.basename
-        if self.uppercase is True:
-            return folder.upper()
-        elif self.lowercase is True:
-            return folder.lower()
-        elif self.titlecase is True:
-            return ' '.join([name[0].upper() + name[1:] for name in folder.split(' ')])
-        else:
-            return folder
+        return folder
 
 class DateAction(Action):
     """
