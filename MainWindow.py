@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.10
+#v.1.0.11
 import os
 import time
 import shutil
@@ -427,15 +427,19 @@ class ActionButtonGroup(QWidget):
 
     def add_sub_button(self):
         sub_buttons = self.grid.itemAtPosition(2,0)
-        if sub_buttons is not None:
-            self.clearLayout(sub_buttons)
-            sub_buttons.deleteLater()
+        #if sub_buttons is not None:
+            #self.clearLayout(sub_buttons)
+            #sub_buttons.deleteLater()
         if self.selected_action and self.selected_action.action_inputs is not None:
-            form = QFormLayout()
-            form.setObjectName("form")
-            form.rowWrapPolicy =QFormLayout.WrapLongRows
+            subframe = QFrame(self)
+            subframe.setObjectName("subframe")
+            subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(210, 210, 210); padding:2px; background-color: rgb(253, 253, 253)};")
+            #subframe.setGeometry(QRect(10, 20, 100, 100))
+            sub_grid = QGridLayout(subframe)
+            sub_grid.setObjectName("subgrid")
+            #form.rowWrapPolicy =QFormLayout.WrapLongRows
             self.button_inputs_dict = {}
-            for arguments in (self.selected_action.action_inputs):
+            for i, arguments in enumerate(self.selected_action.action_inputs):
                 label = QLabel()
                 label.setObjectName("label")
                 label.setText(str(arguments.argument_caption))
@@ -463,9 +467,13 @@ class ActionButtonGroup(QWidget):
                         sub_button.addItem(enum[1], enum[0])
                     sub_button.currentIndexChanged[int].connect(self.get_combobox_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
-                form.addRow(label, sub_button)
+                if(label.text() == ""):
+                    sub_grid.addWidget(sub_button, i,0,1,2)
+                else:
+                    sub_grid.addWidget(label, i,0,1,1)
+                    sub_grid.addWidget(sub_button, i,1,1,1)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
-            self.grid.addLayout(form,2,0,1,1)
+            self.grid.addWidget(subframe,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
 
     def radio_button_clicked(self, enabled):
