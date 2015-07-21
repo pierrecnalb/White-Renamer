@@ -210,9 +210,9 @@ class TestCases(unittest.TestCase):
 
     def test_main_uppercase(self):
         self.init(True, False, "name", False)
-        action_descriptor = Renamer.OriginalName
+        action_descriptor = Renamer.CaseChangeAction
         files = self.files_collection
-        action_args = {'untouched' : False, 'uppercase': True, 'lowercase': False, 'titlecase': False}
+        action_args = {'case_choice' : 'uppercase', 'first_letter': False, 'after_symbols': False}
         self.apply_actions(action_descriptor, action_args, 'folder')
         self.apply_actions(action_descriptor, action_args, 'file')
         self.apply_actions(action_descriptor, action_args, 'extension')
@@ -221,9 +221,9 @@ class TestCases(unittest.TestCase):
 
     def test_main_lowercase(self):
         self.init(True, False, "name", False)
-        action_descriptor = Renamer.OriginalName
+        action_descriptor = Renamer.CaseChangeAction
         files = self.files_collection
-        action_args = {'untouched' : False, 'uppercase': False, 'lowercase': True, 'titlecase': False}
+        action_args = {'case_choice' : 'lowercase', 'first_letter': False, 'after_symbols': False}
         self.apply_actions(action_descriptor, action_args, 'folder')
         self.apply_actions(action_descriptor, action_args, 'file')
         self.apply_actions(action_descriptor, action_args, 'extension')
@@ -287,13 +287,13 @@ class TestCases(unittest.TestCase):
         self.compare_with_model_file(TestCasesModel.Main_CustomName)
 
     def test_main_folder_name(self):
-        """Use lowercase foldername for folders, uppercase foldername for files and untouched foldername for extensions."""
+        """Use foldername for folders, files and for extensions."""
         self.init(True, False, "name", False)
         action_descriptor = Renamer.FolderNameUsageAction
         files = self.files_collection
-        action_args_folder = {'untouched' : False, 'uppercase': False, 'lowercase': True, 'titlecase': False}
-        action_args_file = {'untouched' : False, 'uppercase': True, 'lowercase': False, 'titlecase': False}
-        action_args_extension = {'untouched' : True, 'uppercase': False, 'lowercase': False, 'titlecase': False}
+        action_args_folder = {}
+        action_args_file = {}
+        action_args_extension = {}
         self.apply_actions(action_descriptor, action_args_folder, 'folder')
         self.apply_actions(action_descriptor, action_args_file, 'file')
         self.apply_actions(action_descriptor, action_args_extension, 'extension')
@@ -313,15 +313,13 @@ class TestCases(unittest.TestCase):
         self.compare_with_model_file(TestCasesModel.Main_Custom_Prefix_Suffix)
 
     def test_main_foldername_prefix_suffix(self):
-        """Add two prefixes with foldername (first uppercase, second lowercase) and one suffix with foldername untouched."""
+        """Add prefix with foldername  and one suffix with foldername."""
         self.init(True, False, "name", False)
         action_descriptor = Renamer.FolderNameUsageAction
         files = self.files_collection
-        action_args_prefix1 = {'untouched' : False, 'uppercase': False, 'lowercase': True, 'titlecase': False}
-        action_args_prefix2 = {'untouched' : False, 'uppercase': True, 'lowercase': False, 'titlecase': False}
-        action_args_suffix = {'untouched' : True, 'uppercase': False, 'lowercase': False, 'titlecase': False}
-        self.apply_actions(action_descriptor, action_args_prefix1, 'prefix')
-        self.apply_actions(action_descriptor, action_args_prefix2, 'prefix')
+        action_args_prefix = {}
+        action_args_suffix = {}
+        self.apply_actions(action_descriptor, action_args_prefix, 'prefix')
         self.apply_actions(action_descriptor, action_args_suffix, 'suffix')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_FolderName_Prefix_Suffix)

@@ -51,16 +51,16 @@ class MainWidget(QWidget):
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
         self.frame_space = 20
-        self.frame_width = 180
-        self.frame_height = 200
+        self.frame_width = 250
+        self.frame_height = 300
         self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
-        original_name_inputs = []
-        original_name_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "untouched", [('untouched',self.tr('Untouched')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),('titlecase', self.tr('Titlecase'))]))
-        original_name_inputs.append(Renamer.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
-        original_name_inputs.append(Renamer.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
-        #original_name_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
+        case_change_inputs = []
+        case_change_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "untouched", [('untouched',self.tr('Untouched')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),('titlecase', self.tr('Titlecase'))]))
+        case_change_inputs.append(Renamer.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
+        case_change_inputs.append(Renamer.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
+        #case_change_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
         character_replacement_inputs = []
         character_replacement_inputs.append(Renamer.ActionInput('old_char', self.tr('Replace'), str, ""))
         character_replacement_inputs.append(Renamer.ActionInput('new_char', self.tr('With'), str, ""))
@@ -81,12 +81,9 @@ class MainWidget(QWidget):
         date_inputs.append(Renamer.ActionInput('is_created_date', self.tr('Created'), bool, True))
         date_inputs.append(Renamer.ActionInput('format_display', self.tr('Format'), str, "%Y/%m/%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
-        foldername_inputs.append(Renamer.ActionInput('untouched', self.tr('Untouched'), bool, True))
-        foldername_inputs.append(Renamer.ActionInput('uppercase', self.tr('Uppercase'), bool, False))
-        foldername_inputs.append(Renamer.ActionInput('lowercase', self.tr('Lowercase'), bool, False))
-        foldername_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), bool, False))
+        #foldername_inputs.append(Renamer.ActionInput())
         #ALL ACTION DESCRIPTOR
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), original_name_inputs, Renamer.CaseChangeAction))
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), case_change_inputs, Renamer.CaseChangeAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, Renamer.CharacterReplacementAction))
@@ -384,15 +381,17 @@ class ActionButtonGroup(QWidget):
     changed = Signal() # get changes in order to refresh the preview
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height):
         QWidget.__init__(self)
+        self.maximum_height_size = frame_height
+        self.maximum_width_size = frame_width
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
         if ("Prefix" in frame_name or "Suffix" in frame_name):
             self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(190, 190, 190); border-radius: 4px; padding:2px; background-color: rgb(230, 230, 230)};")
         else:
             self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 10px; padding:2px; background-color: rgb(244, 244, 244)};")
-        self.frame.setGeometry(QRect(0, 0, frame_width, frame_height))
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
+        self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
         self.frame_name = frame_name
         self.combobox = QComboBox()
         self.combobox.setObjectName("combobox")
@@ -414,6 +413,8 @@ class ActionButtonGroup(QWidget):
         self.grid.addWidget(self.combobox, 1, 0, 1, 1)
         self.add_sub_button()
         self.frame_grid.addLayout(self.grid,0,0,1,1)
+        #for i in range(len(self.action_descriptors)):
+        #    self.on_selected_action_changed(i)
 
     def change(self):
         ''' Change occurs on the layout. '''
@@ -427,17 +428,20 @@ class ActionButtonGroup(QWidget):
 
     def add_sub_button(self):
         sub_buttons = self.grid.itemAtPosition(2,0)
-        #if sub_buttons is not None:
-            #self.clearLayout(sub_buttons)
-            #sub_buttons.deleteLater()
-        if self.selected_action and self.selected_action.action_inputs is not None:
+        if sub_buttons is not None:
+            sub_buttons.widget().deleteLater()
+        if self.selected_action and self.selected_action.action_inputs != []:
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
-            subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(210, 210, 210); padding:2px; background-color: rgb(253, 253, 253)};")
-            #subframe.setGeometry(QRect(10, 20, 100, 100))
+            subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(210, 210, 210); border-radius:3px; padding:2px; background-color: rgb(253, 253, 253)};")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
-            #form.rowWrapPolicy =QFormLayout.WrapLongRows
+            font = QFont()
+            font.setWeight(55)
+            font.setBold(True)
+            option_label = QLabel("options :")
+            option_label.setFont(font)
+            sub_grid.addWidget(option_label, 0, 0, 1, 2)
             self.button_inputs_dict = {}
             for i, arguments in enumerate(self.selected_action.action_inputs):
                 label = QLabel()
@@ -468,13 +472,23 @@ class ActionButtonGroup(QWidget):
                     sub_button.currentIndexChanged[int].connect(self.get_combobox_changed)
                 sub_button.setObjectName(str(arguments.argument_name))
                 if(label.text() == ""):
-                    sub_grid.addWidget(sub_button, i,0,1,2)
+                    sub_grid.addWidget(sub_button, i+1, 0, 1, 2)
                 else:
-                    sub_grid.addWidget(label, i,0,1,1)
-                    sub_grid.addWidget(sub_button, i,1,1,1)
+                    sub_grid.addWidget(label, i+1, 0, 1, 1)
+                    sub_grid.addWidget(sub_button, i+1, 1, 1, 1)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
             self.grid.addWidget(subframe,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
+    
+    def get_maximum_height(self):
+        if (self.maximum_height_size < self.frame.minimumSizeHint().height()):
+            self.maximum_height_size = self.frame.minimumSizeHint().height()
+        return self.maximum_height_size
+
+    def get_maximum_width(self):
+        if (self.maximum_width_size < self.frame.minimumSizeHint().width()):
+            self.maximum_width_size = self.frame.minimumSizeHint().width()
+        return self.maximum_width_size
 
     def radio_button_clicked(self, enabled):
         if enabled:
@@ -504,8 +518,6 @@ class ActionButtonGroup(QWidget):
 
     def get_combobox_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = self.sender().itemData(value)
-        print(self.sender().objectName())
-        print(self.sender().itemData(value))
         self.change()
 
     def clearLayout(self, layout):
@@ -543,9 +555,7 @@ class MainWindow(QMainWindow):
         self.show_hidden_files = False
         self.sorting_criteria = "name"
         self.reverse_order = False
-        # setGeometry(x_pos, y_pos, width, height)
-        self.setGeometry(200,200,800,600)
-        
+        self.showMaximized()
         self.tab = QWidget()
         self.plainTextEdit = QPlainTextEdit(self.tab)
 

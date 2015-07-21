@@ -91,18 +91,18 @@ os.path.join("TestDirectory","folder (1)","folder (1)")]
 
 #use lowercase foldername for folders, uppercase foldername for files and untouched foldername for extensions.
 Main_FolderName = [
-os.path.join("TestDirectory","testdirectory"),
-os.path.join("TestDirectory","testdirectory (1)"),
-os.path.join("TestDirectory","testdirectory (1)","folder1"),
-os.path.join("TestDirectory","testdirectory (1)","folder1","SUB FOLDER_1 (1)sub fOlder_1"),
-os.path.join("TestDirectory","testdirectory (1)","folder1","SUB FOLDER_1sub fOlder_1"),
-os.path.join("TestDirectory","testdirectory (1)","folder1 (1)"),
-os.path.join("TestDirectory","testdirectory (1)","FOLDER1 (1)FOLDER1"),
-os.path.join("TestDirectory","testdirectory (1)","FOLDER1FOLDER1"),
-os.path.join("TestDirectory","TESTDIRECTORY (1)TestDirectory"),
-os.path.join("TestDirectory","TESTDIRECTORY (2)TestDirectory"),
-os.path.join("TestDirectory","TESTDIRECTORY (3)TestDirectory"),
-os.path.join("TestDirectory","TESTDIRECTORYTestDirectory")]
+os.path.join("TestDirectory","TestDirectory"),
+os.path.join("TestDirectory","TestDirectory (1)"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1 (1)sub fOlder_1"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1sub fOlder_1"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1 (1)"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1 (1)FOLDER1"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1FOLDER1"),
+os.path.join("TestDirectory","TestDirectory (1)TestDirectory"),
+os.path.join("TestDirectory","TestDirectory (2)TestDirectory"),
+os.path.join("TestDirectory","TestDirectory (3)TestDirectory"),
+os.path.join("TestDirectory","TestDirectoryTestDirectory")]
 
 #Add a prefix 'prefix ' and a suffix ' suffix'.
 Main_Custom_Prefix_Suffix = [
@@ -119,20 +119,20 @@ os.path.join("TestDirectory","prefix file.with.dots suffix.txt"),
 os.path.join("TestDirectory","prefix file_with_underscore suffix.txt"),
 os.path.join("TestDirectory","prefix l'appostrophe suffix.txt")]
 
-#Add two prefixes with foldername (first uppercase, second lowercase) and one suffix with foldername untouched.
+#Add prefix with foldername and one suffix with foldername.
 Main_FolderName_Prefix_Suffix = [
 os.path.join("TestDirectory","folder 2"),
 os.path.join("TestDirectory","FOLDER1"),
-os.path.join("TestDirectory","FOLDER1","FOLDER1folder1folder1-file1FOLDER1.txt"),
-os.path.join("TestDirectory","FOLDER1","FOLDER1folder1folder1-sub file #2FOLDER1.txt"),
+os.path.join("TestDirectory","FOLDER1","FOLDER1folder1-file1FOLDER1.txt"),
+os.path.join("TestDirectory","FOLDER1","FOLDER1folder1-sub file #2FOLDER1.txt"),
 os.path.join("TestDirectory","FOLDER1","sub fOlder_1"),
-os.path.join("TestDirectory","FOLDER1","sub fOlder_1","SUB FOLDER_1sub folder_1sub file 1sub fOlder_1.txt"),
-os.path.join("TestDirectory","FOLDER1","sub fOlder_1","SUB FOLDER_1sub folder_1sub file 2sub fOlder_1.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","sub fOlder_1sub file 1sub fOlder_1.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","sub fOlder_1sub file 2sub fOlder_1.txt"),
 os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
-os.path.join("TestDirectory","TESTDIRECTORYtestdirectoryfile with é èTestDirectory.txt"),
-os.path.join("TestDirectory","TESTDIRECTORYtestdirectoryfile.with.dotsTestDirectory.txt"),
-os.path.join("TestDirectory","TESTDIRECTORYtestdirectoryfile_with_underscoreTestDirectory.txt"),
-os.path.join("TestDirectory","TESTDIRECTORYtestdirectoryl'appostropheTestDirectory.txt")]
+os.path.join("TestDirectory","TestDirectoryfile with é èTestDirectory.txt"),
+os.path.join("TestDirectory","TestDirectoryfile.with.dotsTestDirectory.txt"),
+os.path.join("TestDirectory","TestDirectoryfile_with_underscoreTestDirectory.txt"),
+os.path.join("TestDirectory","TestDirectoryl'appostropheTestDirectory.txt")]
 
 #Folder with counter from 0 and inc = 1, prefix from 2 and inc = 4. Sorted by name.
 Main_Counter_Name_Sort = [
