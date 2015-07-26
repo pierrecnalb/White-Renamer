@@ -39,6 +39,7 @@ def main():
     translator.load('i18n/tr_fr', os.path.dirname(__file__))
     app.installTranslator(translator)
     win = MainWindow()
+    SizeCalculator(win)
     win.show()
     app.exec_()
 
@@ -50,14 +51,16 @@ class MainWidget(QWidget):
         self.files_collection = None
         self.all_action_descriptors = []
         self.limited_action_descriptors = []
-        self.frame_space = 20
-        self.frame_width = 250
-        self.frame_height = 300
-        self.button_width = 30
+        if sys.platform == 'linux':
+            self.frame_space = 20
+            self.frame_width = 211
+            self.frame_height = 240
+            self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
+        original_name_inputs = []
         case_change_inputs = []
-        case_change_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "untouched", [('untouched',self.tr('Untouched')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),('titlecase', self.tr('Titlecase'))]))
+        case_change_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),]))
         case_change_inputs.append(Renamer.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
         case_change_inputs.append(Renamer.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
         #case_change_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
@@ -83,6 +86,7 @@ class MainWidget(QWidget):
         foldername_inputs = []
         #foldername_inputs.append(Renamer.ActionInput())
         #ALL ACTION DESCRIPTOR
+        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Original Name"), original_name_inputs, Renamer.OriginalNameAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), case_change_inputs, Renamer.CaseChangeAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
         self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
@@ -194,6 +198,9 @@ class MainWidget(QWidget):
         #self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
         #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
         #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
+
+    def get_action_button_group(self):
+        return self.file_box
 
     def create_file(self, name):
         file = io.open(os.path.join(self.directory, name), 'w')
@@ -376,6 +383,20 @@ class MainWidget(QWidget):
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
 
+class SizeCalculator(object):
+    def __init__(self, main_window):
+        self.main_window = main_window
+        main_widget = main_window.get_main_widget()
+        action_button_group = main_widget.get_action_button_group()
+        for i in range(len(action_button_group.get_action_descriptors())):
+            action_button_group.on_selected_action_changed(i)
+            self.max_height = action_button_group.get_maximum_height()
+            self.max_width = action_button_group.get_maximum_width()
+        print(self.max_height)
+        print(self.max_width)
+
+
+
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
     changed = Signal() # get changes in order to refresh the preview
@@ -394,7 +415,7 @@ class ActionButtonGroup(QWidget):
         self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
         self.frame_name = frame_name
         self.combobox = QComboBox()
-        self.combobox.setObjectName("combobox")
+        self.combobox.setObjectName("action_selector")
         self.action_descriptors = action_descriptors
         for element in action_descriptors:
             self.combobox.addItem(str(element))
@@ -419,17 +440,23 @@ class ActionButtonGroup(QWidget):
     def change(self):
         ''' Change occurs on the layout. '''
         self.changed.emit()
+    def get_action_descriptors(self):
+        return self.action_descriptors
 
     def on_selected_action_changed(self, index):
         self.selected_action = self.action_descriptors[index]
         self.button_inputs_dict = {}
         self.add_sub_button()
         self.change()
+        #self.frame.resize(self.frame.minimumSizeHint())
 
     def add_sub_button(self):
         sub_buttons = self.grid.itemAtPosition(2,0)
         if sub_buttons is not None:
+            self.clearLayout(sub_buttons.widget().layout())
             sub_buttons.widget().deleteLater()
+            #sub_buttons.widget().setParent(None)
+            #sub_buttons.widget().destroy(True, True)
         if self.selected_action and self.selected_action.action_inputs != []:
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
@@ -518,6 +545,20 @@ class ActionButtonGroup(QWidget):
 
     def get_combobox_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = self.sender().itemData(value)
+        #Hide buttons related to TitleCase
+        if self.sender().objectName() == "case_choice":
+            if value == 3:
+                sub_grid = self.grid.itemAtPosition(2,0).widget()
+                sub_grid.layout().itemAtPosition(2,0).widget().show()
+                sub_grid.layout().itemAtPosition(2,1).widget().show()
+                sub_grid.layout().itemAtPosition(3,0).widget().show()
+                sub_grid.layout().itemAtPosition(3,1).widget().show()
+            else:
+                sub_grid = self.grid.itemAtPosition(2,0).widget()
+                sub_grid.layout().itemAtPosition(2,0).widget().hide()
+                sub_grid.layout().itemAtPosition(2,1).widget().hide()
+                sub_grid.layout().itemAtPosition(3,0).widget().hide()
+                sub_grid.layout().itemAtPosition(3,1).widget().hide()
         self.change()
 
     def clearLayout(self, layout):
@@ -647,6 +688,9 @@ class MainWindow(QMainWindow):
         self.statusBar()
         self.main_widget = MainWidget()
         self.setCentralWidget(self.main_widget)
+
+    def get_main_widget(self):
+        return self.main_widget
 
     def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None,
                      tip=None):

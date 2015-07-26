@@ -442,12 +442,19 @@ class CharacterReplacementAction(Action):
         else:
             return re.sub(self.old_char, self.new_char, path_part)
 
+class OriginalNameAction(Action):
+    """Gets the original name."""
+    def __init__(self, path_type):
+        Action.__init__(self, path_type)
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        return path_part
+
 class CaseChangeAction(Action):
     """
     Return the original name with a chosen casing option.
-    Available options are : 'untouched', 'uppercase', 'lowercase', 'titlecase'.
     Parameters:
-        --case_choise: option to specify the case : 'untouched', 'uppercase', 'lowercase', 'titlecase'.
+        --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
         --first_letter: boolean making first letter uppercase or lowercase.
         --after_symbols: list of symbols after which the letters are capitalized.
     """
