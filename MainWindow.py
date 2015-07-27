@@ -39,7 +39,7 @@ def main():
     translator.load('i18n/tr_fr', os.path.dirname(__file__))
     app.installTranslator(translator)
     win = MainWindow()
-    SizeCalculator(win)
+    #SizeCalculator(win)
     win.show()
     app.exec_()
 
@@ -55,6 +55,11 @@ class MainWidget(QWidget):
             self.frame_space = 20
             self.frame_width = 211
             self.frame_height = 240
+            self.button_width = 30
+        elif sys.platform == 'win32' or sys.platform == 'win64':
+            self.frame_space = 20
+            self.frame_width = 174
+            self.frame_height = 182
             self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
@@ -463,6 +468,7 @@ class ActionButtonGroup(QWidget):
             subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(210, 210, 210); border-radius:3px; padding:2px; background-color: rgb(253, 253, 253)};")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
+            sub_grid.destroyed.connect(self.isDestroyed)
             font = QFont()
             font.setWeight(55)
             font.setBold(True)
@@ -506,6 +512,8 @@ class ActionButtonGroup(QWidget):
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
             self.grid.addWidget(subframe,2,0,1,1)
         self.grid.addItem(self.spacerItem,3,0,1,1)
+    def isDestroyed(self, *args):
+        print('destroyed')
     
     def get_maximum_height(self):
         if (self.maximum_height_size < self.frame.minimumSizeHint().height()):
