@@ -228,7 +228,3 @@ class MainWindow(QMainWindow):
     @Slot()
     def undo_click(self):
         self.main_widget.undo()
-
-
-if __name__ == '__main__':
-    main()
