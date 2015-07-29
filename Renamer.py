@@ -406,7 +406,8 @@ class Action(object):
         suffix = ""
         #pdb.set_trace()
         if(self.path_type == "file"):
-            file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
+            if (file_system_tree_node.is_folder is False):
+                file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
         elif(self.path_type == "folder"):
             if (file_system_tree_node.is_folder):
                 file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
@@ -471,7 +472,8 @@ class CaseChangeAction(Action):
             if char in self.after_symbols:
                 special_char_position.append(i+1)
         for position in special_char_position:
-            stringlist[position] = stringlist[position].upper()
+            if position < len(stringlist):
+                stringlist[position] = stringlist[position].upper()
         return ''.join(stringlist)
 
 
@@ -481,8 +483,11 @@ class CaseChangeAction(Action):
        elif self.option == "lowercase":
            path_part = path_part.lower()
        elif self.option == "titlecase":
+           print(path_part[1:])
            path_part = self.first_letters(path_part)
            if self.first_letter:
+               print(path_part[1:])
+               print("---")
                path_part = path_part[0].upper() + path_part[1:]
        return path_part
 
@@ -523,7 +528,7 @@ class FolderNameUsageAction(Action):
         Action.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        folder = file_system_tree_node.get_parent().backup_filedescriptor.basename
+        folder = file_system_tree_node.get_parent().original_filedescriptor.basename
         return folder
 
 class DateAction(Action):
