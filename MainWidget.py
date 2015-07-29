@@ -7,10 +7,11 @@ import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
 from PySide.QtSvg  import *
-import Renamer
+import ActionManager
+import ActionButtonGroup
+import FileManager
 import resource_rc
 import io
-import ActionButtonGroup
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
 
@@ -33,46 +34,46 @@ class MainWidget(QWidget):
         #---INPUTS DEFINITION---
         original_name_inputs = []
         case_change_inputs = []
-        case_change_inputs.append(Renamer.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),]))
-        case_change_inputs.append(Renamer.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
-        case_change_inputs.append(Renamer.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
-        #case_change_inputs.append(Renamer.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
+        case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),]))
+        case_change_inputs.append(ActionManager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
+        case_change_inputs.append(ActionManager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
+        #case_change_inputs.append(ActionManager.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
         character_replacement_inputs = []
-        character_replacement_inputs.append(Renamer.ActionInput('old_char', self.tr('Replace'), str, ""))
-        character_replacement_inputs.append(Renamer.ActionInput('new_char', self.tr('With'), str, ""))
-        character_replacement_inputs.append(Renamer.ActionInput('regex', self.tr('Regex'), "checkable", False))
+        character_replacement_inputs.append(ActionManager.ActionInput('old_char', self.tr('Replace'), str, ""))
+        character_replacement_inputs.append(ActionManager.ActionInput('new_char', self.tr('With'), str, ""))
+        character_replacement_inputs.append(ActionManager.ActionInput('regex', self.tr('Regex'), "checkable", False))
         character_insertion_inputs = []
-        character_insertion_inputs.append(Renamer.ActionInput('new_char', self.tr('Insert'), str, ""))
-        character_insertion_inputs.append(Renamer.ActionInput('index', self.tr('At Position'), int, 0))
+        character_insertion_inputs.append(ActionManager.ActionInput('new_char', self.tr('Insert'), str, ""))
+        character_insertion_inputs.append(ActionManager.ActionInput('index', self.tr('At Position'), int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(Renamer.ActionInput('starting_position', self.tr('From'), int, 0))
-        character_deletion_inputs.append(Renamer.ActionInput('ending_position', self.tr('To'), int, 1))
+        character_deletion_inputs.append(ActionManager.ActionInput('starting_position', self.tr('From'), int, 0))
+        character_deletion_inputs.append(ActionManager.ActionInput('ending_position', self.tr('To'), int, 1))
         custom_name_inputs = []
-        custom_name_inputs.append(Renamer.ActionInput('new_name', self.tr('New Name'), str, ""))
+        custom_name_inputs.append(ActionManager.ActionInput('new_name', self.tr('New Name'), str, ""))
         counter_inputs = []
-        counter_inputs.append(Renamer.ActionInput('start_index', self.tr('Start At'), int, 0))
-        counter_inputs.append(Renamer.ActionInput('increment', self.tr('Increment'), int, 1))
+        counter_inputs.append(ActionManager.ActionInput('start_index', self.tr('Start At'), int, 0))
+        counter_inputs.append(ActionManager.ActionInput('increment', self.tr('Increment'), int, 1))
         date_inputs = []
-        date_inputs.append(Renamer.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
-        date_inputs.append(Renamer.ActionInput('is_created_date', self.tr('Created'), bool, True))
-        date_inputs.append(Renamer.ActionInput('format_display', self.tr('Format'), str, "%Y/%m/%d %H:%M:%S (%A %B)"))
+        date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
+        date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
+        date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y/%m/%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
-        #foldername_inputs.append(Renamer.ActionInput())
+        #foldername_inputs.append(ActionManager.ActionInput())
         #ALL ACTION DESCRIPTOR
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Original Name"), original_name_inputs, Renamer.OriginalNameAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Case"), case_change_inputs, Renamer.CaseChangeAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, Renamer.CharacterReplacementAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, Renamer.CharacterInsertionAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, Renamer.CharacterDeletionAction))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Counter"), counter_inputs, Renamer.Counter))
-        self.all_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Date"), date_inputs, Renamer.DateAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), case_change_inputs, ActionManager.CaseChangeAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
         #LIMITED ACTION DESCRIPTOR
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, Renamer.CustomNameAction))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, Renamer.FolderNameUsageAction))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Counter"), counter_inputs, Renamer.Counter))
-        self.limited_action_descriptors.append(Renamer.ActionDescriptor(self.tr("Date"), date_inputs, Renamer.DateAction))
+        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
+        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
+        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
+        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
         #Create Button and Layout
         self.prefix_number = 0
         self.suffix_number = 0
@@ -195,7 +196,7 @@ class MainWidget(QWidget):
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.files_collection = Renamer.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
+        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)

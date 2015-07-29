@@ -62,10 +62,11 @@ class ActionButtonGroup(QWidget):
     def add_sub_button(self):
         sub_buttons = self.grid.itemAtPosition(2,0)
         if sub_buttons is not None:
-            self.clearLayout(sub_buttons.widget().layout())
-            sub_buttons.widget().deleteLater()
-            #sub_buttons.widget().setParent(None)
-            #sub_buttons.widget().destroy(True, True)
+            widgetToRemove = sub_buttons.widget()
+            # get it out of the layout list
+            self.grid.removeWidget(widgetToRemove)
+            # remove it form the gui
+            widgetToRemove.setParent(None)
         if self.selected_action and self.selected_action.action_inputs != []:
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
@@ -119,7 +120,7 @@ class ActionButtonGroup(QWidget):
 
     def isDestroyed(self, *args):
         print('destroyed')
-    
+
     def get_maximum_height(self):
         if (self.maximum_height_size < self.frame.minimumSizeHint().height()):
             self.maximum_height_size = self.frame.minimumSizeHint().height()
@@ -159,7 +160,6 @@ class ActionButtonGroup(QWidget):
     def get_combobox_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = self.sender().itemData(value)
         #Hide buttons related to TitleCase
-        print(self.sender().objectName())
         if self.sender().objectName() == "case_choice":
             if value == 0:
                 sub_grid = self.grid.itemAtPosition(2,0).widget()
@@ -177,12 +177,18 @@ class ActionButtonGroup(QWidget):
 
     def clearLayout(self, layout):
         """delete all children of the specified layout"""
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget() is not None:
-                child.widget().deleteLater()
-            elif child.layout() is not None:
-                self.clearLayout(child.layout())
+        for i in reversed(range(layout.count())): 
+                        widgetToRemove = layout.itemAt(i).widget()
+                        # get it out of the layout list
+                        layout.removeWidget( widgetToRemove )
+                        # remove it form the gui
+                        widgetToRemove.setParent( None )
+        #while layout.count():
+        #    child = layout.takeAt(0)
+        #    if child.widget() is not None:
+        #        child.widget().deleteLater()
+        #    elif child.layout() is not None:
+        #        self.clearLayout(child.layout())
 
     def destruct_layout(self):
         """Delete entire layout."""
