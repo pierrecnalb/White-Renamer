@@ -187,7 +187,7 @@ class MainWidget(QWidget):
     def update_x_frame(self):
         self.x_frame += self.frame_width + self.frame_space
 
-    def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order):
+    def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters):
         """Process the selected directory to create the tree and modify the files"""
         self.recursion = recursion
         self.show_hidden_files = show_hidden_files
@@ -196,7 +196,7 @@ class MainWidget(QWidget):
         tree = self.main_grid.itemAtPosition(1,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order)
+        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
