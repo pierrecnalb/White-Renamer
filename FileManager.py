@@ -7,6 +7,7 @@ import copy
 import pdb
 import io
 import ActionManager
+import re
 
 class FileDescriptor(object):
     """
@@ -198,19 +199,19 @@ class FilesCollection(object):
         --reverse_order: boolean that specifies the sorting order. Default is 'False'.
     """
 
-    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False):
+    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters =""):
         self.input_path = input_path
         (self.root_folder, basename)=os.path.split(self.input_path)
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         root_filedescriptor = FileDescriptor(basename, True)
         self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, 0)
-        self.scan(self.root_tree_node, sorting_criteria, reverse_order)
+        self.scan(self.root_tree_node, sorting_criteria, reverse_order, filters)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
         self.flat_tree_list = []
         self.renamed_files_list = []
 
-    def scan(self, tree_node, sorting_criteria, reverse_order):
+    def scan(self, tree_node, sorting_criteria, reverse_order, filters):
         """Creates the files system structure with FileSystemTreeNode."""
         path = self.get_full_path(tree_node.get_original_relative_path())
         children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
@@ -227,11 +228,12 @@ class FilesCollection(object):
                 if (not self.use_subdirectory):
                     continue
                 else:
-                    self.scan(file_system_child_node, sorting_criteria, reverse_order)
+                    self.scan(file_system_child_node, sorting_criteria, reverse_order, filters)
             else:
-                file_rank += 1
-                file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
-                tree_node.add_children(file_system_child_node)
+                if filters == "" or filters in child:
+                    file_rank += 1
+                    file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
+                    tree_node.add_children(file_system_child_node)
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
