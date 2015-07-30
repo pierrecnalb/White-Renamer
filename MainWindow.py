@@ -18,6 +18,7 @@ class MainWindow(QMainWindow):
         self.showMaximized()
         self.tab = QWidget()
         self.plainTextEdit = QPlainTextEdit(self.tab)
+        self.filters = ""
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
@@ -52,6 +53,7 @@ class MainWindow(QMainWindow):
         self.action_name_sorting = QAction(self.tr('By Name'), self)
         self.action_name_sorting.setCheckable(True)
         self.action_name_sorting = self.edit_action(self.action_name_sorting, self.name_sorting_click, None, None, None,self.tr('Sort the files/folders by name.'))
+        self.action_name_sorting.setChecked(True)
         self.action_size_sorting = QAction(self.tr('By Size'), self)
         self.action_size_sorting.setCheckable(True)
         self.action_size_sorting = self.edit_action(self.action_size_sorting, self.size_sorting_click, None, None, None,self.tr('Sort the files/folders by size.'))
@@ -61,6 +63,14 @@ class MainWindow(QMainWindow):
         self.action_creation_date_sorting = QAction(self.tr('By Creation Date'), self)
         self.action_creation_date_sorting.setCheckable(True)
         self.action_creation_date_sorting = self.edit_action(self.action_creation_date_sorting, self.creation_date_sorting_click, None, None, None,self.tr('Sort the files/folders by creation date.'))
+        filterInput = QLineEdit()
+        filterInput.setPlaceholderText("Filter Files...")
+        filterInput.setMaximumWidth(150)
+
+        #sub_button.setText(arguments.default_value)
+        filterInput.textChanged[str].connect(self.get_filter_input)
+        #self.action_filter_files = QAction(self.tr('Filter'), self)
+        #self.action_filter_files = self.edit_action(self.action_filter_files, self.on_filter_changed, None, None, None,self.tr('Filter the files.'))
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
@@ -102,6 +112,7 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_undo)
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_help)
+        self.main_toolbar.addWidget(filterInput)
 
         # create the status bar
         self.statusBar()
@@ -111,8 +122,11 @@ class MainWindow(QMainWindow):
     def get_main_widget(self):
         return self.main_widget
 
-    def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None,
-                     tip=None):
+    def get_filter_input(self, value):
+        self.filters = value
+        self.update_directory()
+
+    def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
         '''This method adds to action: icon, shortcut, ToolTip,\
         StatusTip and can connect triggered action to slot '''
         if icon is not None:
@@ -160,11 +174,11 @@ class MainWindow(QMainWindow):
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        #self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
+        self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        #Aself.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"
-        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
+        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters)
 
     @Slot()
     def add_prefix_click(self):
@@ -218,7 +232,7 @@ class MainWindow(QMainWindow):
         self.update_directory()
 
     def update_directory(self):
-            self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order)
+            self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters)
             self.main_widget.apply_action()
 
     @Slot()
