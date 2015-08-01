@@ -30,16 +30,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.233498"
-     inkscape:cx="2.6787158"
-     inkscape:cy="2.9886193"
+     inkscape:zoom="12.926052"
+     inkscape:cx="2.2807573"
+     inkscape:cy="5.0468054"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="128px"
      height="128px"
      inkscape:showpageshadow="false"
      inkscape:window-width="1440"
-     inkscape:window-height="836"
+     inkscape:window-height="838"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
@@ -402,24 +402,24 @@
      id="layer1"
      inkscape:groupmode="layer">
     <path
-       style="fill:#bebebe;fill-opacity:1;stroke:none;display:inline"
+       style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
        d="M 2,0 C 1.446,0 1,0.446 1,1 L 1,2 15,2 C 15,1.446 14.554,1 14,1 L 7,1 C 7,0.446 6.554,0 6,0 z"
        id="path3028"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ssccscss" />
     <path
-       style="fill:#bebebe;fill-opacity:1;stroke:none;display:inline"
+       style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
        d="M 1.5,3 C 0.669,3 0,3.669 0,4.5 l 0,9 C 0,14.331 0.669,15 1.5,15 l 13,0 c 0.831,0 1.5,-0.669 1.5,-1.5 l 0,-9 C 16,3.669 15.331,3 14.5,3 z"
        id="path3040"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="sssssssss" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#d2d2d2;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 12,8 0,6"
        id="path4187"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#d2d2d2;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 9,11 6,0"
        id="path4189"
        inkscape:connector-curvature="0" />

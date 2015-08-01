@@ -30,16 +30,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4459919"
-     inkscape:cx="-115.06892"
-     inkscape:cy="-11.716931"
+     inkscape:zoom="6.9407611"
+     inkscape:cx="-0.63753899"
+     inkscape:cy="-0.0708347"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="128px"
      height="128px"
      inkscape:showpageshadow="false"
      inkscape:window-width="1440"
-     inkscape:window-height="836"
+     inkscape:window-height="838"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showguides="true"
@@ -647,12 +647,12 @@
      id="layer1"
      inkscape:groupmode="layer">
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#b4b4b4;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;fill-rule:evenodd;stroke:#6e6e6e;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
        d="M 2,2 14,14"
        id="path4310"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#b4b4b4;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:none;fill-rule:evenodd;stroke:#6e6e6e;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
        d="M 2,14 14,2"
        id="path4312"
        inkscape:connector-curvature="0" />

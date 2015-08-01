@@ -16,24 +16,22 @@ class MainWindow(QMainWindow):
         self.sorting_criteria = "name"
         self.reverse_order = False
         self.showMaximized()
-        self.tab = QWidget()
-        self.plainTextEdit = QPlainTextEdit(self.tab)
         self.filters = ""
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
-        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Exit program.'))
+        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
         self.action_exit = QAction(self.tr('&Exit'), self)
-        self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', None,self.tr('Open directory dialog.'))
+        self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', "exit_icon.svg", self.tr('Exit the application.'))
         self.action_help = QAction(self.tr('&Help'), self)
         self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+h', 'help_icon.svg', self.tr('Show help page.'))
         self.action_about = QAction(self.tr('&About'), self)
-        self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('Pop About Box.'))
+        self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('About Box.'))
         self.action_recursion = QAction(self.tr('Recursion'), self)
-        self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, 'alt+r', "subdirectory_icon.svg",self.tr('Rename subdirectories recursively.'))
+        self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.svg",self.tr('Rename subdirectories recursively.'))
         self.action_recursion.setCheckable(True)
         self.action_hide = QAction(self.tr('Show Hidden Files'), self)
-        self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'alt+h', "hidden_icon.svg",self.tr('Show hidden files.'))
+        self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+h', "hidden_icon.svg",self.tr('Show hidden files.'))
         self.action_hide.setCheckable(True)
         self.action_add_prefix = QAction(self.tr('Add Prefix'), self)
         self.action_add_prefix = self.edit_action(self.action_add_prefix, self.add_prefix_click, None, None, None,self.tr('Add prefix.'))
@@ -43,7 +41,7 @@ class MainWindow(QMainWindow):
         self.action_remove_prefix = self.edit_action(self.action_remove_prefix, self.remove_prefix_click, None, None, None,self.tr('Remove prefix.'))
         self.action_remove_suffix = QAction(self.tr('Remove Suffix'), self)
         self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, None, None,self.tr('Remove suffix.'))
-        self.action_rename = QAction(self.tr('Run'), self)
+        self.action_rename = QAction(self.tr('&Run'), self)
         self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+enter', "run_icon.svg",self.tr('Rename the files/folders.'))
         self.action_undo = QAction(self.tr('Undo'), self)
         self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', "undo_icon.svg",self.tr('Undo the previous renaming.'))
@@ -66,11 +64,7 @@ class MainWindow(QMainWindow):
         filterInput = QLineEdit()
         filterInput.setPlaceholderText("Filter Files...")
         filterInput.setMaximumWidth(150)
-
-        #sub_button.setText(arguments.default_value)
         filterInput.textChanged[str].connect(self.get_filter_input)
-        #self.action_filter_files = QAction(self.tr('Filter'), self)
-        #self.action_filter_files = self.edit_action(self.action_filter_files, self.on_filter_changed, None, None, None,self.tr('Filter the files.'))
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
@@ -111,9 +105,9 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_rename)
         self.main_toolbar.addAction(self.action_undo)
         self.main_toolbar.addSeparator()
-        self.main_toolbar.addAction(self.action_help)
         self.main_toolbar.addWidget(filterInput)
-
+        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_help)
         # create the status bar
         self.statusBar()
         self.main_widget = MainWidget.MainWidget()
@@ -142,13 +136,14 @@ class MainWindow(QMainWindow):
 
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
-        self.plainTextEdit.setPlainText(open('README.md').read())
+        pass
 
     def about_box_click(self):
         '''Popup a box with about message.'''
-        QMessageBox.about(self, "About PySide, Platform and the like",
-                """<b>Part of Structural Analysis.</b> v %s
+        QMessageBox.about(self, "About WhiteRenamer",
+                """<b>White Renamer</b> v %s
                 <p>Copyright &copy; 2015 Pierre BLANC. 
+                email : pierrecnalb@mailbox.org
                 All rights reserved in accordance with
                 Creative Commons Attribution Licence (CCPL) v3
                 or later - NO WARRANTIES!
@@ -174,7 +169,7 @@ class MainWindow(QMainWindow):
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        self.directory = QFileDialog.getExistingDirectory(self,"Open Directory", os.getcwd(), flags)
+        self.directory = QFileDialog.getExistingDirectory(self,"Select Directory", os.getcwd(), flags)
         #Aself.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"

@@ -119,7 +119,7 @@ class ActionButtonGroup(QWidget):
         self.grid.addItem(self.spacerItem,3,0,1,1)
 
     def isDestroyed(self, *args):
-        print('destroyed')
+        pass
 
     def get_maximum_height(self):
         if (self.maximum_height_size < self.frame.minimumSizeHint().height()):

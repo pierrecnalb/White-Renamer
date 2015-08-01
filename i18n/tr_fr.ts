@@ -1,382 +1,374 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="fr">
 <context>
-    <name>ActionButtonGroup</name>
-    <message>
-        <location filename="../MainWindow.py" line="457"/>
-        <source>Please enter an integer.</source>
-        <translation>Veuillez entrer un nombre entier.</translation>
-    </message>
-</context>
-<context>
     <name>MainWidget</name>
     <message>
-        <location filename="../MainWindow.py" line="85"/>
-        <source>Untouched</source>
-        <translation>Inchangé</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="86"/>
+        <location filename="../MainWidget.py" line="37"/>
         <source>Uppercase</source>
         <translation>Majuscule</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="87"/>
+        <location filename="../MainWidget.py" line="37"/>
         <source>Lowercase</source>
         <translation>Minuscule</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="88"/>
+        <location filename="../MainWidget.py" line="37"/>
         <source>Titlecase</source>
         <translation>Titre</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="65"/>
+        <location filename="../MainWidget.py" line="42"/>
         <source>Replace</source>
         <translation>Remplacer</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="66"/>
+        <location filename="../MainWidget.py" line="43"/>
         <source>With</source>
         <translation>Par</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="67"/>
+        <location filename="../MainWidget.py" line="44"/>
         <source>Regex</source>
         <translation>Regex</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="69"/>
+        <location filename="../MainWidget.py" line="46"/>
         <source>Insert</source>
         <translation>Insérer</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="70"/>
+        <location filename="../MainWidget.py" line="47"/>
         <source>At Position</source>
         <translation>À</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="72"/>
+        <location filename="../MainWidget.py" line="49"/>
         <source>From</source>
         <translation>À partir de</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="73"/>
+        <location filename="../MainWidget.py" line="50"/>
         <source>To</source>
         <translation>Jusqu&apos;à</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="75"/>
+        <location filename="../MainWidget.py" line="52"/>
         <source>New Name</source>
         <translation>Nouveau nom</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="77"/>
+        <location filename="../MainWidget.py" line="54"/>
         <source>Start At</source>
         <translation>Commencer à</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="78"/>
+        <location filename="../MainWidget.py" line="55"/>
         <source>Increment</source>
         <translation>Incrément</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="79"/>
-        <source>Restart</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="81"/>
+        <location filename="../MainWidget.py" line="57"/>
         <source>Modified</source>
         <translation>Modifiée</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="82"/>
+        <location filename="../MainWidget.py" line="58"/>
         <source>Created</source>
         <translation>Créée</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="83"/>
+        <location filename="../MainWidget.py" line="59"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="99"/>
+        <location filename="../MainWidget.py" line="73"/>
         <source>Custom Name</source>
         <translation>Nom Donné</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="100"/>
+        <location filename="../MainWidget.py" line="74"/>
         <source>Folder Name</source>
         <translation>Nom du Dossier</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="93"/>
+        <location filename="../MainWidget.py" line="67"/>
         <source>Find And Replace</source>
-        <translation>Remplacer</translation>
+        <translation>Trouver Et Remplacer</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="94"/>
+        <location filename="../MainWidget.py" line="68"/>
         <source>Insert Characters</source>
-        <translation>Insérer</translation>
+        <translation>Insérer Lettres</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="95"/>
+        <location filename="../MainWidget.py" line="69"/>
         <source>Delete Characters</source>
-        <translation>Supprimer</translation>
+        <translation>Supprimer Lettres</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="101"/>
+        <location filename="../MainWidget.py" line="75"/>
         <source>Counter</source>
         <translation>Compteur</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="102"/>
+        <location filename="../MainWidget.py" line="76"/>
         <source>Date</source>
         <translation>Date</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="193"/>
+        <location filename="../MainWidget.py" line="198"/>
         <source>Original Files</source>
         <translation>Fichier Originaux</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="193"/>
+        <location filename="../MainWidget.py" line="198"/>
         <source>Modified Files</source>
         <translation>Fichier Modifiés</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="135"/>
+        <location filename="../MainWidget.py" line="109"/>
         <source>Folder</source>
         <translation>Dossier</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="154"/>
+        <location filename="../MainWidget.py" line="128"/>
         <source>File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="172"/>
+        <location filename="../MainWidget.py" line="146"/>
         <source>Extension</source>
         <translation>Extension</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="252"/>
+        <location filename="../MainWidget.py" line="257"/>
         <source>Prefix </source>
         <translation>Préfixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="278"/>
+        <location filename="../MainWidget.py" line="283"/>
         <source>There is no prefix to remove.</source>
         <translation>Il n&apos;y a pas de préfixe à supprimer.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="286"/>
+        <location filename="../MainWidget.py" line="290"/>
         <source>Suffix </source>
         <translation>Suffixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="310"/>
+        <location filename="../MainWidget.py" line="314"/>
         <source>There is no suffix to remove.</source>
         <translation>Il n&apos;y a pas de suffixe à supprimer.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="60"/>
-        <source>Unchanged</source>
-        <translation>Inchangée</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="90"/>
+        <location filename="../MainWidget.py" line="64"/>
         <source>Case</source>
         <translation>Casse</translation>
+    </message>
+    <message>
+        <location filename="../MainWidget.py" line="38"/>
+        <source>First Letter</source>
+        <translation>1ère Lettre</translation>
+    </message>
+    <message>
+        <location filename="../MainWidget.py" line="39"/>
+        <source>And After</source>
+        <translation>Et Après</translation>
+    </message>
+    <message>
+        <location filename="../MainWidget.py" line="63"/>
+        <source>Original Name</source>
+        <translation>Nom Original</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.py" line="502"/>
+        <location filename="../MainWindow.py" line="22"/>
         <source>&amp;Open</source>
-        <translation>Ouvrir</translation>
+        <translation>&amp;Ouvrir</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="504"/>
+        <location filename="../MainWindow.py" line="24"/>
         <source>&amp;Exit</source>
-        <translation>Quitter</translation>
+        <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="570"/>
+        <location filename="../MainWindow.py" line="95"/>
         <source>&amp;Help</source>
-        <translation>Aide</translation>
+        <translation>&amp;Aide</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="508"/>
+        <location filename="../MainWindow.py" line="28"/>
         <source>&amp;About</source>
         <translation>À Propos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="510"/>
+        <location filename="../MainWindow.py" line="30"/>
         <source>Recursion</source>
-        <translation>Sous-Dossiers</translation>
+        <translation>Montrer Sous-Dossiers</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="513"/>
+        <location filename="../MainWindow.py" line="33"/>
         <source>Show Hidden Files</source>
         <translation>Montrer Fichiers Cachés</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="516"/>
+        <location filename="../MainWindow.py" line="36"/>
         <source>Add Prefix</source>
         <translation>Ajouter Préfixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="518"/>
+        <location filename="../MainWindow.py" line="38"/>
         <source>Add Suffix</source>
         <translation>Ajouter Suffixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="520"/>
+        <location filename="../MainWindow.py" line="40"/>
         <source>Remove Prefix</source>
         <translation>Supprimer Préfixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="522"/>
+        <location filename="../MainWindow.py" line="42"/>
         <source>Remove Suffix</source>
         <translation>Supprimer Suffixe</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="524"/>
-        <source>Run</source>
-        <translation>Lancer</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="526"/>
+        <location filename="../MainWindow.py" line="46"/>
         <source>Undo</source>
         <translation>Retour</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="528"/>
+        <location filename="../MainWindow.py" line="48"/>
         <source>Reverse</source>
         <translation>Inverser</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="531"/>
+        <location filename="../MainWindow.py" line="51"/>
         <source>By Name</source>
         <translation>Par Nom</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="534"/>
+        <location filename="../MainWindow.py" line="55"/>
         <source>By Size</source>
         <translation>Par Taille</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="537"/>
+        <location filename="../MainWindow.py" line="58"/>
         <source>By Modified Date</source>
         <translation>Par Date de Modification</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="540"/>
+        <location filename="../MainWindow.py" line="61"/>
         <source>By Creation Date</source>
         <translation>Par Date de Création</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="546"/>
+        <location filename="../MainWindow.py" line="71"/>
         <source>&amp;File</source>
         <translation>Fichier</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="566"/>
+        <location filename="../MainWindow.py" line="91"/>
         <source>&amp;Tool</source>
         <translation>Outil</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="503"/>
-        <source>Exit program.</source>
-        <translation>Fermer le programme.</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="505"/>
-        <source>Open directory dialog.</source>
-        <translation>Ouvrir la fenêtre de sélection de dossiers.</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="507"/>
+        <location filename="../MainWindow.py" line="27"/>
         <source>Show help page.</source>
-        <translation>Afficher l'aide.</translation>
+        <translation>Afficher l&apos;aide.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="509"/>
-        <source>Pop About Box.</source>
-        <translation>Afficher l'à propos.</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="511"/>
+        <location filename="../MainWindow.py" line="31"/>
         <source>Rename subdirectories recursively.</source>
         <translation>Renommer les sous-dossiers de manière récursive.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="514"/>
+        <location filename="../MainWindow.py" line="34"/>
         <source>Show hidden files.</source>
         <translation>Montrer les fichiers cachés.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="517"/>
+        <location filename="../MainWindow.py" line="37"/>
         <source>Add prefix.</source>
         <translation>Ajouter un préfixe.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="519"/>
+        <location filename="../MainWindow.py" line="39"/>
         <source>Add suffix.</source>
         <translation>Ajouter un suffixe.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="521"/>
+        <location filename="../MainWindow.py" line="41"/>
         <source>Remove prefix.</source>
         <translation>Supprimer un préfixe.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="523"/>
+        <location filename="../MainWindow.py" line="43"/>
         <source>Remove suffix.</source>
         <translation>Supprimer un suffixe.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="525"/>
+        <location filename="../MainWindow.py" line="45"/>
         <source>Rename the files/folders.</source>
-        <translation></translation>
+        <translation>Renommer les fichiers/dossiers.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="527"/>
+        <location filename="../MainWindow.py" line="47"/>
         <source>Undo the previous renaming.</source>
         <translation>Annuler la dernière action de renommage.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="530"/>
+        <location filename="../MainWindow.py" line="50"/>
         <source>Reverse the sorting order.</source>
         <translation>Inverser le tri.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="533"/>
+        <location filename="../MainWindow.py" line="53"/>
         <source>Sort the files/folders by name.</source>
         <translation>Trier par nom de fichiers/dossiers.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="536"/>
+        <location filename="../MainWindow.py" line="57"/>
         <source>Sort the files/folders by size.</source>
         <translation>Trier par taille de fichiers/dossiers.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="539"/>
+        <location filename="../MainWindow.py" line="60"/>
         <source>Sort the files/folders by modified date.</source>
         <translation>Trier par date de modification des fichiers/dossiers.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="542"/>
+        <location filename="../MainWindow.py" line="63"/>
         <source>Sort the files/folders by creation date.</source>
         <translation>Trier par date de création des fichiers/dossiers.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="554"/>
+        <location filename="../MainWindow.py" line="79"/>
         <source>&amp;Sort</source>
-        <translation>Tri</translation>
+        <translation>Trier</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="23"/>
+        <source>Open directory.</source>
+        <translation>Ouvrir un répertoire.</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="25"/>
+        <source>Exit the application.</source>
+        <translation>Quitter l'application.</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="29"/>
+        <source>About Box.</source>
+        <translation>À propos...</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="44"/>
+        <source>&amp;Run</source>
+        <translation>&amp;Exécuter</translation>
     </message>
 </context>
 </TS>
