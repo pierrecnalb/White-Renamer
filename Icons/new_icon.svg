@@ -30,9 +30,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="12.926052"
-     inkscape:cx="2.2807573"
-     inkscape:cy="5.0468054"
+     inkscape:zoom="3.8778156"
+     inkscape:cx="-15.631446"
+     inkscape:cy="-20.912376"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="128px"
@@ -409,19 +409,7 @@
        sodipodi:nodetypes="ssccscss" />
     <path
        style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
-       d="M 1.5,3 C 0.669,3 0,3.669 0,4.5 l 0,9 C 0,14.331 0.669,15 1.5,15 l 13,0 c 0.831,0 1.5,-0.669 1.5,-1.5 l 0,-9 C 16,3.669 15.331,3 14.5,3 z"
-       id="path3040"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="sssssssss" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#d2d2d2;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 12,8 0,6"
-       id="path4187"
-       inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#d2d2d2;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 9,11 6,0"
-       id="path4189"
-       inkscape:connector-curvature="0" />
+       d="M 1.5 3 C 0.669 3 0 3.669 0 4.5 L 0 13.5 C 0 14.331 0.669 15 1.5 15 L 14.5 15 C 15.331 15 16 14.331 16 13.5 L 16 4.5 C 16 3.669 15.331 3 14.5 3 L 1.5 3 z M 11.5 8 L 12.5 8 L 12.5 10.5 L 15 10.5 L 15 11.5 L 12.5 11.5 L 12.5 14 L 11.5 14 L 11.5 11.5 L 9 11.5 L 9 10.5 L 11.5 10.5 L 11.5 8 z M 11.5 10.5 L 11.5 11.5 L 12.5 11.5 L 12.5 10.5 L 11.5 10.5 z "
+       id="path3040" />
   </g>
 </svg>

@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+h', 'help_icon.svg', self.tr('Show help page.'))
         self.action_about = QAction(self.tr('&About'), self)
         self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('About Box.'))
-        self.action_recursion = QAction(self.tr('Recursion'), self)
+        self.action_recursion = QAction(self.tr('Show Subdirectories'), self)
         self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.svg",self.tr('Rename subdirectories recursively.'))
         self.action_recursion.setCheckable(True)
         self.action_hide = QAction(self.tr('Show Hidden Files'), self)
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.action_remove_prefix = self.edit_action(self.action_remove_prefix, self.remove_prefix_click, None, None, None,self.tr('Remove prefix.'))
         self.action_remove_suffix = QAction(self.tr('Remove Suffix'), self)
         self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, None, None,self.tr('Remove suffix.'))
-        self.action_rename = QAction(self.tr('&Run'), self)
+        self.action_rename = QAction(self.tr('&Rename'), self)
         self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+enter', "run_icon.svg",self.tr('Rename the files/folders.'))
         self.action_undo = QAction(self.tr('Undo'), self)
         self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', "undo_icon.svg",self.tr('Undo the previous renaming.'))
@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         self.action_creation_date_sorting.setCheckable(True)
         self.action_creation_date_sorting = self.edit_action(self.action_creation_date_sorting, self.creation_date_sorting_click, None, None, None,self.tr('Sort the files/folders by creation date.'))
         filterInput = QLineEdit()
-        filterInput.setPlaceholderText("Filter Files...")
+        filterInput.setPlaceholderText(self.tr("Filter Files..."))
         filterInput.setMaximumWidth(150)
         filterInput.textChanged[str].connect(self.get_filter_input)
         # CREATE THE MENU BAR
@@ -102,11 +102,14 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_hide)
         self.main_toolbar.addAction(self.action_recursion)
         self.main_toolbar.addSeparator()
-        self.main_toolbar.addAction(self.action_rename)
-        self.main_toolbar.addAction(self.action_undo)
-        self.main_toolbar.addSeparator()
         self.main_toolbar.addWidget(filterInput)
         self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_rename)
+        self.main_toolbar.addAction(self.action_undo)
+
+        empty = QWidget();
+        empty.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Preferred)
+        self.main_toolbar.addWidget(empty)
         self.main_toolbar.addAction(self.action_help)
         # create the status bar
         self.statusBar()
@@ -169,7 +172,7 @@ class MainWindow(QMainWindow):
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        self.directory = QFileDialog.getExistingDirectory(self,"Select Directory", os.getcwd(), flags)
+        self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
         #Aself.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
         #self.directory ="/home/pierre/Desktop/Test"
         #self.directory = r"C:\Users\pblanc\Desktop\test"

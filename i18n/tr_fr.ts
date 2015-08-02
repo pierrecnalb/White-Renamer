@@ -182,6 +182,11 @@
         <source>Original Name</source>
         <translation>Nom Original</translation>
     </message>
+    <message>
+        <location filename="../MainWidget.py" line="335"/>
+        <source>Please select a directory.</source>
+        <translation>Merci de sélectionner un répertoire.</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
@@ -204,11 +209,6 @@
         <location filename="../MainWindow.py" line="28"/>
         <source>&amp;About</source>
         <translation>À Propos</translation>
-    </message>
-    <message>
-        <location filename="../MainWindow.py" line="30"/>
-        <source>Recursion</source>
-        <translation>Montrer Sous-Dossiers</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="33"/>
@@ -358,7 +358,7 @@
     <message>
         <location filename="../MainWindow.py" line="25"/>
         <source>Exit the application.</source>
-        <translation>Quitter l'application.</translation>
+        <translation>Quitter l&apos;application.</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="29"/>
@@ -366,9 +366,24 @@
         <translation>À propos...</translation>
     </message>
     <message>
+        <location filename="../MainWindow.py" line="65"/>
+        <source>Filter Files...</source>
+        <translation>Filtrer les fichiers...</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="175"/>
+        <source>Select Directory</source>
+        <translation>Sélectionner un répertoire</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.py" line="30"/>
+        <source>Show Subdirectories</source>
+        <translation>Montrer Sous-Dossiers</translation>
+    </message>
+    <message>
         <location filename="../MainWindow.py" line="44"/>
-        <source>&amp;Run</source>
-        <translation>&amp;Exécuter</translation>
+        <source>&amp;Rename</source>
+        <translation>Renommer</translation>
     </message>
 </context>
 </TS>

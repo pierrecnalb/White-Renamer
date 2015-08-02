@@ -332,7 +332,7 @@ class MainWidget(QWidget):
 
     def apply_action(self):
         if self.files_collection is None:
-            QMessageBox.information(self, "Information", "Please select a directory.")
+            QMessageBox.information(self, "Information", self.tr("Please select a directory."))
             return
         self.actions = []
         self.populate_actions(self.folder_box, "folder")
@@ -345,7 +345,8 @@ class MainWidget(QWidget):
         try:
             self.files_collection.process_file_system_tree_node(self.actions)
         except Exception as e:
-            QMessageBox.warning(self, "Warning", str(e))
+            pass
+            #QMessageBox.warning(self, "Warning", str(e))
         #refresh tree
         self.populate_tree(self.model, self.root_tree_node, False)
 

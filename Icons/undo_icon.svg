@@ -16,7 +16,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.91 r13725"
    version="1.0"
-   sodipodi:docname="Circle-undo.svg"
+   sodipodi:docname="undo_icon.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/matt/.icons/Sirocco/scalable/mimetypes/text-plain.png"
    inkscape:export-xdpi="90"
@@ -30,9 +30,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.5908834"
-     inkscape:cx="-19.118181"
-     inkscape:cy="-55.459199"
+     inkscape:zoom="10.5525"
+     inkscape:cx="0.224732"
+     inkscape:cy="-1.7317584"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="128px"
@@ -442,16 +442,9 @@
      inkscape:label="Calque 1"
      id="layer1"
      inkscape:groupmode="layer">
-    <circle
-       cy="5.2511373"
-       cx="-10.021255"
-       style="fill:#6e6e6e;fill-opacity:1;stroke:none;stroke-width:0.94102842;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:1;stroke-dasharray:none;stroke-opacity:1"
-       transform="matrix(-0.29813234,-0.95452454,0.95452455,-0.29813232,0,0)"
-       id="path8218"
-       r="8" />
     <path
        sodipodi:type="arc"
-       style="fill:none;stroke:#ffffff;stroke-width:1.05975819;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-mid:none;marker-end:none"
+       style="fill:none;stroke:#6e6e6e;stroke-width:1.8;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-mid:none;marker-end:none"
        id="path14375"
        sodipodi:cx="7.9976754"
        sodipodi:cy="-7.989584"
@@ -465,7 +458,7 @@
        inkscape:transform-center-y="0.017506042" />
     <path
        sodipodi:type="star"
-       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#6e6e6e;fill-opacity:1;stroke:#6e6e6e;stroke-width:20.81970856;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path15354"
        sodipodi:sides="3"
        sodipodi:cx="91.916008"
