@@ -9,7 +9,7 @@ import MainWidget
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
-        self.setWindowTitle('Renamer')
+        self.setWindowTitle('White Renamer')
         self.directory = None
         self.use_subfolder = False
         self.show_hidden_files = False
