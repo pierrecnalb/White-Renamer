@@ -144,13 +144,14 @@ class MainWindow(QMainWindow):
     def about_box_click(self):
         '''Popup a box with about message.'''
         QMessageBox.about(self, "About WhiteRenamer",
-                """<b>White Renamer</b> v %s
-                <p>Copyright &copy; 2015 Pierre BLANC. 
-                email : pierrecnalb@mailbox.org
-                All rights reserved in accordance with
-                Creative Commons Attribution Licence (CCPL) v3
-                or later - NO WARRANTIES!
-                <p>This progam """ )
+                """<b>White Renamer</b> 
+                <p>Copyright &copy; 2015 Pierre BLANC.</p>
+                <p>email : <a href="mailto:pierrecnalb@mailbox.org">pierrecnalb@mailbox.org</a></p>
+                <p> White Renamer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
+
+<p>White Renamer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; See the GNU General Public License for more details.</p>
+                 """ )
+
     @Slot()
     def recursion_click(self, value):
         self.use_subfolder = value
