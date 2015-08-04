@@ -1,8 +1,10 @@
 # White Renamer
-## What is it ?
+
 White Renamer is free software that batch rename files and folders.
 
 ## Why another batch renamer ?
+
+Many free batch renamers  
 
 ## Features
 * Batch rename files, folders or both
@@ -20,7 +22,7 @@ White Renamer is free software that batch rename files and folders.
 * Cross-platform support
 
 ## Screenshots
-![screenshot1](adress)
+![screenshot1](https://github.com/pierrecnalb/White-Renamer/blob/master/Screenshots/MainLayout.png)
 
 ## License
 White Renamer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
