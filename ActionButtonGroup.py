@@ -16,7 +16,7 @@ class ActionButtonGroup(QWidget):
         self.maximum_width_size = frame_width
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
-        if ("Prefix" in frame_name or "Suffix" in frame_name):
+        if ("fix" in frame_name):
             self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(190, 190, 190); border-radius: 4px; padding:2px; background-color: rgb(230, 230, 230)};")
         else:
             self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 10px; padding:2px; background-color: rgb(244, 244, 244)};")
