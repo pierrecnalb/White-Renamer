@@ -1,3 +1,5 @@
+#author pierrecnalb
+#copyright pierrecnalb
 import os
 import PySide
 from PySide.QtCore import *
@@ -6,6 +8,7 @@ from PySide.QtSvg  import *
 import resource_rc
 import MainWidget
 
+__version__ = '1.0.0'
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)

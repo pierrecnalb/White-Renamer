@@ -1,6 +1,5 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.6
 import os
 import shutil
 import copy

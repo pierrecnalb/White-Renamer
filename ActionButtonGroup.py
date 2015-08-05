@@ -1,6 +1,5 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.11
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *

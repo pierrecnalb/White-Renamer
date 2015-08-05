@@ -1,6 +1,5 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.11
 import os
 import sys
 import PySide
@@ -10,6 +9,7 @@ from PySide.QtSvg  import *
 import resource_rc
 import MainWindow
 
+__version__ = '1.0.0'
 
 def main():
     app = QApplication(sys.argv)

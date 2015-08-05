@@ -1,6 +1,5 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-#v.1.0.11
 import os
 import sys
 import PySide
