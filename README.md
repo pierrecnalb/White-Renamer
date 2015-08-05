@@ -28,6 +28,7 @@ Each box contains actions to modify the desired file part. A possibility to add 
 * Remove or insert characters
 * Add counter
 * Append or prepend any of the above actions by using prefixes or suffixes
+* Filter the files to change
 * Preview the changes automatically
 * Undo changes
 * Sort directories
