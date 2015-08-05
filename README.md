@@ -6,7 +6,10 @@ White Renamer is free software that batch rename files and folders.
 
 ## Why another batch renamer ?
 
-Many free batch renamers are clumsy and look like this :
+Most free batch renamers are clumsy and difficult to use : 
+* It is often difficult to really understand what changes are made. 
+* There is no clear process to describe what 
+
 ![screenshot1](/Screenshots/SuperRenamer.png)
 
 ## Features
