@@ -179,3 +179,18 @@ os.path.join("TestDirectory","1","1"),
 os.path.join("TestDirectory","1","1","1.txt"),
 os.path.join("TestDirectory","1","1","0.txt")]
 
+#Use accents and special characters to see if the encoding is supported.
+Accent_Encoding = [
+os.path.join("TestDirectory","folder 2"),
+os.path.join("TestDirectory","FOLDER1"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","éèùà€ç (1).txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","éèùà€ç.txt"),
+os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
+os.path.join("TestDirectory","FOLDER1","éèùà€ç (1).txt"),
+os.path.join("TestDirectory","FOLDER1","éèùà€ç.txt"),
+os.path.join("TestDirectory","éèùà€ç (1).txt"),
+os.path.join("TestDirectory","éèùà€ç (2).txt"),
+os.path.join("TestDirectory","éèùà€ç (3).txt"),
+os.path.join("TestDirectory","éèùà€ç.txt")]
+

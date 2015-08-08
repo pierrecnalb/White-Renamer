@@ -7,6 +7,8 @@ from PySide.QtGui  import *
 from PySide.QtSvg  import *
 import resource_rc
 import MainWidget
+import webbrowser
+
 
 __version__ = '1.0.0'
 class MainWindow(QMainWindow):
@@ -142,7 +144,8 @@ class MainWindow(QMainWindow):
 
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
-        pass
+        print(os.path.dirname(__file__))
+        webbrowser.open_new(os.path.join(os.path.dirname(__file__), "Documentation","Documentation.pdf"))
 
     def about_box_click(self):
         '''Popup a box with about message.'''
