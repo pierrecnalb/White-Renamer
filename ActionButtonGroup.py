@@ -159,19 +159,18 @@ class ActionButtonGroup(QWidget):
     def get_combobox_changed(self, value):
         self.button_inputs_dict[self.sender().objectName()] = self.sender().itemData(value)
         #Hide buttons related to TitleCase
-        if self.sender().objectName() == "case_choice":
+        sub_grid = self.grid.itemAtPosition(2,0)
+        if self.sender().objectName() == "case_choice" and sub_grid is not None:
             if value == 0:
-                sub_grid = self.grid.itemAtPosition(2,0).widget()
-                sub_grid.layout().itemAtPosition(2,0).widget().show()
-                sub_grid.layout().itemAtPosition(2,1).widget().show()
-                sub_grid.layout().itemAtPosition(3,0).widget().show()
-                sub_grid.layout().itemAtPosition(3,1).widget().show()
+                sub_grid.widget().layout().itemAtPosition(2,0).widget().show()
+                sub_grid.widget().layout().itemAtPosition(2,1).widget().show()
+                sub_grid.widget().layout().itemAtPosition(3,0).widget().show()
+                sub_grid.widget().layout().itemAtPosition(3,1).widget().show()
             else:
-                sub_grid = self.grid.itemAtPosition(2,0).widget()
-                sub_grid.layout().itemAtPosition(2,0).widget().hide()
-                sub_grid.layout().itemAtPosition(2,1).widget().hide()
-                sub_grid.layout().itemAtPosition(3,0).widget().hide()
-                sub_grid.layout().itemAtPosition(3,1).widget().hide()
+                sub_grid.widget().layout().itemAtPosition(2,0).widget().hide()
+                sub_grid.widget().layout().itemAtPosition(2,1).widget().hide()
+                sub_grid.widget().layout().itemAtPosition(3,0).widget().hide()
+                sub_grid.widget().layout().itemAtPosition(3,1).widget().hide()
         self.change()
 
     def clearLayout(self, layout):

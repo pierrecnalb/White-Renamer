@@ -1,10 +1,9 @@
-\documentclass[10pt, a4paper]{scrartcl}
+\documentclass[11pt, a4paper]{scrartcl}
 \usepackage{lmodern}
 \usepackage[protrusion=true,expansion=true]{microtype}
 \pagestyle{empty}
 %\textheight=700px									% Saving trees ;-) 
-\usepackage[section]{placeins}
-\usepackage[margin=2cm]{geometry}
+\usepackage[margin=2.5cm]{geometry}
 \usepackage[pdftex]{graphicx}								% Enable pdflatex
 \graphicspath{{"/home/pierre/Documents/Programs/White-Renamer/Screenshots/"}}
 \usepackage{hyperref}
@@ -12,9 +11,9 @@
         pdfauthor={Pierre BLANC},%
         pdftitle={White Renamer},%
         pdfsubject={Batch renamer},%
-        pdfkeywords={Program; Renamer;}
+        pdfkeywords={Program; Renamer; Python}
 }
-\title{\textbf{White Renamer}}
+\title{\Huge\textbf{White Renamer}}
 \date{}
 \author{Pierre Blanc}
 \begin{document}
@@ -62,9 +61,13 @@ The bottom part displays a live preview of the changes made to the files/folders
 The following actions are available :
 
 \subsection*{Original Name}
+(\emph{see figure \ref{OriginalName}})\\
+
 No changes are made. The files or folders keep their original names.
 
 \subsection*{Case}
+(\emph{see figure \ref{Case}})\\
+
 Three capitalization options are available :
 \begin{itemize}
         \item \textbf{Titlecase} : gives the possiblity to uppercase the first letter of each words.
@@ -78,14 +81,20 @@ Three capitalization options are available :
 \end{itemize}
 
 \subsection*{Custom Name}
+(\emph{see figure \ref{CustomName}})\\
+
 \begin{itemize}
         \item \textbf{New Name} : changes the original name to the given new name.
 \end{itemize}
 
 \subsection*{Folder Name}
+(\emph{see figure \ref{FolderName}})\\
+
 Gives the name of the parent folder.
 
 \subsection*{Find And Replace}
+(\emph{see figure \ref{FindAndReplace}})\\
+
 \begin{itemize}
         \item \textbf{Replace} : which characters should be replaced.
         \item \textbf{With} : with which characters the found token should be replaced.
@@ -94,33 +103,33 @@ Gives the name of the parent folder.
                 \fontsize{8pt}{8pt}\selectfont
 \begin{verbatim}
 The special characters are:
-    "."      Matches any character except a newline.
-    "^"      Matches the start of the string.
-    "$"      Matches the end of the string or just before the newline at
-             the end of the string.
-    "*"      Matches 0 or more (greedy) repetitions of the preceding RE.
-             Greedy means that it will match as many repetitions as possible.
-    "+"      Matches 1 or more (greedy) repetitions of the preceding RE.
-    "?"      Matches 0 or 1 (greedy) of the preceding RE.
-    *?,+?,?? Non-greedy versions of the previous three special characters.
-    {m,n}    Matches from m to n repetitions of the preceding RE.
-    {m,n}?   Non-greedy version of the above.
-    "\\"     Either escapes special characters or signals a special sequence.
-    []       Indicates a set of characters.
-             A "^" as the first character indicates a complementing set.
-    "|"      A|B, creates an RE that will match either A or B.
-    (...)    Matches the RE inside the parentheses.
-             The contents can be retrieved or matched later in the string.
-    (?aiLmsux) Set the A, I, L, M, S, U, or X flag for the RE (see below).
-    (?:...)  Non-grouping version of regular parentheses.
-    (?P<name>...) The substring matched by the group is accessible by name.
-    (?P=name)     Matches the text matched earlier by the group named name.
-    (?#...)  A comment; ignored.
-    (?=...)  Matches if ... matches next, but doesn't consume the string.
-    (?!...)  Matches if ... doesn't match next.
-    (?<=...) Matches if preceded by ... (must be fixed length).
-    (?<!...) Matches if not preceded by ... (must be fixed length).
-    (?(id/name)yes|no) Matches yes pattern if the group with id/name matched,
+       "."      Matches any character except a newline.
+       "^"      Matches the start of the string.
+       "$"      Matches the end of the string or just before the newline at
+                the end of the string.
+       "*"      Matches 0 or more (greedy) repetitions of the preceding RE.
+                Greedy means that it will match as many repetitions as possible.
+       "+"      Matches 1 or more (greedy) repetitions of the preceding RE.
+       "?"      Matches 0 or 1 (greedy) of the preceding RE.
+       *?,+?,?? Non-greedy versions of the previous three special characters.
+       {m,n}    Matches from m to n repetitions of the preceding RE.
+       {m,n}?   Non-greedy version of the above.
+       "\\"     Either escapes special characters or signals a special sequence.
+       []       Indicates a set of characters.
+                A "^" as the first character indicates a complementing set.
+       "|"      A|B, creates an RE that will match either A or B.
+       (...)    Matches the RE inside the parentheses.
+                The contents can be retrieved or matched later in the string.
+       (?aiLmsux) Set the A, I, L, M, S, U, or X flag for the RE (see below).
+       (?:...)  Non-grouping version of regular parentheses.
+       (?P<name>...) The substring matched by the group is accessible by name.
+       (?P=name)     Matches the text matched earlier by the group named name.
+       (?#...)  A comment; ignored.
+       (?=...)  Matches if ... matches next, but doesn't consume the string.
+       (?!...)  Matches if ... doesn't match next.
+       (?<=...) Matches if preceded by ... (must be fixed length).
+       (?<!...) Matches if not preceded by ... (must be fixed length).
+       (?(id/name)yes|no) Matches yes pattern if the group with id/name matched,
                           the (optional) no pattern otherwise.
 
    
@@ -158,24 +167,32 @@ resulting RE will match the second character.
 \end{itemize}
 
 \subsection*{Insert Characters}
+(\emph{see figure \ref{Insert}})\\
+
 \begin{itemize}
         \item \textbf{Insert} : what characters should be inserted.
         \item \textbf{At Position} : position, in the original name, of the characters to be inserted. 0 represents the beginning of the string.
 \end{itemize}
 
 \subsection*{Delete Characters}
+(\emph{see figure \ref{Delete}})\\
+
 \begin{itemize}
         \item \textbf{From} : starting position of the characters to remove.
         \item \textbf{To} : ending position of the characters to remove.
 \end{itemize}
 
 \subsection*{Counter}
+(\emph{see figure \ref{Counter}})\\
+
 \begin{itemize}
         \item \textbf{Start At} : starting number of the counter. 
         \item \textbf{Increment} : increment number of the counter.
 \end{itemize}
 
 \subsection*{Date}
+(\emph{see figure \ref{Date}})\\
+
 \begin{itemize}
         \item \textbf{Modified} : date of the last modification.
         \item \textbf{Created} : date of the creation.
@@ -205,55 +222,55 @@ resulting RE will match the second character.
 
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{OriginalName.png}
+        \includegraphics[width=\textwidth]{OriginalName.png}
         \caption{Original Name option example.}
         \label{OriginalName}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{Case.png}
+        \includegraphics[width=\textwidth]{Case.png}
         \caption{Case option example.}
         \label{Case}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{CustomName.png}
+        \includegraphics[width=\textwidth]{CustomName.png}
         \caption{Custom Name option example.}
         \label{CustomName}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{FolderName.png}
+        \includegraphics[width=\textwidth]{FolderName.png}
         \caption{Folder Name option example.}
         \label{FolderName}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{FindAndReplace.png}
+        \includegraphics[width=\textwidth]{FindAndReplace.png}
         \caption{Find And Replace option example.}
         \label{FindAndReplace}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{Insert.png}
+        \includegraphics[width=\textwidth]{Insert.png}
         \caption{Insert Characters option example.}
         \label{Insert}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{Delete.png}
+        \includegraphics[width=\textwidth]{Delete.png}
         \caption{Delete Characters option example.}
         \label{Delete}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{Counter.png}
+        \includegraphics[width=\textwidth]{Counter.png}
         \caption{Counter option example.}
         \label{Counter}
 \end{figure}
 \begin{figure}[!ht]
         \centering
-        \includegraphics[width=1\textwidth]{Date.png}
+        \includegraphics[width=\textwidth]{Date.png}
         \caption{Date option example.}
         \label{Date}
 \end{figure}

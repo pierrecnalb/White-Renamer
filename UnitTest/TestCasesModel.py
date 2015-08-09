@@ -1,6 +1,20 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 import os
+Main_OriginalName = [
+os.path.join("TestDirectory","file with é è.txt"),
+os.path.join("TestDirectory","file.with.dots.txt"),
+os.path.join("TestDirectory","file_with_underscore.txt"),
+os.path.join("TestDirectory","folder 2"),
+os.path.join("TestDirectory","FOLDER1"),
+os.path.join("TestDirectory","FOLDER1","folder1-file1.txt"),
+os.path.join("TestDirectory","FOLDER1","folder1-sub file #2.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","sub file 1.txt"),
+os.path.join("TestDirectory","FOLDER1","sub fOlder_1","sub file 2.txt"),
+os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
+os.path.join("TestDirectory","l'appostrophe.txt")]
+
 Main_Uppercase = [
 os.path.join("TestDirectory","FILE WITH É È.TXT"),
 os.path.join("TestDirectory","FILE.WITH.DOTS.TXT"),
@@ -29,6 +43,19 @@ os.path.join("TestDirectory","folder1","sub folder_1","sub file 2.txt"),
 os.path.join("TestDirectory","folder1","sub.folder 2"),
 os.path.join("TestDirectory","l'appostrophe.txt")]
 
+Main_TitleCase = [
+os.path.join("TestDirectory","File With É È.txt"),
+os.path.join("TestDirectory","File.With.Dots.txt"),
+os.path.join("TestDirectory","File_With_Underscore.txt"),
+os.path.join("TestDirectory","Folder 2"),
+os.path.join("TestDirectory","FOLDER1"),
+os.path.join("TestDirectory","FOLDER1","Folder1-File1.txt"),
+os.path.join("TestDirectory","FOLDER1","Folder1-Sub File #2.txt"),
+os.path.join("TestDirectory","FOLDER1","Sub FOlder_1"),
+os.path.join("TestDirectory","FOLDER1","Sub FOlder_1","Sub File 1.txt"),
+os.path.join("TestDirectory","FOLDER1","Sub FOlder_1","Sub File 2.txt"),
+os.path.join("TestDirectory","FOLDER1","Sub.FOLDER 2"),
+os.path.join("TestDirectory","L'appostrophe.txt")]
 #delete first letter for folders, second for files and third for extension.
 Main_Delete = [
 os.path.join("TestDirectory","fle with é è.tt"),
@@ -58,6 +85,21 @@ os.path.join("TestDirectory","FOLDER1","sub fOld3r_1","sub fil3 1.ogg"),
 os.path.join("TestDirectory","FOLDER1","sub fOld3r_1","sub fil3 2.ogg"),
 os.path.join("TestDirectory","FOLDER1","sub.FOLDER 2"),
 os.path.join("TestDirectory","l'appostroph3.ogg")]
+
+#Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf".
+Main_Replace_with_regex = [
+os.path.join("TestDirectory","fhis with é è.pdf"),
+os.path.join("TestDirectory","fhis.with.dots.pdf"),
+os.path.join("TestDirectory","fhis_with_underscore.pdf"),
+os.path.join("TestDirectory","folder 99"),
+os.path.join("TestDirectory","FOLDER99"),
+os.path.join("TestDirectory","FOLDER99","folder1-fhis1.pdf"),
+os.path.join("TestDirectory","FOLDER99","folder1-sub fhis #2.pdf"),
+os.path.join("TestDirectory","FOLDER99","sub fOlder_99"),
+os.path.join("TestDirectory","FOLDER99","sub fOlder_99","sub fhis 1.pdf"),
+os.path.join("TestDirectory","FOLDER99","sub fOlder_99","sub fhis 2.pdf"),
+os.path.join("TestDirectory","FOLDER99","sub.FOLDER 99"),
+os.path.join("TestDirectory","l'appostrophe.pdf")]
 
 #Insert A at position 0 for folder, position 3 for files and position 99 for extension.
 Main_Insert = [
@@ -89,20 +131,20 @@ os.path.join("TestDirectory","folder (1)","folder/file (1).ext"),
 os.path.join("TestDirectory","folder (1)","folder/file.ext"),
 os.path.join("TestDirectory","folder (1)","folder (1)")]
 
-#use lowercase foldername for folders, uppercase foldername for files and untouched foldername for extensions.
+#use lowercase foldername for folders, uppercase foldername for files and untouched foldername f.
 Main_FolderName = [
 os.path.join("TestDirectory","TestDirectory"),
 os.path.join("TestDirectory","TestDirectory (1)"),
 os.path.join("TestDirectory","TestDirectory (1)","FOLDER1"),
-os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1 (1)sub fOlder_1"),
-os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1sub fOlder_1"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1 (1).txt"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1","sub fOlder_1.txt"),
 os.path.join("TestDirectory","TestDirectory (1)","FOLDER1 (1)"),
-os.path.join("TestDirectory","TestDirectory (1)","FOLDER1 (1)FOLDER1"),
-os.path.join("TestDirectory","TestDirectory (1)","FOLDER1FOLDER1"),
-os.path.join("TestDirectory","TestDirectory (1)TestDirectory"),
-os.path.join("TestDirectory","TestDirectory (2)TestDirectory"),
-os.path.join("TestDirectory","TestDirectory (3)TestDirectory"),
-os.path.join("TestDirectory","TestDirectoryTestDirectory")]
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1 (1).txt"),
+os.path.join("TestDirectory","TestDirectory (1)","FOLDER1.txt"),
+os.path.join("TestDirectory","TestDirectory (1).txt"),
+os.path.join("TestDirectory","TestDirectory (2).txt"),
+os.path.join("TestDirectory","TestDirectory (3).txt"),
+os.path.join("TestDirectory","TestDirectory.txt")]
 
 #Add a prefix 'prefix ' and a suffix ' suffix'.
 Main_Custom_Prefix_Suffix = [

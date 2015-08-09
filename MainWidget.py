@@ -18,7 +18,8 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.files_collection = None
         self.all_action_descriptors = []
-        self.limited_action_descriptors = []
+        self.prefix_action_descriptors = []
+        self.extension_action_descriptors = []
         if sys.platform == 'linux':
             self.frame_space = 20
             self.frame_width = 211
@@ -33,9 +34,11 @@ class MainWidget(QWidget):
         #---INPUTS DEFINITION---
         original_name_inputs = []
         case_change_inputs = []
-        case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase')),]))
+        case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase'))]))
         case_change_inputs.append(ActionManager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
         case_change_inputs.append(ActionManager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
+        extension_case_change_inputs = []
+        extension_case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "uppercase" ,[('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase'))]))
         #case_change_inputs.append(ActionManager.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
         character_replacement_inputs = []
         character_replacement_inputs.append(ActionManager.ActionInput('old_char', self.tr('Replace'), str, ""))
@@ -68,11 +71,18 @@ class MainWidget(QWidget):
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
-        #LIMITED ACTION DESCRIPTOR
-        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
-        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
-        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
-        self.limited_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
+        #PREFIX ACTION DESCRIPTOR
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
+        #EXTENSION ACTION DESCRIPTOR
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), extension_case_change_inputs, ActionManager.CaseChangeAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
         #Create Button and Layout
         self.prefix_number = 0
         self.suffix_number = 0
@@ -142,7 +152,7 @@ class MainWidget(QWidget):
         self.remove_suffix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
         #---EXTENSION GROUP---
-        self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.all_action_descriptors, self.frame_width, self.frame_height)
+        self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_suffix_btn)
         self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.extension_box.setParent(self.scroll_area_widget_contents)
@@ -211,8 +221,9 @@ class MainWidget(QWidget):
             original_file = QStandardItem(icon, child.original_filedescriptor.basename)
             original_file.setEditable(False)
             modified_file = QStandardItem(child.modified_filedescriptor.basename)
+            modified_file.setEditable(False)
             if isinstance(parent, QStandardItemModel):
-                parent.itemChanged[QStandardItem].connect(self.tree_item_changed)
+                    #parent.itemChanged[QStandardItem].connect(self.tree_item_changed)
                 if reset_view:
                     parent.setItem(i,0,original_file)
                 parent.setItem(i,1,modified_file)
@@ -222,10 +233,10 @@ class MainWidget(QWidget):
                     parent.setChild(i,0,original_file)
                 parent.setChild(i,1,modified_file)
                 self.populate_tree(parent.child(i,0), child, reset_view)
-    @Slot()            
-    def tree_item_changed(self, selected_item):
-        pass
-        #print(selected_item.row())
+    #@Slot()            
+    #def tree_item_changed(self, selected_item):
+    #    pass
+    #    #print(selected_item.row())
 
     def init_position(self, action_button_group):
         """Initialize the position and the size of the ActionButtonGroup in the frame."""
@@ -253,7 +264,7 @@ class MainWidget(QWidget):
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
-        self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix ") + str(self.prefix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
+        self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix ") + str(self.prefix_number), self.prefix_action_descriptors, self.frame_width, self.frame_height)
         x_left_prefix = self.add_prefix_btn.geometry().x() + self.button_width + self.frame_space
         self.prefix_box.setGeometry(QRect(x_left_prefix, self.frame_space, self.frame_width, self.frame_height))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
@@ -286,7 +297,7 @@ class MainWidget(QWidget):
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
         self.move_action_button_group(self.extension_box, True)
-        self.suffix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Suffix ") + str(self.suffix_number), self.limited_action_descriptors, self.frame_width, self.frame_height)
+        self.suffix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Suffix ") + str(self.suffix_number), self.prefix_action_descriptors, self.frame_width, self.frame_height)
         if(self.suffix_number > 1):
             x_left_suffix = self.init_position(self.suffix_boxes[-1])
         else:
