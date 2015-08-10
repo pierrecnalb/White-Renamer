@@ -5,31 +5,53 @@
 %\textheight=700px									% Saving trees ;-) 
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[pdftex]{graphicx}								% Enable pdflatex
+\usepackage{xcolor} % Required for specifying custom colors
 \graphicspath{{"/home/pierre/Documents/Programs/White-Renamer/Screenshots/"}}
 \usepackage{hyperref}
+\definecolor{titlepagecolor}{rgb}{0.4,0.4,0.4} % Color of the box surrounding the title - these values can be changed to give the box a different color	
+%\definecolor{titlepagecolor}{cmyk}{1,.60,0,.40}
+\definecolor{namecolor}{cmyk}{1,.50,0,.10} 
+\hypersetup{colorlinks,citecolor=namecolor,filecolor=namecolor,linkcolor=namecolor,urlcolor=cyan}
 \hypersetup{%
         pdfauthor={Pierre BLANC},%
         pdftitle={White Renamer},%
         pdfsubject={Batch renamer},%
         pdfkeywords={Program; Renamer; Python}
 }
-\title{\Huge\textbf{White Renamer}}
+\title{\color{white}\Huge\textsf{White Renamer}\\[1.5cm]
+\large\textsf{Rename your files, simply.}}
 \date{}
-\author{Pierre Blanc}
-\begin{document}
-\renewcommand{\labelitemi}{$\bullet$}
+\author{}
 
-\maketitle
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}} 	% Horizontal rule
+%-----------------------------------------------------------------
+\begin{document}
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
 \setlength{\parindent}{0pt}
-%\setlength{\parskip}{12pt}
-\begin{figure}[!h]
-        \centering
-        \includegraphics[width=1\textwidth]{MainLayout.png}
-        %\caption{Interface}
-        \label{MainLayout}
-\end{figure}
+\begin{titlepage}
+%\newgeometry{left=7.5cm} %defines the geometry for the titlepage
+\pagecolor{titlepagecolor}
+\maketitle{}
+%\HRule{0.5pt} \\										% Upper rule
+\vskip\baselineskip
+\includegraphics[width=1\textwidth]{MainLayout.png}
+%\includegraphics[width=2cm]{logo.jpg}\\[-1em]
+\vfill
+\noindent
+\color{white}
+\makebox[0pt][l]{\rule{1.3\textwidth}{1pt}}
+\par
+\noindent
+\textsf{\copyright{} Pierre Blanc}\hfill {\href{mailto:pierrecnalb@mailbox.org}{{\textsf{pierrecnalb@mailbox.org}}}}\\
+\textsf{2015}
+\thispagestyle{empty} % Remove page numbering on this page
+\end{titlepage}
+\restoregeometry % restores the geometry
+\nopagecolor% Use this to restore the color pages to white
+\renewcommand{\labelitemi}{$\bullet$}
 %\tableofcontents
-\break
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}

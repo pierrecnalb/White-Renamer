@@ -144,7 +144,12 @@ class MainWindow(QMainWindow):
 
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
-        filepath = os.path.join(os.path.dirname(__file__), "Documentation","Documentation.pdf")
+        if getattr(sys, 'frozen', False): # frozen
+            dir_ = os.path.dirname(sys.executable)
+        else: # unfrozen
+            dir_ = os.path.dirname(os.path.realpath(__file__))
+        filepath = os.path.join(dir_, "Documentation", "Documentation.pdf")
+
         if sys.platform.startswith('darwin'):
             subprocess.call(('open', filepath))
         elif os.name == 'nt':
