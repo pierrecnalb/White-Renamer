@@ -18,7 +18,7 @@ The interface simply contains boxes representing the structure of the files : FO
 Each box contains actions to modify the desired file part. A possibility to add prefixes and suffixes is also available.
 
 
-## Features
+## Main Features
 * Batch rename files, folders or both
 * Change subfolders, subfiles recursively
 * Change the case (uppercase, lowercase, titlecase)
