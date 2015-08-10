@@ -1,6 +1,6 @@
 #author pierrecnalb
 #copyright pierrecnalb
-import os
+import subprocess, os, sys
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
@@ -144,8 +144,14 @@ class MainWindow(QMainWindow):
 
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
-        print(os.path.dirname(__file__))
-        webbrowser.open_new(os.path.join(os.path.dirname(__file__), "Documentation","Documentation.pdf"))
+        filepath = os.path.join(os.path.dirname(__file__), "Documentation","Documentation.pdf")
+        if sys.platform.startswith('darwin'):
+            subprocess.call(('open', filepath))
+        elif os.name == 'nt':
+            os.startfile(filepath)
+        elif os.name == 'posix':
+            subprocess.call(('xdg-open', filepath))
+
 
     def about_box_click(self):
         '''Popup a box with about message.'''
