@@ -30,6 +30,11 @@ class MainWidget(QWidget):
             self.frame_width = 174
             self.frame_height = 182
             self.button_width = 30
+        elif sys.platform == 'darwin':
+            self.frame_space = 20
+            self.frame_width = 211
+            self.frame_height = 230
+            self.button_width = 30
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
