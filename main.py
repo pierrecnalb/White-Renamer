@@ -15,8 +15,15 @@ def main():
     app = QApplication(sys.argv)
     translator = QTranslator()
     locale = QLocale.system().name()[:2]
+    if getattr(sys, 'frozen', False):
+        # frozen
+        dir_ = os.path.dirname(sys.executable)
+    else:
+        # unfrozen
+        dir_ = os.path.dirname(os.path.realpath(__file__))
     if locale == "fr":
-        translator.load('i18n/tr_fr', os.path.dirname(__file__))
+        translator.load('i18n/tr_fr', dir_)
+
     app.installTranslator(translator)
     win = MainWindow.MainWindow()
     #MainWidget.SizeCalculator(win)
