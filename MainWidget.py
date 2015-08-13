@@ -63,7 +63,7 @@ class MainWidget(QWidget):
         date_inputs = []
         date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
-        date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y/%m/%d %H:%M:%S (%A %B)"))
+        date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
         #foldername_inputs.append(ActionManager.ActionInput())
         #ALL ACTION DESCRIPTOR
