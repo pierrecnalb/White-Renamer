@@ -44,29 +44,39 @@ class Action(object):
     Describes how the action is applied on the FileSystemTreeNodes. This class is inherited by all the specific actions.
     Parameters:
         --path_type: string that represents where the action will be applied. path_type can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
+        --change_directories: specifies where to apply the actions : to the files or the folders.
     """
-    def __init__(self, path_type):
+    def __init__(self, path_type, change_directories=False):
         self.path_type = path_type
+        self.change_directories = change_directories
 
     def call(self, file_system_tree_node):
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
-        #pdb.set_trace()
-        if(self.path_type == "file"):
-            if (file_system_tree_node.is_folder is False):
-                file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
-        elif(self.path_type == "folder"):
+        if (self.change_directories):
             if (file_system_tree_node.is_folder):
-                file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
-        elif(self.path_type == "suffix"):
-            file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
-        elif(self.path_type == "prefix"):
-            file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
-        elif(self.path_type == "extension"):
-            file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
-        else:
-            raise Exception("path_part not valid")
+                if(self.path_type == "folder"):
+                        file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
+                elif(self.path_type == "suffix"):
+                        file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
+                elif(self.path_type == "prefix"):
+                        file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
+                else:
+                    raise Exception("path_part not valid")
+
+        elif (self.change_directories is False):
+            if (file_system_tree_node.is_folder is False):
+                if(self.path_type == "file"):
+                        file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
+                elif(self.path_type == "suffix"):
+                        file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
+                elif(self.path_type == "prefix"):
+                        file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
+                elif(self.path_type == "extension"):
+                    file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
+                else:
+                    raise Exception("path_part not valid")
         return file_system_tree_node
 
     def call_on_path_part(self, file_system_tree_node, path_part):

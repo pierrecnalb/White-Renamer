@@ -44,6 +44,10 @@ class ActionButtonGroup(QWidget):
         self.add_sub_button()
         self.frame_grid.addLayout(self.grid,0,0,1,1)
 
+    def set_label(self, new_label):
+        self.frame_name = new_label
+        self.label.setText(new_label)
+
     def change(self):
         ''' Change occurs on the layout. '''
         self.changed.emit()

@@ -91,7 +91,7 @@ class FileDescriptor(object):
 
     def update_basename(self):
         if self.is_folder is True:
-            self._basename = self._foldername
+            self._basename = self._prefix + self._foldername + self._suffix + self._extension
         else:
             self._basename = self._prefix + self._filename + self._suffix + self._extension
 
@@ -299,7 +299,7 @@ class FilesCollection(object):
 
     def call_actions(self, tree_node, actions):
         for action in actions:
-            tree_node = action.call(tree_node)
+            tree_node = action.call(tree_node, True)
 
     def rename(self, tree_node):
         try:
