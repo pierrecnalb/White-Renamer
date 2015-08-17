@@ -44,17 +44,16 @@ class Action(object):
     Describes how the action is applied on the FileSystemTreeNodes. This class is inherited by all the specific actions.
     Parameters:
         --path_type: string that represents where the action will be applied. path_type can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
-        --change_directories: specifies where to apply the actions : to the files or the folders.
+        --file_or_folder: specifies where to apply the actions : to the files or the folders.
     """
-    def __init__(self, path_type, change_directories=False):
+    def __init__(self, path_type):
         self.path_type = path_type
-        self.change_directories = change_directories
 
-    def call(self, file_system_tree_node):
+    def call(self, file_system_tree_node, file_or_folder):
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
-        if (self.change_directories):
+        if (file_or_folder == "folder"):
             if (file_system_tree_node.is_folder):
                 if(self.path_type == "folder"):
                         file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
@@ -65,7 +64,7 @@ class Action(object):
                 else:
                     raise Exception("path_part not valid")
 
-        elif (self.change_directories is False):
+        elif (file_or_folder == "file"):
             if (file_system_tree_node.is_folder is False):
                 if(self.path_type == "file"):
                         file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)

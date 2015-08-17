@@ -18,7 +18,7 @@ class ActionButtonGroup(QWidget):
         if ("fix" in frame_name):
             self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(190, 190, 190); border-radius: 4px; padding:2px; background-color: rgb(230, 230, 230)};")
         else:
-            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 10px; padding:2px; background-color: rgb(244, 244, 244)};")
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 5px; padding:2px; background-color: rgb(244, 244, 244)};")
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
         self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))

@@ -70,6 +70,13 @@ class MainWindow(QMainWindow):
         filterInput.setPlaceholderText(self.tr("Filter Files..."))
         filterInput.setMaximumWidth(150)
         filterInput.textChanged[str].connect(self.get_filter_input)
+        
+        node_type_selector = QComboBox()
+        node_type_selector = QComboBox()
+        node_type_selector.setObjectName('selector')
+        node_type_selector.addItems([self.tr("Rename Files"), self.tr("Rename Folders")])
+        node_type_selector.currentIndexChanged[int].connect(self.on_selector_changed)
+
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
@@ -107,6 +114,8 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_hide)
         self.main_toolbar.addAction(self.action_recursion)
         self.main_toolbar.addSeparator()
+        self.main_toolbar.addWidget(node_type_selector)
+        self.main_toolbar.addSeparator()
         self.main_toolbar.addWidget(filterInput)
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_rename)
@@ -120,6 +129,9 @@ class MainWindow(QMainWindow):
         self.statusBar()
         self.main_widget = MainWidget.MainWidget()
         self.setCentralWidget(self.main_widget)
+
+    def on_selector_changed(self, index):
+        self.main_widget.on_selector_changed(index)
 
     def get_main_widget(self):
         return self.main_widget

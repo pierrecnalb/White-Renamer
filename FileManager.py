@@ -292,14 +292,14 @@ class FilesCollection(object):
                 else:
                     children_names.append(same_level_tree_node.modified_filedescriptor.basename)
 
-    def process_file_system_tree_node(self, actions):
+    def process_file_system_tree_node(self, actions, file_or_folder):
         self.execute_method_on_nodes(self.root_tree_node, self.reset)
-        self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions)
+        self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions, file_or_folder)
         self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
 
-    def call_actions(self, tree_node, actions):
+    def call_actions(self, tree_node, actions, file_or_folder):
         for action in actions:
-            tree_node = action.call(tree_node, True)
+            tree_node = action.call(tree_node, file_or_folder)
 
     def rename(self, tree_node):
         try:

@@ -20,22 +20,22 @@ class MainWidget(QWidget):
         self.all_action_descriptors = []
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
-        self.change_directories = False
+        self.file_or_folder = "file"
         if sys.platform == 'linux':
             self.frame_space = 20
             self.frame_width = 211
             self.frame_height = 240
-            self.button_width = 20
+            self.button_width = 25
         elif sys.platform == 'win32' or sys.platform == 'win64':
             self.frame_space = 20
             self.frame_width = 174
             self.frame_height = 182
-            self.button_width = 20
+            self.button_width = 25
         elif sys.platform == 'darwin':
             self.frame_space = 20
             self.frame_width = 211
             self.frame_height = 230
-            self.button_width = 20
+            self.button_width = 25
         #----------------------------------INIT UI---------------------------------------
         #---INPUTS DEFINITION---
         original_name_inputs = []
@@ -120,6 +120,7 @@ class MainWidget(QWidget):
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.main_grid.addWidget(self.treeView, 1, 0)
+        self.hbox = QHBoxLayout(self.scroll_area_widget_contents)
         #---PREFIX GROUP--
         self.add_prefix_btn = QPushButton('+')
         #self.add_prefix_btn.setStyleSheet("QPushButton {border: 1px solid #8f8f91}")
@@ -127,8 +128,13 @@ class MainWidget(QWidget):
         #self.add_prefix_btn.setStyleSheet("QPushButton#add_prefix_btn{background-color: rgb(200, 25, 20); border-style:outset; border-radius:15px};")
         #x_coord = self.init_position(self.folder_box)
         x_coord = 10
-        self.add_prefix_btn.setGeometry(QRect(x_coord, 80, self.button_width, self.button_width))
-        self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
+        #self.add_prefix_btn.setGeometry(QRect(x_coord, 80, self.button_width, self.button_width))
+        # self.hbox.addSpacerItem(self.left_spacerItem)
+        self.hbox.addStretch()
+        self.hbox.addWidget(self.add_prefix_btn)
+        self.add_prefix_btn.setMaximumSize(20,20)
+        self.add_prefix_btn.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        # self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
         self.add_prefix_btn.clicked.connect(self.add_prefix)
         self.remove_prefix_btn = QPushButton('-')
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
@@ -138,16 +144,22 @@ class MainWidget(QWidget):
         #---FILE GROUP---
         self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_prefix_btn)
-        self.file_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
-        self.file_box.setParent(self.scroll_area_widget_contents)
+        # self.file_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
+        self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        self.file_box.setMinimumSize(self.frame_width, self.frame_height)
+        self.hbox.addWidget(self.file_box)
+        # self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         x_coord = self.init_position(self.file_box)
         #---SUFFIX GROUP---
         self.add_suffix_btn = QPushButton('+')
         self.add_suffix_btn.setObjectName("add_suffix_btn")
-        self.add_suffix_btn.setGeometry(QRect(x_coord, 80,self.button_width, self.button_width))
-        self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
+        # self.add_suffix_btn.setGeometry(QRect(x_coord, 80,self.button_width, self.button_width))
+        # self.add_suffix_btn.setParent(self.scroll_area_widget_contents)
         self.add_suffix_btn.clicked.connect(self.add_suffix)
+        self.add_suffix_btn.setMaximumSize(20,20)
+        self.add_suffix_btn.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        self.hbox.addWidget(self.add_suffix_btn)
         self.remove_suffix_btn = QPushButton('-')
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
@@ -155,13 +167,18 @@ class MainWidget(QWidget):
         self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
             #---EXTENSION GROUP---
         self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height)
+        self.extension_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        self.extension_box.setMinimumSize(self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_suffix_btn)
-        self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
-        self.extension_box.setParent(self.scroll_area_widget_contents)
+        # self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
+        # self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
-        self.extension_box.show()
+        self.hbox.addWidget(self.extension_box)
+        self.hbox.addStretch()
+        # self.hbox.addSpacerItem(self.right_spacerItem)
         self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+self.frame_space)
         self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
+        self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
         #generatefile
         #self.create_folder("TestCase2")
         #self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase2")
@@ -182,16 +199,10 @@ class MainWidget(QWidget):
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
-        self.selector = QComboBox()
-        self.selector.setObjectName('selector')
-        self.selector.addItems(["Files", "Directories"])
-        self.selector.currentIndexChanged[int].connect(self.on_selector_changed)
-        self.main_grid.addWidget(self.selector,2,0)
 
     def on_selector_changed(self, index):
         if index == 0:
-            self.directory_type = "file"
-            self.change_directories = False
+            self.file_or_folder = "file"
             self.file_box.set_label(self.tr("File"))
             #---EXTENSION GROUP---
             self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height)
@@ -200,15 +211,14 @@ class MainWidget(QWidget):
             self.extension_box.setParent(self.scroll_area_widget_contents)
             self.extension_box.changed.connect(self.apply_action)
             self.extension_box.show()
-            self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+self.frame_space)
-            self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
+            self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         elif index == 1:
-            self.directory_type = "folder"
-            self.change_directories = True
+            self.file_or_folder = "folder"
             self.extension_box.destruct_layout()
             self.file_box.set_label(self.tr("Folder"))
+            self.scroll_area_widget_contents.setMinimumSize(self.add_suffix_btn.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         #---SCROLL AREA----
-        self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
+        self.apply_action()
 
     def get_action_button_group(self):
         return self.file_box
@@ -237,6 +247,7 @@ class MainWidget(QWidget):
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
+        self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
@@ -291,13 +302,12 @@ class MainWidget(QWidget):
                 self.move_action_button_group(suffix, True)
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
-        if self.selector.currentIndex() == 0:
+        if self.file_or_folder == "file":
             self.move_action_button_group(self.extension_box, True)
         self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix ") + str(self.prefix_number), self.prefix_action_descriptors, self.frame_width, self.frame_height)
         x_left_prefix = self.add_prefix_btn.geometry().x() + self.button_width + self.frame_space
         self.prefix_box.setGeometry(QRect(x_left_prefix, self.frame_space, self.frame_width, self.frame_height))
         self.prefix_box.setParent(self.scroll_area_widget_contents)
-        #self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
         self.prefix_box.show()
         self.prefix_boxes.append(self.prefix_box)
         self.prefix_box.changed.connect(self.apply_action)
@@ -315,7 +325,7 @@ class MainWidget(QWidget):
                     self.move_action_button_group(suffix, False)
             self.move_action_button_group(self.add_suffix_btn, False)
             self.move_action_button_group(self.remove_suffix_btn, False)
-            if self.selector.currentIndex() == 0:
+            if self.file_or_folder == "file":
                 self.move_action_button_group(self.extension_box, False)
             #self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
             self.apply_action()
@@ -326,7 +336,7 @@ class MainWidget(QWidget):
         self.suffix_number += 1
         self.move_action_button_group(self.add_suffix_btn, True)
         self.move_action_button_group(self.remove_suffix_btn, True)
-        if self.selector.currentIndex() == 0:
+        if self.file_or_folder == "file":
             self.move_action_button_group(self.extension_box, True)
         self.suffix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Suffix ") + str(self.suffix_number), self.prefix_action_descriptors, self.frame_width, self.frame_height)
         if(self.suffix_number > 1):
@@ -339,7 +349,6 @@ class MainWidget(QWidget):
         self.suffix_box.show()
         self.suffix_boxes.append(self.suffix_box)
         self.suffix_box.changed.connect(self.apply_action)
-        # self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
 
     def remove_suffix(self):
         if self.suffix_number > 0:
@@ -348,7 +357,7 @@ class MainWidget(QWidget):
             del self.suffix_boxes[self.suffix_number]
             self.move_action_button_group(self.add_suffix_btn, False)
             self.move_action_button_group(self.remove_suffix_btn, False)
-            if self.selector.currentIndex() == 0:
+            if self.file_or_folder == "file":
                 self.move_action_button_group(self.extension_box, False)
             # self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height)
             self.apply_action()
@@ -373,24 +382,22 @@ class MainWidget(QWidget):
         self.populate_tree(self.model, self.root_tree_node, True)
 
     def apply_action(self):
-        if self.files_collection is None:
-            QMessageBox.information(self, "Information", self.tr("Please select a directory."))
-            return
         self.actions = []
         for prefix in self.prefix_boxes:
             self.populate_actions(prefix, "prefix")
-        self.populate_actions(self.file_box, self.directory_type)
+        self.populate_actions(self.file_box, self.file_or_folder)
         for suffix in self.suffix_boxes:
             self.populate_actions(suffix, "suffix")
-        if self.change_directories is False:
+        if self.file_or_folder == "file":
             self.populate_actions(self.extension_box, "extension")
         try:
-            self.files_collection.process_file_system_tree_node(self.actions)
+            self.files_collection.process_file_system_tree_node(self.actions, self.file_or_folder)
         except Exception as e:
             pass
             #QMessageBox.warning(self, "Warning", str(e))
         #refresh tree
-        self.populate_tree(self.model, self.root_tree_node, False)
+        if self.files_collection is not None:
+            self.populate_tree(self.model, self.root_tree_node, False)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
