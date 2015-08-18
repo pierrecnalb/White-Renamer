@@ -98,15 +98,6 @@ class MainWidget(QWidget):
         self.main_grid = QGridLayout(self)
         self.main_grid.setObjectName("main_grid")
         self.setLayout(self.main_grid)
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setObjectName("scroll_area")
-        self.scroll_area.setAutoFillBackground(False)
-        self.scroll_area.setStyleSheet("QFrame#scroll_area{border:2px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(220, 220, 220)};")
-        self.scroll_area.setWidgetResizable(True)
-        #self.scroll_area.setBackgroundRole(QPalette.Dark)
-        self.scroll_area_widget_contents = QWidget()
-        self.scroll_area_widget_contents.setObjectName("scroll_area_widget_contents")
-        self.scroll_area_widget_contents.setStyleSheet("QWidget#scroll_area_widget_contents{background-color: rgb(250, 250, 250)};")
         #---TREE VIEW---
         self.treeView = QTreeView()
         self.treeView.setStyleSheet("QTreeView{border:2px solid rgb(213, 213, 213); border-radius: 4px};")
@@ -120,7 +111,8 @@ class MainWidget(QWidget):
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.main_grid.addWidget(self.treeView, 1, 0)
-        self.hbox = QHBoxLayout(self.scroll_area_widget_contents)
+        # self.hbox = QHBoxLayout()
+        # self.scroll_area_widget_contents.setLayout(self.hbox)
         #---PREFIX GROUP--
         self.add_prefix_btn = QPushButton('+')
         #self.add_prefix_btn.setStyleSheet("QPushButton {border: 1px solid #8f8f91}")
@@ -130,8 +122,8 @@ class MainWidget(QWidget):
         x_coord = 10
         #self.add_prefix_btn.setGeometry(QRect(x_coord, 80, self.button_width, self.button_width))
         # self.hbox.addSpacerItem(self.left_spacerItem)
-        self.hbox.addStretch()
-        self.hbox.addWidget(self.add_prefix_btn)
+        # self.hbox.addStretch()
+        # self.hbox.addWidget(self.add_prefix_btn)
         self.add_prefix_btn.setMaximumSize(20,20)
         self.add_prefix_btn.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         # self.add_prefix_btn.setParent(self.scroll_area_widget_contents)
@@ -140,14 +132,14 @@ class MainWidget(QWidget):
         self.remove_prefix_btn.setObjectName("remove_prefix_btn")
         self.remove_prefix_btn.clicked.connect(self.remove_prefix)
         self.remove_prefix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
-        self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
+        # self.remove_prefix_btn.setParent(self.scroll_area_widget_contents)
         #---FILE GROUP---
         self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height)
         x_coord = self.init_position(self.add_prefix_btn)
         # self.file_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         self.file_box.setMinimumSize(self.frame_width, self.frame_height)
-        self.hbox.addWidget(self.file_box)
+        # self.hbox.addWidget(self.file_box)
         # self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
         x_coord = self.init_position(self.file_box)
@@ -159,12 +151,12 @@ class MainWidget(QWidget):
         self.add_suffix_btn.clicked.connect(self.add_suffix)
         self.add_suffix_btn.setMaximumSize(20,20)
         self.add_suffix_btn.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
-        self.hbox.addWidget(self.add_suffix_btn)
+        # self.hbox.addWidget(self.add_suffix_btn)
         self.remove_suffix_btn = QPushButton('-')
         self.remove_suffix_btn.setObjectName("remove_suffix_btn")
         self.remove_suffix_btn.clicked.connect(self.remove_suffix)
         self.remove_suffix_btn.setGeometry(QRect(x_coord, 120,self.button_width, self.button_width))
-        self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
+        # self.remove_suffix_btn.setParent(self.scroll_area_widget_contents)
             #---EXTENSION GROUP---
         self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height)
         self.extension_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
@@ -173,12 +165,39 @@ class MainWidget(QWidget):
         # self.extension_box.setGeometry(QRect(x_coord, self.frame_space, self.frame_width, self.frame_height))
         # self.extension_box.setParent(self.scroll_area_widget_contents)
         self.extension_box.changed.connect(self.apply_action)
-        self.hbox.addWidget(self.extension_box)
-        self.hbox.addStretch()
+        # self.hbox.addWidget(self.extension_box)
+        # self.hbox.addStretch()
         # self.hbox.addSpacerItem(self.right_spacerItem)
-        self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+self.frame_space)
-        self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
-        self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
+        # self.scroll_area_widget_contents.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+self.frame_space)
+        # self.scroll_area.setMinimumSize(self.extension_box.geometry().x()+self.frame_width+self.frame_space,self.frame_height+2.5*self.frame_space)
+        # self.scroll_area.setMaximumSize(10000,self.frame_height+2.5*self.frame_space)
+
+
+
+
+        #Container Widget        
+        widget_container = QWidget()
+        #Layout of Container Widget
+        layout_container = QHBoxLayout()
+        layout_container.addWidget(self.file_box)
+        layout_container.addWidget(self.extension_box)
+        widget_container.setLayout(layout_container)
+        #Scroll Area Properties
+        scroll = QScrollArea()
+        scroll.setObjectName("scroll_area")
+        scroll.setAutoFillBackground(False)
+        scroll.setStyleSheet("QFrame#scroll_area{border:2px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(220, 220, 220)};")
+        scroll.setWidgetResizable(True)
+        # scroll_widget_contents = QWidget()
+        # scroll_widget_contents.setObjectName("scroll_area_widget_contents")
+        # scroll_widget_contents.setStyleSheet("QWidget#scroll_area_widget_contents{background-color: rgb(250, 250, 250)};")
+        scroll.setWidgetResizable(False)
+        scroll.setWidget(widget_container)
+        #Scroll Area Layer add 
+        hLayout = QHBoxLayout()
+        hLayout.addWidget(scroll)
+        self.main_grid.addLayout(hLayout,0,0)
+
         #generatefile
         #self.create_folder("TestCase2")
         #self.directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase2")
@@ -194,8 +213,9 @@ class MainWidget(QWidget):
         #self.create_file(os.path.join("FOLDER1","folder1-sub file #2.txt"))
         #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 1.txt"))
         #self.create_file(os.path.join("FOLDER1","sub fOlder_1","sub file 2.txt"))
-        self.scroll_area.setWidget(self.scroll_area_widget_contents)
-        self.main_grid.addWidget(self.scroll_area,0,0)
+        # self.scroll_area.setWidget(self.scroll_area_widget_contents)
+        # self.hLayout = QHBoxLayout()
+        # self.hLayout.addWidget(self.scroll_area)
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
