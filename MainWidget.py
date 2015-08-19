@@ -182,15 +182,18 @@ class MainWidget(QWidget):
         layout_container.addWidget(self.file_box)
         layout_container.addWidget(self.extension_box)
         widget_container.setLayout(layout_container)
+        widget_container.setStyleSheet("QWidget#widget_container{background-color: rgb(213, 213, 213)};")
         #Scroll Area Properties
         scroll = QScrollArea()
         scroll.setObjectName("scroll_area")
         scroll.setAutoFillBackground(False)
-        scroll.setStyleSheet("QFrame#scroll_area{border:2px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(220, 220, 220)};")
+        scroll.setStyleSheet("QFrame#scroll_area{border:1px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(213, 213, 213)};")
+        scroll.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed);
+        scroll.setMinimumSize(self.frame_width + 20, self.frame_height + 20)
         scroll.setWidgetResizable(True)
         # scroll_widget_contents = QWidget()
         # scroll_widget_contents.setObjectName("scroll_area_widget_contents")
-        # scroll_widget_contents.setStyleSheet("QWidget#scroll_area_widget_contents{background-color: rgb(250, 250, 250)};")
+        scroll.setStyleSheet("QWidget#scroll_area{background-color: rgb(213, 213, 213)};")
         scroll.setWidgetResizable(False)
         scroll.setWidget(widget_container)
         #Scroll Area Layer add 
