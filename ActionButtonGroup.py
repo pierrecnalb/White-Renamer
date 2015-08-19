@@ -8,7 +8,10 @@ import resource_rc
 
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
-    changed = Signal() # get changes in order to refresh the preview
+    changed = Signal() # get changes in order to refresh the preview.
+    removed = Signal() # emit a signal when the widget is removed.
+    addedBefore = Signal() 
+    addedAdter = Signal()
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height):
         QWidget.__init__(self)
         self.maximum_height_size = frame_height
@@ -16,9 +19,9 @@ class ActionButtonGroup(QWidget):
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
         if ("fix" in frame_name):
-            self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(190, 190, 190); border-radius: 4px; padding:2px; background-color: rgb(230, 230, 230)};")
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(190, 190, 190); border-radius: 4px; padding:0px; background-color: rgb(230, 230, 230)};")
         else:
-            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 5px; padding:2px; background-color: rgb(244, 244, 244)};")
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 5px; padding:0px; background-color: rgb(244, 244, 244)};")
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
         self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
@@ -34,15 +37,41 @@ class ActionButtonGroup(QWidget):
         font.setWeight(75)
         font.setBold(True)
         self.label.setFont(font)
+        remove_widget = QToolButton()
+        remove_widget.setText("x")
+        remove_widget.setAutoRaise(True)
+        remove_widget.pressed.connect(self.on_remove_widget)
+        add_widget_before = QToolButton()
+        add_widget_before.setText("+")
+        add_widget_before.setAutoRaise(True)
+        add_widget_before.pressed.connect(self.on_add_widget_before)
+        add_widget_after = QToolButton()
+        add_widget_after.setText("+")
+        add_widget_after.setAutoRaise(True)
+        add_widget_after.pressed.connect(self.on_add_widget_after)
+
         self.combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
         self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid = QGridLayout()
         self.grid.setObjectName("grid")
         self.button_inputs_dict = {}
-        self.grid.addWidget(self.label, 0, 0, 1, 1)
-        self.grid.addWidget(self.combobox, 1, 0, 1, 1)
+        self.grid.addWidget(self.label, 0, 1, 1, 1)
+        self.grid.addWidget(remove_widget, 0 ,2 ,1 ,1)
+        self.grid.addWidget(self.combobox, 1, 0, 1, 4)
+        self.grid.addWidget(add_widget_before, 0 ,0 ,1 ,1)
+        self.grid.addWidget(add_widget_after, 0 ,3 ,1 ,1)
         self.add_sub_button()
-        self.frame_grid.addLayout(self.grid,0,0,1,1)
+        self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
+
+    def on_add_widget_before(self):
+        '''Emit signal when added.'''
+        self.addedBefore.emit()
+    def on_add_widget_after(self):
+        '''Emit signal when added.'''
+        self.addedAfter.emit()
+    def on_remove_widget(self):
+        '''Emit signal when removed.'''
+        self.removed.emit()
 
     def set_label(self, new_label):
         self.frame_name = new_label
@@ -73,7 +102,7 @@ class ActionButtonGroup(QWidget):
         if self.selected_action and self.selected_action.action_inputs != []:
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
-            subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(210, 210, 210); border-radius:3px; padding:2px; background-color: rgb(253, 253, 253)};")
+            subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(210, 210, 210); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
             sub_grid.destroyed.connect(self.isDestroyed)
@@ -118,8 +147,8 @@ class ActionButtonGroup(QWidget):
                     sub_grid.addWidget(label, i+1, 0, 1, 1)
                     sub_grid.addWidget(sub_button, i+1, 1, 1, 1)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
-            self.grid.addWidget(subframe,2,0,1,1)
-        self.grid.addItem(self.spacerItem,3,0,1,1)
+            self.grid.addWidget(subframe,2,0,1,4)
+        self.grid.addItem(self.spacerItem,4,0,1,4)
 
     def isDestroyed(self, *args):
         pass

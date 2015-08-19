@@ -179,6 +179,7 @@ class MainWidget(QWidget):
         widget_container = QWidget()
         #Layout of Container Widget
         layout_container = QHBoxLayout()
+        layout_container.addWidget(self.add_prefix_btn)
         layout_container.addWidget(self.file_box)
         layout_container.addWidget(self.extension_box)
         widget_container.setLayout(layout_container)
@@ -222,6 +223,9 @@ class MainWidget(QWidget):
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
+
+    def remove_action_button_group(self):
+        print("pass")
 
     def on_selector_changed(self, index):
         if index == 0:
