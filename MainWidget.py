@@ -142,6 +142,8 @@ class MainWidget(QWidget):
         # self.hbox.addWidget(self.file_box)
         # self.file_box.setParent(self.scroll_area_widget_contents)
         self.file_box.changed.connect(self.apply_action)
+        self.file_box.addedBefore.connect(self.add_widget_before)
+        self.file_box.addedAfter.connect(self.add_widget_after)
         x_coord = self.init_position(self.file_box)
         #---SUFFIX GROUP---
         self.add_suffix_btn = QPushButton('+')
@@ -178,24 +180,25 @@ class MainWidget(QWidget):
         #Container Widget        
         widget_container = QWidget()
         #Layout of Container Widget
-        layout_container = QHBoxLayout()
-        layout_container.addWidget(self.add_prefix_btn)
-        layout_container.addWidget(self.file_box)
-        layout_container.addWidget(self.extension_box)
-        widget_container.setLayout(layout_container)
+        self.scroll_area_layout = QHBoxLayout()
+        self.scroll_area_layout.addStretch()
+        self.scroll_area_layout.addWidget(self.file_box)
+        self.scroll_area_layout.addWidget(self.extension_box)
+        self.scroll_area_layout.addStretch()
+        widget_container.setLayout(self.scroll_area_layout)
         widget_container.setStyleSheet("QWidget#widget_container{background-color: rgb(213, 213, 213)};")
         #Scroll Area Properties
         scroll = QScrollArea()
         scroll.setObjectName("scroll_area")
         scroll.setAutoFillBackground(False)
         scroll.setStyleSheet("QFrame#scroll_area{border:1px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(213, 213, 213)};")
-        scroll.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed);
-        scroll.setMinimumSize(self.frame_width + 20, self.frame_height + 20)
+        scroll.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
+        scroll.setMinimumSize(1600, self.frame_height + 50)
         scroll.setWidgetResizable(True)
         # scroll_widget_contents = QWidget()
         # scroll_widget_contents.setObjectName("scroll_area_widget_contents")
         scroll.setStyleSheet("QWidget#scroll_area{background-color: rgb(213, 213, 213)};")
-        scroll.setWidgetResizable(False)
+        scroll.setWidgetResizable(True)
         scroll.setWidget(widget_container)
         #Scroll Area Layer add 
         hLayout = QHBoxLayout()
@@ -224,8 +227,25 @@ class MainWidget(QWidget):
         self.file_icon = QIcon(":/file_icon.svg")
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
 
-    def remove_action_button_group(self):
-        print("pass")
+    def add_widget_before(self, widget_caller):
+        self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix "), self.prefix_action_descriptors, self.frame_width, self.frame_height)
+        self.prefix_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        self.prefix_box.setMinimumSize(self.frame_width, self.frame_height)
+        self.prefix_box.addedBefore.connect(self.add_widget_before)
+        self.prefix_box.removed.connect(self.on_remove_widget)
+        self.scroll_area_layout.insertWidget(self.scroll_area_layout.indexOf(widget_caller) , self.prefix_box)
+
+    def add_widget_after(self, widget_caller):
+        self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix "), self.prefix_action_descriptors, self.frame_width, self.frame_height)
+        self.prefix_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
+        self.prefix_box.setMinimumSize(self.frame_width, self.frame_height)
+        self.prefix_box.addedAfter.connect(self.add_widget_before)
+        self.prefix_box.removed.connect(self.on_remove_widget)
+        self.scroll_area_layout.insertWidget(self.scroll_area_layout.indexOf(widget_caller) + 1, self.prefix_box)
+
+    def on_remove_widget(self, widget_caller):
+        self.scroll_area_layout.removeWidget(widget_caller)
+        widget_caller.destruct_layout()
 
     def on_selector_changed(self, index):
         if index == 0:
