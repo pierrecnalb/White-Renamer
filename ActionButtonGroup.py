@@ -9,9 +9,9 @@ import resource_rc
 class ActionButtonGroup(QWidget):
     """Group the combobox with the textboxes containing the subactions"""
     changed = Signal() # get changes in order to refresh the preview.
-    removed = Signal() # emit a signal when the widget is removed.
-    addedBefore = Signal() 
-    addedAdter = Signal()
+    removed = Signal(QWidget) # emit a signal when the widget is removed.
+    addedBefore = Signal(QWidget) 
+    addedAfter = Signal(QWidget)
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height):
         QWidget.__init__(self)
         self.maximum_height_size = frame_height
@@ -65,13 +65,13 @@ class ActionButtonGroup(QWidget):
 
     def on_add_widget_before(self):
         '''Emit signal when added.'''
-        self.addedBefore.emit()
+        self.addedBefore.emit(self)
     def on_add_widget_after(self):
         '''Emit signal when added.'''
-        self.addedAfter.emit()
+        self.addedAfter.emit(self)
     def on_remove_widget(self):
         '''Emit signal when removed.'''
-        self.removed.emit()
+        self.removed.emit(self)
 
     def set_label(self, new_label):
         self.frame_name = new_label
