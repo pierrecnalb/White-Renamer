@@ -12,13 +12,15 @@ class ActionButtonGroup(QWidget):
     removed = Signal(QWidget) # emit a signal when the widget is removed.
     addedBefore = Signal(QWidget) 
     addedAfter = Signal(QWidget)
-    def __init__(self, frame_name, action_descriptors, frame_width, frame_height):
+
+    def __init__(self, frame_name, action_descriptors, frame_width, frame_height, frame_type):
         QWidget.__init__(self)
         self.maximum_height_size = frame_height
         self.maximum_width_size = frame_width
+        self.frame_type = frame_type
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
-        if ("fix" in frame_name):
+        if ("fix" in frame_type):
             self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(190, 190, 190); border-radius: 4px; padding:0px; background-color: rgb(230, 230, 230)};")
         else:
             self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(203, 203, 203); border-radius: 5px; padding:0px; background-color: rgb(244, 244, 244)};")
@@ -41,14 +43,14 @@ class ActionButtonGroup(QWidget):
         remove_widget.setText("x")
         remove_widget.setAutoRaise(True)
         remove_widget.pressed.connect(self.on_remove_widget)
-        add_widget_before = QToolButton()
-        add_widget_before.setText("+")
-        add_widget_before.setAutoRaise(True)
-        add_widget_before.pressed.connect(self.on_add_widget_before)
-        add_widget_after = QToolButton()
-        add_widget_after.setText("+")
-        add_widget_after.setAutoRaise(True)
-        add_widget_after.pressed.connect(self.on_add_widget_after)
+        add_prefix = QToolButton()
+        add_prefix.setText("+")
+        add_prefix.setAutoRaise(True)
+        add_prefix.pressed.connect(self.on_add_prefix)
+        add_suffix = QToolButton()
+        add_suffix.setText("+")
+        add_suffix.setAutoRaise(True)
+        add_suffix.pressed.connect(self.on_add_suffix)
 
         self.combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
         self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -56,17 +58,23 @@ class ActionButtonGroup(QWidget):
         self.grid.setObjectName("grid")
         self.button_inputs_dict = {}
         self.grid.addWidget(self.label, 0, 1, 1, 1)
-        self.grid.addWidget(remove_widget, 0 ,2 ,1 ,1)
-        self.grid.addWidget(self.combobox, 1, 0, 1, 4)
-        self.grid.addWidget(add_widget_before, 0 ,0 ,1 ,1)
-        self.grid.addWidget(add_widget_after, 0 ,3 ,1 ,1)
+        self.grid.addWidget(self.combobox, 1, 0, 1, 3)
+        if (self.frame_type == "prefix"):
+            self.grid.addWidget(add_prefix, 0 ,0 ,1 ,1)
+            self.grid.addWidget(remove_widget, 0 ,2 ,1 ,1)
+        if (self.frame_type == "suffix"):
+            self.grid.addWidget(add_suffix, 0 ,2 ,1 ,1)
+            self.grid.addWidget(remove_widget, 0 ,0 ,1 ,1)
+        if (self.frame_type == "file" or frame_type == "folder"):
+            self.grid.addWidget(add_prefix, 0 ,0 ,1 ,1)
+            self.grid.addWidget(add_suffix, 0 ,2 ,1 ,1)
         self.add_sub_button()
         self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
 
-    def on_add_widget_before(self):
+    def on_add_prefix(self):
         '''Emit signal when added.'''
         self.addedBefore.emit(self)
-    def on_add_widget_after(self):
+    def on_add_suffix(self):
         '''Emit signal when added.'''
         self.addedAfter.emit(self)
     def on_remove_widget(self):
@@ -83,6 +91,9 @@ class ActionButtonGroup(QWidget):
 
     def get_action_descriptors(self):
         return self.action_descriptors
+
+    def get_frame_type(self):
+        return self.frame_type
 
     def on_selected_action_changed(self, index):
         self.selected_action = self.action_descriptors[index]
@@ -147,8 +158,8 @@ class ActionButtonGroup(QWidget):
                     sub_grid.addWidget(label, i+1, 0, 1, 1)
                     sub_grid.addWidget(sub_button, i+1, 1, 1, 1)
                 self.button_inputs_dict[arguments.argument_name] = arguments.default_value
-            self.grid.addWidget(subframe,2,0,1,4)
-        self.grid.addItem(self.spacerItem,4,0,1,4)
+            self.grid.addWidget(subframe,2,0,1,3)
+        self.grid.addItem(self.spacerItem,3,0,1,3)
 
     def isDestroyed(self, *args):
         pass

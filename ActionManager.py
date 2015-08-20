@@ -71,7 +71,7 @@ class Action(object):
                 elif(self.path_type == "suffix"):
                         file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
                 elif(self.path_type == "prefix"):
-                        file_system_tree_node.modified_filedescriptor.prefix = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix) + file_system_tree_node.modified_filedescriptor.prefix
+                        file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
                 elif(self.path_type == "extension"):
                     file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
                 else:
