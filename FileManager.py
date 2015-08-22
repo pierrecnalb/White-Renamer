@@ -20,6 +20,7 @@ class FileDescriptor(object):
         self.is_folder = is_folder
         if (self.is_folder is False):
             (self._filename, self._extension) = os.path.splitext(self._basename)
+            self._extension = self._extension[1:] #remove dot
             self._foldername = ""
         else:
             self._filename = ""
@@ -91,9 +92,9 @@ class FileDescriptor(object):
 
     def update_basename(self):
         if self.is_folder is True:
-            self._basename = self._prefix + self._foldername + self._suffix + self._extension
+            self._basename = self._prefix + self._foldername + self._suffix
         else:
-            self._basename = self._prefix + self._filename + self._suffix + self._extension
+            self._basename = self._prefix + self._filename + self._suffix + "." + self._extension
 
 class FileSystemTreeNode(object):
     """

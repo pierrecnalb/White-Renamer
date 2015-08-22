@@ -10,5 +10,6 @@
     <file alias="subdirectory_icon.svg">Icons/subdirectory_icon.svg</file>
     <file alias="help_icon.svg">Icons/help_icon.svg</file>
     <file alias="exit_icon.svg">Icons/exit_icon.svg</file>
+    <file alias="add_icon.svg">Icons/add_icon.svg</file>
   </qresource>
 </RCC>

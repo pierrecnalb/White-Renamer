@@ -46,9 +46,6 @@ class MainWidget(QWidget):
         case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "titlecase", [('titlecase', self.tr('Titlecase')), ('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase'))]))
         case_change_inputs.append(ActionManager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
         case_change_inputs.append(ActionManager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
-        extension_case_change_inputs = []
-        extension_case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "uppercase" ,[('uppercase',self.tr('Uppercase')), ('lowercase',self.tr('Lowercase'))]))
-        #case_change_inputs.append(ActionManager.ActionInput('titlecase', self.tr('Titlecase'), "combo", False))
         character_replacement_inputs = []
         character_replacement_inputs.append(ActionManager.ActionInput('old_char', self.tr('Replace'), str, ""))
         character_replacement_inputs.append(ActionManager.ActionInput('new_char', self.tr('With'), str, ""))
@@ -87,7 +84,7 @@ class MainWidget(QWidget):
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
         #EXTENSION ACTION DESCRIPTOR
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), extension_case_change_inputs, ActionManager.CaseChangeAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), case_change_inputs, ActionManager.CaseChangeAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
@@ -177,18 +174,13 @@ class MainWidget(QWidget):
         if index == 0:
             self.file_or_folder = "file"
             self.file_box.set_label(self.tr("File"))
-            #---EXTENSION GROUP---
-            self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height, "extension")
-            self.extension_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
-            self.extension_box.setMinimumSize(self.frame_width, self.frame_height)
-            self.extension_box.changed.connect(self.apply_action)
-            self.scroll_area_layout.addWidget(self.extension_box)
+            self.file_box.set_frame_type("file")
+            self.extension_box.show()
         elif index == 1:
             self.file_or_folder = "folder"
-            self.scroll_area_layout.removeWidget(self.extension_box)
-            self.extension_box.destruct_layout()
+            self.extension_box.hide()
             self.file_box.set_label(self.tr("Folder"))
-        #---SCROLL AREA----
+            self.file_box.set_frame_type("folder")
         self.apply_action()
 
     def get_action_button_group(self):

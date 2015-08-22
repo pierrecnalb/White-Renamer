@@ -40,15 +40,18 @@ class ActionButtonGroup(QWidget):
         font.setBold(True)
         self.label.setFont(font)
         remove_widget = QToolButton()
-        remove_widget.setText("x")
+        remove_widget.setFixedSize(20,20)
+        remove_widget.setIcon(QIcon(":/exit_icon.svg"))
         remove_widget.setAutoRaise(True)
         remove_widget.pressed.connect(self.on_remove_widget)
         add_prefix = QToolButton()
-        add_prefix.setText("+")
+        add_prefix.setFixedSize(20,20)
+        add_prefix.setIcon(QIcon(":/add_icon.svg"))
         add_prefix.setAutoRaise(True)
         add_prefix.pressed.connect(self.on_add_prefix)
         add_suffix = QToolButton()
-        add_suffix.setText("+")
+        add_suffix.setFixedSize(20,20)
+        add_suffix.setIcon(QIcon(":/add_icon.svg"))
         add_suffix.setAutoRaise(True)
         add_suffix.pressed.connect(self.on_add_suffix)
 
@@ -94,6 +97,12 @@ class ActionButtonGroup(QWidget):
 
     def get_frame_type(self):
         return self.frame_type
+
+    def get_frame_name(self):
+        return self.frame_name
+
+    def set_frame_type(self, value):
+        self.frame_type = value
 
     def on_selected_action_changed(self, index):
         self.selected_action = self.action_descriptors[index]
