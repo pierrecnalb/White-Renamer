@@ -97,7 +97,7 @@ class MainWidget(QWidget):
         self.setLayout(self.main_grid)
         #---TREE VIEW---
         self.treeView = QTreeView()
-        self.treeView.setStyleSheet("QTreeView{border:2px solid rgb(213, 213, 213); border-radius: 4px};")
+        self.treeView.setStyleSheet("QTreeView{border:2px solid rgb(220, 220, 220); border-radius: 2px};")
         self.treeView.setObjectName("treeView")
         self.treeView.setAlternatingRowColors(True)
         self.treeView.setSortingEnabled(False)
@@ -121,23 +121,23 @@ class MainWidget(QWidget):
         self.extension_box.changed.connect(self.apply_action)
         #Container Widget        
         widget_container = QWidget()
+        widget_container.setObjectName("widget_container")
         #Layout of Container Widget
         self.scroll_area_layout = QHBoxLayout()
+        self.scroll_area_layout.setSpacing(17)
         self.scroll_area_layout.addStretch()
         self.scroll_area_layout.addWidget(self.file_box)
         self.scroll_area_layout.addWidget(self.extension_box)
         self.scroll_area_layout.addStretch()
         widget_container.setLayout(self.scroll_area_layout)
-        widget_container.setStyleSheet("QWidget#widget_container{background-color: rgb(213, 213, 213)};")
+        widget_container.setStyleSheet("QWidget#widget_container{background-color: rgb(226, 226, 226)};")
         #Scroll Area Properties
         scroll = QScrollArea()
         scroll.setObjectName("scroll_area")
         scroll.setAutoFillBackground(False)
-        scroll.setStyleSheet("QFrame#scroll_area{border:1px solid rgb(213, 213, 213); border-radius: 4px; padding:2px; background-color: rgb(213, 213, 213)};")
-        scroll.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
-        scroll.setMinimumSize(1000, self.frame_height + 50)
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("QWidget#scroll_area{background-color: rgb(213, 213, 213)};")
+        scroll.setStyleSheet("QFrame#scroll_area{border:1px solid rgb(223, 223, 223); border-radius: 2px; padding:2px; background-color: rgb(226, 226, 226)};")
+        scroll.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed);
+        scroll.setMinimumSize(self.frame_width *2, self.frame_height + 50)
         scroll.setWidgetResizable(True)
         scroll.setWidget(widget_container)
         #Scroll Area Layer add 
@@ -206,7 +206,7 @@ class MainWidget(QWidget):
         self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
-        self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
+        # self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
@@ -252,6 +252,7 @@ class MainWidget(QWidget):
         """Undo the previous renaming action."""
         self.files_collection.batch_undo()
         self.populate_tree(self.model, self.root_tree_node, True)
+        self.apply_action()
 
     def apply_action(self):
         self.actions = []
@@ -259,20 +260,12 @@ class MainWidget(QWidget):
         for i in range(1, widget_number-1): #do not count the stretch widget
             action_button_group = self.scroll_area_layout.itemAt(i).widget()
             self.populate_actions(action_button_group, action_button_group.get_frame_type())
-        # for prefix in self.prefix_boxes:
-            # self.populate_actions(prefix, "prefix")
-        # self.populate_actions(self.file_box, self.file_or_folder)
-        # for suffix in self.suffix_boxes:
-            # self.populate_actions(suffix, "suffix")
-        # if self.file_or_folder == "file":
-            # self.populate_actions(self.extension_box, "extension")
-        try:
-            self.files_collection.process_file_system_tree_node(self.actions, self.file_or_folder)
-        except Exception as e:
-            pass
-            #QMessageBox.warning(self, "Warning", str(e))
-        #refresh tree
         if self.files_collection is not None:
+            try:
+                self.files_collection.process_file_system_tree_node(self.actions, self.file_or_folder)
+            except Exception as e:
+                QMessageBox.warning(self, "Warning", str(e))
+            #refresh tree
             self.populate_tree(self.model, self.root_tree_node, False)
 
     def populate_actions(self, actiongroup, path_part):

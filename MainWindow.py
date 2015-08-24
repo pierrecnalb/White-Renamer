@@ -15,6 +15,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
         self.setWindowTitle('White Renamer')
+        self.setUnifiedTitleAndToolBarOnMac(True)
         self.directory = None
         self.use_subfolder = False
         self.show_hidden_files = False

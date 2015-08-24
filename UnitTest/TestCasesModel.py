@@ -58,17 +58,17 @@ os.path.join("TestDirectory","FOLDER1","Sub.FOLDER 2"),
 os.path.join("TestDirectory","L'appostrophe.txt")]
 #delete first letter for folders, second for files and third for extension.
 Main_Delete = [
-os.path.join("TestDirectory","fle with é è.tt"),
-os.path.join("TestDirectory","fle.with.dots.tt"),
-os.path.join("TestDirectory","fle_with_underscore.tt"),
-os.path.join("TestDirectory","lappostrophe.tt"),
+os.path.join("TestDirectory","fle with é è.tx"),
+os.path.join("TestDirectory","fle.with.dots.tx"),
+os.path.join("TestDirectory","fle_with_underscore.tx"),
+os.path.join("TestDirectory","lappostrophe.tx"),
 os.path.join("TestDirectory","older 2"),
 os.path.join("TestDirectory","OLDER1"),
-os.path.join("TestDirectory","OLDER1","flder1-file1.tt"),
-os.path.join("TestDirectory","OLDER1","flder1-sub file #2.tt"),
+os.path.join("TestDirectory","OLDER1","flder1-file1.tx"),
+os.path.join("TestDirectory","OLDER1","flder1-sub file #2.tx"),
 os.path.join("TestDirectory","OLDER1","ub fOlder_1"),
-os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 1.tt"),
-os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 2.tt"),
+os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 1.tx"),
+os.path.join("TestDirectory","OLDER1","ub fOlder_1","sb file 2.tx"),
 os.path.join("TestDirectory","OLDER1","ub.FOLDER 2")]
 
 #replace e with 3 and .txt with .ogg.
