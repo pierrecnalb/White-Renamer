@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.show_hidden_files = False
         self.sorting_criteria = "name"
         self.reverse_order = False
-        self.showMaximized()
+        # self.showMaximized()
         self.filters = ""
 
         #CREATE THE ACTIONS
