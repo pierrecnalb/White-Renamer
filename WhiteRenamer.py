@@ -8,16 +8,19 @@ from PySide.QtGui  import *
 from PySide.QtSvg  import *
 import resource_rc
 import MainWindow
+import urllib.request
 
 __version__ = '1.0.0'
 
 def main():
     app = QApplication(sys.argv)
-    app.setStyleSheet("""
-QToolButton
-{ selection-background-color: #ffaa00; background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646); border-style: solid; border: 1px solid #1e1e1e; border-radius: 5; }
-
-""")
+    # online_file = urllib.request.urlopen("https://github.com/pierrecnalb/White-Renamer/blob/master/WhiteRenamer.py").read()
+    # print(online_file)
+    # app.setStyleSheet("""
+# QGridLayout
+# { selection-background-color: #ffaa00; background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #565656, stop: 0.1 #525252, stop: 0.5 #4e4e4e, stop: 0.9 #4a4a4a, stop: 1 #464646); border-style: solid; border: 1px solid #1e1e1e; border-radius: 5; }
+# 
+ # """)
 
 
     # app.setStyle(QStyleFactory.create("fusion"));

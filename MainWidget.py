@@ -11,6 +11,7 @@ import ActionButtonGroup
 import FileManager
 import resource_rc
 import io
+import pdb
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
 
@@ -68,6 +69,10 @@ class MainWidget(QWidget):
         foldername_inputs = []
         #foldername_inputs.append(ActionManager.ActionInput())
         #ALL ACTION DESCRIPTOR
+        image_action_descriptors = ActionManager.ImageMetadataAction()
+        image_descriptor = image_action_descriptors.populate_image_action()
+        for image_action in image_descriptor:
+            self.all_action_descriptors.append(image_action)
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), case_change_inputs, ActionManager.CaseChangeAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
@@ -107,7 +112,7 @@ class MainWidget(QWidget):
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
-        self.main_grid.addWidget(self.treeView, 1, 0)
+        self.main_grid.addWidget(self.treeView, 3, 0)
         self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height, "file")
         self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         self.file_box.setMinimumSize(self.frame_width, self.frame_height)
@@ -143,10 +148,19 @@ class MainWidget(QWidget):
         #Scroll Area Layer add 
         hLayout = QHBoxLayout()
         hLayout.addWidget(scroll)
-        self.main_grid.addLayout(hLayout,0,0)
+        font = QFont()
+        font.setWeight(75)
+        font.setBold(True)
+        pattern_label = QLabel("Pattern")
+        pattern_label.setFont(font)
+        self.main_grid.addWidget(pattern_label,0,0)
+        self.main_grid.addLayout(hLayout,1,0)
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
         self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
+        label = QLabel("Preview")
+        label.setFont(font)
+        self.main_grid.addWidget(label,2,0)
 
     def add_prefix(self, widget_caller):
         self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "prefix")
@@ -200,13 +214,13 @@ class MainWidget(QWidget):
         self.show_hidden_files = show_hidden_files
         self.sorting_criteria = sorting_criteria
         self.reverse_order = reverse_order
-        tree = self.main_grid.itemAtPosition(1,0)
+        tree = self.main_grid.itemAtPosition(2,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
         self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
-        # self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
+        self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
