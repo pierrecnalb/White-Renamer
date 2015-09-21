@@ -12,8 +12,13 @@ class ActionDescriptorGroup(object):
     Parameters:
         --action_descriptors: a list of ActionDescriptor.
     """
-    def __init__(self, action_descriptors):
+    def __init__(self, action_name, action_descriptors):
+        self.action_name = action_name
         self.action_descriptors = action_descriptors
+
+    def __repr__(self):
+        """override string representation of the class"""
+        return self.action_name
 
 class ActionDescriptor(object):
     """
@@ -156,7 +161,6 @@ class TitleCaseAction(CaseChangeAction):
             if position < len(stringlist):
                 stringlist[position] = stringlist[position].upper()
         return ''.join(stringlist)
-
 
     def call_on_path_part(self, file_system_tree_node, path_part):
        path_part = self.make_upper_first_letters(path_part)

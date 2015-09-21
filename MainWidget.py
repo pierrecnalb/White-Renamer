@@ -78,12 +78,12 @@ class MainWidget(QWidget):
         for image_action in image_descriptor:
             self.all_action_descriptors.append(image_action)
 
-        self.sub_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.FirstLettersCase))
-        self.sub_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.Uppercase))
-        self.sub_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.Lowercase))
+        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
+        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
+        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.LowerCaseAction))
 
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), case_change_inputs, ActionManager.CaseChangeAction, sub_action_descriptors))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
