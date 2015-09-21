@@ -6,6 +6,15 @@ import re
 import pdb
 import exifread
 
+class ActionDescriptorGroup(object):
+    """
+    Contains a collectino of ActionDescriptor.
+    Parameters:
+        --action_descriptors: a list of ActionDescriptor.
+    """
+    def __init__(self, action_descriptors):
+        self.action_descriptors = action_descriptors
+
 class ActionDescriptor(object):
     """
     Describes the actions by names, inputs and classes.
@@ -18,6 +27,7 @@ class ActionDescriptor(object):
         self.action_name = action_name
         self.action_inputs = action_inputs
         self.action_class = action_class
+        self.sub_action_descriptor = sub_action_descriptor
 
     def __repr__(self):
         """override string representation of the class"""
@@ -123,7 +133,7 @@ class CaseChangeAction(Action):
         Action.__init__(self, path_type)
         self.case_choice = case_choice
 
-class FirstLettersCase(Action, CaseChangeAction):
+class TitleCaseAction(CaseChangeAction):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -132,7 +142,6 @@ class FirstLettersCase(Action, CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        Action.__init__(self, path_type)
         CaseChangeAction.__init__(self, 'first_letter')
         self.first_letter = first_letter
         self.after_symbols = after_symbols
@@ -155,7 +164,7 @@ class FirstLettersCase(Action, CaseChangeAction):
            path_part = path_part[0].upper() + path_part[1:]
        return path_part
 
-class UpperCase(Action, CaseChangeAction):
+class UpperCaseAction(Action, CaseChangeAction):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -170,7 +179,7 @@ class UpperCase(Action, CaseChangeAction):
     def call_on_path_part(self, file_system_tree_node, path_part):
        return path_part.upper()
 
-class LowerCase(Action, CaseChangeAction):
+class LowerCaseAction(Action, CaseChangeAction):
     """
     Return the original name with a chosen casing option.
     Parameters:

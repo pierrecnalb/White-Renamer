@@ -75,7 +75,7 @@ class ActionButtonGroup(QWidget):
         if (self.frame_type == "file" or frame_type == "folder"):
             self.grid.addWidget(add_prefix, 0 ,0 ,1 ,1)
             self.grid.addWidget(add_suffix, 0 ,2 ,1 ,1)
-        self.add_sub_button()
+        self.populate_widget()
         self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
 
     def on_add_prefix(self):
@@ -111,11 +111,11 @@ class ActionButtonGroup(QWidget):
     def on_selected_action_changed(self, index):
         self.selected_action = self.action_descriptors[index]
         self.button_inputs_dict = {}
-        self.add_sub_button()
+        self.populate_widget()
         self.change()
         #self.frame.resize(self.frame.minimumSizeHint())
 
-    def add_sub_button(self):
+    def populate_widget(self):
         sub_buttons = self.grid.itemAtPosition(2,0)
         if sub_buttons is not None:
             widgetToRemove = sub_buttons.widget()
@@ -129,7 +129,6 @@ class ActionButtonGroup(QWidget):
             subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
-            sub_grid.destroyed.connect(self.isDestroyed)
             font = QFont()
             font.setWeight(55)
             font.setBold(True)
@@ -137,45 +136,47 @@ class ActionButtonGroup(QWidget):
             option_label.setFont(font)
             sub_grid.addWidget(option_label, 0, 0, 1, 2)
             self.button_inputs_dict = {}
-            for i, arguments in enumerate(self.selected_action.action_inputs):
-                label = QLabel()
-                label.setObjectName("label")
-                label.setText(str(arguments.argument_caption))
-                if arguments.argument_type == str:
-                    sub_button = QLineEdit()
-                    sub_button.setText(arguments.default_value)
-                    sub_button.textChanged[str].connect(self.get_text_changed)
-                elif arguments.argument_type == "checkable":
-                    sub_button = QCheckBox()
-                    sub_button.setChecked(arguments.default_value)
-                    sub_button.stateChanged[int].connect(self.get_state_changed)
-                elif arguments.argument_type == bool:
-                    sub_button = QRadioButton()
-                    sub_button.setText(str(arguments.argument_caption))
-                    label.setText("")
-                    sub_button.setChecked(arguments.default_value)
-                    sub_button.toggled.connect(self.radio_button_clicked)
-                elif arguments.argument_type == int:
-                    sub_button = QSpinBox()
-                    sub_button.setValue(arguments.default_value)
-                    sub_button.valueChanged[int].connect(self.get_integer_changed)
-                elif arguments.argument_type == "combo":
-                    sub_button = QComboBox()
-                    for enum in arguments.optional_argument:
-                        sub_button.addItem(enum[1], enum[0])
-                    sub_button.currentIndexChanged[int].connect(self.get_combobox_changed)
-                sub_button.setObjectName(str(arguments.argument_name))
-                if(label.text() == ""):
-                    sub_grid.addWidget(sub_button, i+1, 0, 1, 2)
-                else:
-                    sub_grid.addWidget(label, i+1, 0, 1, 1)
-                    sub_grid.addWidget(sub_button, i+1, 1, 1, 1)
-                self.button_inputs_dict[arguments.argument_name] = arguments.default_value
-            self.grid.addWidget(subframe,2,0,1,3)
+            self.add_sub_buttons(self.selected_action)
         self.grid.addItem(self.spacerItem,3,0,1,3)
 
-    def isDestroyed(self, *args):
-        pass
+
+
+    def add_sub_buttons(self, selected_action):
+        for i, arguments in enumerate(selected_action.action_inputs):
+            label = QLabel()
+            label.setObjectName("label")
+            label.setText(str(arguments.argument_caption))
+            if arguments.argument_type == str:
+                sub_button = QLineEdit()
+                sub_button.setText(arguments.default_value)
+                sub_button.textChanged[str].connect(self.get_text_changed)
+            elif arguments.argument_type == "checkable":
+                sub_button = QCheckBox()
+                sub_button.setChecked(arguments.default_value)
+                sub_button.stateChanged[int].connect(self.get_state_changed)
+            elif arguments.argument_type == bool:
+                sub_button = QRadioButton()
+                sub_button.setText(str(arguments.argument_caption))
+                label.setText("")
+                sub_button.setChecked(arguments.default_value)
+                sub_button.toggled.connect(self.radio_button_clicked)
+            elif arguments.argument_type == int:
+                sub_button = QSpinBox()
+                sub_button.setValue(arguments.default_value)
+                sub_button.valueChanged[int].connect(self.get_integer_changed)
+            elif arguments.argument_type == "combo":
+                sub_button = QComboBox()
+                # for enum in arguments.optional_argument:
+                    # sub_button.addItem(enum[1], enum[0])
+                sub_button.currentIndexChanged[int].connect(self.get_combobox_changed)
+            sub_button.setObjectName(str(arguments.argument_name))
+            if(label.text() == ""):
+                sub_grid.addWidget(sub_button, i+1, 0, 1, 2)
+            else:
+                sub_grid.addWidget(label, i+1, 0, 1, 1)
+                sub_grid.addWidget(sub_button, i+1, 1, 1, 1)
+            self.button_inputs_dict[arguments.argument_name] = arguments.default_value
+        self.grid.addWidget(subframe,2,0,1,3)
 
     def get_maximum_height(self):
         if (self.maximum_height_size < self.frame.minimumSizeHint().height()):
