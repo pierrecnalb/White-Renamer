@@ -19,14 +19,13 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
         self.files_collection = None
         self.all_action_descriptors = []
-        self.sub_action_descriptors = []
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
         self.file_or_folder = "file"
         if sys.platform == 'linux':
             self.frame_space = 20
             self.frame_width = 211
-            self.frame_height = 240
+            self.frame_height = 280
             self.button_width = 25
         elif sys.platform == 'win32' or sys.platform == 'win64':
             self.frame_space = 20
@@ -45,7 +44,6 @@ class MainWidget(QWidget):
     def init_actions(self):
         original_name_inputs = []
         case_change_inputs = []
-        case_change_inputs.append(ActionManager.ActionInput('case_choice', "", "combo", "titlecase"))
         first_letter_inputs = []
         first_letter_inputs.append(ActionManager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
         first_letter_inputs.append(ActionManager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
@@ -71,19 +69,20 @@ class MainWidget(QWidget):
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
         date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
-        #foldername_inputs.append(ActionManager.ActionInput())
+        # foldername_inputs.append(ActionManager.ActionInput())
         #ALL ACTION DESCRIPTOR
-        image_action_descriptors = ActionManager.ImageMetadataAction()
-        image_descriptor = image_action_descriptors.populate_image_action()
-        for image_action in image_descriptor:
-            self.all_action_descriptors.append(image_action)
+        # image_action_descriptors = ActionManager.ImageMetadataAction()
+        # image_descriptor = image_action_descriptors.populate_image_action()
+        # for image_action in image_descriptor:
+            # self.all_action_descriptors.append(image_action)
 
+        case_action_descriptors = []
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.LowerCaseAction))
 
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))

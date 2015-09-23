@@ -12,9 +12,10 @@ class ActionDescriptorGroup(object):
     Parameters:
         --action_descriptors: a list of ActionDescriptor.
     """
-    def __init__(self, action_name, action_descriptors):
+    def __init__(self, action_name, action_descriptors, action_class):
         self.action_name = action_name
         self.action_descriptors = action_descriptors
+        self.action_class = action_class
 
     def __repr__(self):
         """override string representation of the class"""
@@ -32,7 +33,6 @@ class ActionDescriptor(object):
         self.action_name = action_name
         self.action_inputs = action_inputs
         self.action_class = action_class
-        self.sub_action_descriptor = sub_action_descriptor
 
     def __repr__(self):
         """override string representation of the class"""
@@ -134,9 +134,11 @@ class CaseChangeAction(Action):
         --first_letter: boolean making first letter uppercase or lowercase.
         --after_symbols: list of symbols after which the letters are capitalized.
     """
-    def __init__(self, path_type, case_choice):
+    def __init__(self, path_type):
         Action.__init__(self, path_type)
-        self.case_choice = case_choice
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        return path_part
 
 class TitleCaseAction(CaseChangeAction):
     """
@@ -168,7 +170,7 @@ class TitleCaseAction(CaseChangeAction):
            path_part = path_part[0].upper() + path_part[1:]
        return path_part
 
-class UpperCaseAction(Action, CaseChangeAction):
+class UpperCaseAction(CaseChangeAction):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -177,13 +179,12 @@ class UpperCaseAction(Action, CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        Action.__init__(self, path_type)
         CaseChangeAction.__init__(self, 'uppercase')
 
     def call_on_path_part(self, file_system_tree_node, path_part):
        return path_part.upper()
 
-class LowerCaseAction(Action, CaseChangeAction):
+class LowerCaseAction(CaseChangeAction):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -192,7 +193,6 @@ class LowerCaseAction(Action, CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        Action.__init__(self, path_type)
         CaseChangeAction.__init__(self, 'lowercase')
 
     def call_on_path_part(self, file_system_tree_node, path_part):
@@ -284,26 +284,26 @@ class Counter(Action):
         counter += self.start_index
         return str(counter)
 
-class GenericImageAction(Action):
-    def __init__(self, path_type, metadata):
-        Action.__init__(self, path_type)
-        self.metadata = metadata
-
-    def call_on_path_part(self, file_system_tree_node, path_part):
-        tags = exifread.process_file(file_system_tree_node.get_original_path(), details=False)
-        return tags[self.metadata].values
-
-class ImageMetadataAction(Action, GenericImageAction):
-    def __init__(self, path_type, metadata):
-        Action.__init__(self, path_type)
-        GenericImageAction.__init__(self, path_type, metadata)
-        self.metadata = ['EXIF DateTimeOriginal', 'EXIF FNumber']
-        self.action_descriptors = []
-        action_input = []
-        for metadata in self.metadata:
-            self.action_descriptors.append(ActionDescriptor(metadata, action_input, GenericImageAction))
-
-    def populate_image_action(self):
-        return self.action_descriptors
-
+# class GenericImageAction(Action):
+    # def __init__(self, path_type, metadata):
+        # Action.__init__(self, path_type)
+        # self.metadata = metadata
+# 
+    # def call_on_path_part(self, file_system_tree_node, path_part):
+        # tags = exifread.process_file(file_system_tree_node.get_original_path(), details=False)
+        # return tags[self.metadata].values
+# 
+# class ImageMetadataAction(Action, GenericImageAction):
+    # def __init__(self, path_type, metadata):
+        # Action.__init__(self, path_type)
+        # GenericImageAction.__init__(self, path_type, metadata)
+        # self.metadata = ['EXIF DateTimeOriginal', 'EXIF FNumber']
+        # self.action_descriptors = []
+        # action_input = []
+        # for metadata in self.metadata:
+            # self.action_descriptors.append(ActionDescriptor(metadata, action_input, GenericImageAction))
+# 
+    # def populate_image_action(self):
+        # return self.action_descriptors
+# 
 
