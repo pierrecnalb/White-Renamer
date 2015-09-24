@@ -80,7 +80,7 @@ class Action(object):
                 elif(self.path_type == "extension"):
                     return file_system_tree_node
                 else:
-                    raise Exception("path_part not valid")
+                    raise Exception("part of path not valid")
 
         elif (file_or_folder == "file"):
             if (file_system_tree_node.is_folder is False):

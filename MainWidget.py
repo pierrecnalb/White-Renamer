@@ -276,7 +276,7 @@ class MainWidget(QWidget):
         self.populate_tree(self.model, self.root_tree_node, True)
         self.apply_action()
 
-    def apply_action(self):
+    def apply_action(self, selected_action, button_inputs):
         self.actions = []
         widget_number = self.scroll_area_layout.count()
         for i in range(1, widget_number-1): #do not count the stretch widget
@@ -292,7 +292,11 @@ class MainWidget(QWidget):
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
+        # print(actiongroup)
+        # print(path_part)
         (action_descriptor, action_args) = actiongroup.get_inputs()
+        # print(action_descriptor)
+        # print(action_args)
         action_class = action_descriptor.action_class
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)

@@ -10,13 +10,13 @@ import ActionManager
 
 
 class ActionButton(QWidget):
-    action_changed = Signal() # get changes in order to refresh the preview.
+    action_changed = Signal(object, object) # get changes in order to refresh the preview.
 
-    def __init__(self, action_descriptors, are_sub_buttons, button_inputs_dict = {}):
+    def __init__(self, action_descriptors, are_sub_buttons):
         QWidget.__init__(self)
         self.grid = QGridLayout(self)
         self.are_sub_buttons = are_sub_buttons
-        self.button_inputs_dict = button_inputs_dict
+        self.button_inputs_dict = {}
         combobox = QComboBox()
         combobox.setObjectName("action_selector")
         self.action_descriptors = action_descriptors
@@ -31,7 +31,8 @@ class ActionButton(QWidget):
 
     def change(self):
         ''' Change occurs on the layout. '''
-        self.action_changed.emit()
+        (selected_action, button_inputs) = self.get_inputs()
+        self.action_changed.emit(selected_action, button_inputs)
 
     def on_selected_action_changed(self, index):
         self.selected_action = self.action_descriptors[index]
@@ -61,7 +62,8 @@ class ActionButton(QWidget):
             option_label = QLabel("options :")
             option_label.setFont(font)
             sub_grid.addWidget(option_label, 0, 0, 1, 1)
-            sub_action_group = ActionButton(self.selected_action.action_descriptors, True, self.button_inputs_dict)
+            sub_action_group = ActionButton(self.selected_action.action_descriptors, True)
+            (self.selected_action, self.button_inputs_dict) = sub_action_group.get_inputs()
             sub_grid.addWidget(sub_action_group, 1, 0, 1, 1)
             self.selected_action = sub_action_group.get_selected_action()
             self.grid.addWidget(subframe,1,0,1,1)
@@ -145,7 +147,7 @@ class ActionButton(QWidget):
 
 
 class ActionButtonGroup(QWidget):
-    changed = Signal() # get changes in order to refresh the preview.
+    changed = Signal(object, object) # get changes in order to refresh the preview.
     """Group the combobox with the textboxes containing the subactions"""
     removed = Signal(QWidget) # emit a signal when the widget is removed.
     addedBefore = Signal(QWidget) 
@@ -212,9 +214,11 @@ class ActionButtonGroup(QWidget):
     def get_inputs(self):
         return self.action_group.get_inputs()
 
-    def change(self):
+    def change(self, selected_action, button_inputs):
         '''Emit signal when added.'''
-        self.changed.emit()
+        print(button_inputs)
+        print(selected_action)
+        self.changed.emit(selected_action, button_inputs)
 
     def on_add_prefix(self):
         '''Emit signal when added.'''
