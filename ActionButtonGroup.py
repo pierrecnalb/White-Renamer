@@ -17,31 +17,30 @@ class ActionButton(QWidget):
         self.grid = QGridLayout(self)
         self.are_sub_buttons = are_sub_buttons
         self.button_inputs_dict = {}
-        combobox = QComboBox()
-        combobox.setObjectName("action_selector")
+        self.combobox = QComboBox()
+        self.combobox.setObjectName("action_selector")
         self.action_descriptors = action_descriptors
         for element in self.action_descriptors:
-            combobox.addItem(str(element))
-        self.grid.addWidget(combobox, 0, 0, 1, 1)
-        self.selected_action = self.action_descriptors[0]
-        combobox.currentIndexChanged[int].connect(self.on_selected_action_changed)
+            self.combobox.addItem(str(element))
+        self.grid.addWidget(self.combobox, 0, 0, 1, 1)
+        self.combobox.currentIndexChanged[int].connect(self.on_combobox_changed)
         self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid.addItem(self.spacerItem,2,0,1,1)
-        self.populate_widget()
+        self.populate_widget(self.action_descriptors[0])
+        self.store_inputs()
 
     def change(self):
         ''' Change occurs on the layout. '''
-        (selected_action, button_inputs) = self.get_inputs()
-        self.action_changed.emit(selected_action, button_inputs)
+        self.store_inputs()
+        self.action_changed.emit(self.selected_action, self.action_inputs)
 
-    def on_selected_action_changed(self, index):
-        self.selected_action = self.action_descriptors[index]
+    def on_combobox_changed(self, index):
         self.button_inputs_dict = {}
-        self.populate_widget()
+        self.populate_widget(self.action_descriptors[index])
         self.change()
         #self.frame.resize(self.frame.minimumSizeHint())
 
-    def populate_widget(self):
+    def populate_widget(self, current_combo_selection):
         sub_buttons = self.grid.itemAtPosition(1,0)
         if sub_buttons is not None:
             widgetToRemove = sub_buttons.widget()
@@ -50,7 +49,7 @@ class ActionButton(QWidget):
             # remove it form the gui
             widgetToRemove.setParent(None)
 
-        if isinstance(self.selected_action, ActionManager.ActionDescriptorGroup):
+        if isinstance(current_combo_selection, ActionManager.ActionDescriptorGroup):
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
             subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
@@ -62,13 +61,12 @@ class ActionButton(QWidget):
             option_label = QLabel("options :")
             option_label.setFont(font)
             sub_grid.addWidget(option_label, 0, 0, 1, 1)
-            sub_action_group = ActionButton(self.selected_action.action_descriptors, True)
-            (self.selected_action, self.button_inputs_dict) = sub_action_group.get_inputs()
-            sub_grid.addWidget(sub_action_group, 1, 0, 1, 1)
-            self.selected_action = sub_action_group.get_selected_action()
+            self.sub_action_group = ActionButton(current_combo_selection.action_descriptors, True)
+            self.sub_action_group.action_changed.connect(self.change)
+            sub_grid.addWidget(self.sub_action_group, 1, 0, 1, 1)
             self.grid.addWidget(subframe,1,0,1,1)
             return
-        if self.selected_action.action_inputs != []:
+        if current_combo_selection.action_inputs != []:
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
             sub_grid = QGridLayout(subframe)
@@ -82,7 +80,7 @@ class ActionButton(QWidget):
                 option_label.setFont(font)
                 sub_grid.addWidget(option_label, 0, 0, 1, 1)
             # self.grid.addItem(self.spacerItem,2,0,1,3)
-            for i, arguments in enumerate(self.selected_action.action_inputs):
+            for i, arguments in enumerate(current_combo_selection.action_inputs):
                 label = QLabel()
                 label.setObjectName("label")
                 label.setText(str(arguments.argument_caption))
@@ -140,14 +138,17 @@ class ActionButton(QWidget):
         self.change()
 
     def get_inputs(self):
-        return self.selected_action, self.button_inputs_dict
+        return self.selected_action, self.action_inputs
 
-    def get_selected_action(self):
-        return self.selected_action
-
+    def store_inputs(self):
+        if isinstance(self.action_descriptors[self.combobox.currentIndex()], ActionManager.ActionDescriptorGroup):
+            (self.selected_action, self.action_inputs) = self.sub_action_group.get_inputs()
+        else:
+            self.selected_action = self.action_descriptors[self.combobox.currentIndex()]
+            self.action_inputs = self.button_inputs_dict
 
 class ActionButtonGroup(QWidget):
-    changed = Signal(object, object) # get changes in order to refresh the preview.
+    changed = Signal() # get changes in order to refresh the preview.
     """Group the combobox with the textboxes containing the subactions"""
     removed = Signal(QWidget) # emit a signal when the widget is removed.
     addedBefore = Signal(QWidget) 
@@ -155,6 +156,8 @@ class ActionButtonGroup(QWidget):
 
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height, frame_type):
         QWidget.__init__(self)
+        # self.selected_action = None
+        # self.button_inputs_dict = {}
         self.maximum_height_size = frame_height
         self.maximum_width_size = frame_width
         self.frame_type = frame_type
@@ -210,15 +213,16 @@ class ActionButtonGroup(QWidget):
         self.action_group.action_changed.connect(self.change)
         self.grid.addWidget(self.action_group, 1, 0, 1, 3)
         self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
+        (self.selected_action, self.action_inputs) = self.action_group.get_inputs()
 
     def get_inputs(self):
-        return self.action_group.get_inputs()
+        return (self.selected_action, self.action_inputs)
 
     def change(self, selected_action, button_inputs):
         '''Emit signal when added.'''
-        print(button_inputs)
-        print(selected_action)
-        self.changed.emit(selected_action, button_inputs)
+        self.selected_action = selected_action
+        self.action_inputs = button_inputs
+        self.changed.emit()
 
     def on_add_prefix(self):
         '''Emit signal when added.'''

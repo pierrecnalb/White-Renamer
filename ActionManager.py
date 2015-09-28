@@ -80,7 +80,7 @@ class Action(object):
                 elif(self.path_type == "extension"):
                     return file_system_tree_node
                 else:
-                    raise Exception("part of path not valid")
+                    raise Exception("path_type not valid")
 
         elif (file_or_folder == "file"):
             if (file_system_tree_node.is_folder is False):
@@ -93,7 +93,7 @@ class Action(object):
                 elif(self.path_type == "extension"):
                     file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
                 else:
-                    raise Exception("path_part not valid")
+                    raise Exception("path_type not valid")
         return file_system_tree_node
 
     def call_on_path_part(self, file_system_tree_node, path_part):
@@ -149,7 +149,7 @@ class TitleCaseAction(CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        CaseChangeAction.__init__(self, 'first_letter')
+        CaseChangeAction.__init__(self, path_type)
         self.first_letter = first_letter
         self.after_symbols = after_symbols
 
@@ -179,7 +179,7 @@ class UpperCaseAction(CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        CaseChangeAction.__init__(self, 'uppercase')
+        CaseChangeAction.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
        return path_part.upper()
@@ -193,7 +193,7 @@ class LowerCaseAction(CaseChangeAction):
         --after_symbols: list of symbols after which the letters are capitalized.
     """
     def __init__(self, path_type, first_letter = True, after_symbols = ""):
-        CaseChangeAction.__init__(self, 'lowercase')
+        CaseChangeAction.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         return path_part.lower()
@@ -284,26 +284,21 @@ class Counter(Action):
         counter += self.start_index
         return str(counter)
 
-# class GenericImageAction(Action):
-    # def __init__(self, path_type, metadata):
-        # Action.__init__(self, path_type)
-        # self.metadata = metadata
-# 
-    # def call_on_path_part(self, file_system_tree_node, path_part):
-        # tags = exifread.process_file(file_system_tree_node.get_original_path(), details=False)
-        # return tags[self.metadata].values
-# 
-# class ImageMetadataAction(Action, GenericImageAction):
-    # def __init__(self, path_type, metadata):
-        # Action.__init__(self, path_type)
-        # GenericImageAction.__init__(self, path_type, metadata)
-        # self.metadata = ['EXIF DateTimeOriginal', 'EXIF FNumber']
-        # self.action_descriptors = []
-        # action_input = []
-        # for metadata in self.metadata:
-            # self.action_descriptors.append(ActionDescriptor(metadata, action_input, GenericImageAction))
-# 
-    # def populate_image_action(self):
-        # return self.action_descriptors
-# 
+class GenericImageAction(Action):
+    def __init__(self, path_type, metadata):
+        Action.__init__(self, path_type)
+        self.metadata = metadata
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        f = open(file_system_tree_node.get_original_path(), 'rb')
+        tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
+        return tags[self.metadata].values
+
+class ImageDateTimeOriginal(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
+
+    def populate_image_action(self):
+        return self.action_descriptors
+
 

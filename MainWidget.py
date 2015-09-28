@@ -69,6 +69,8 @@ class MainWidget(QWidget):
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
         date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
+        image_metadata_inputs = []
+        image_date_time_original = []
         # foldername_inputs.append(ActionManager.ActionInput())
         #ALL ACTION DESCRIPTOR
         # image_action_descriptors = ActionManager.ImageMetadataAction()
@@ -80,6 +82,8 @@ class MainWidget(QWidget):
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.LowerCaseAction))
+        image_action_descriptors = []
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Date"), image_date_time_original, ActionManager.ImageDateTimeOriginal))
 
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
@@ -90,14 +94,17 @@ class MainWidget(QWidget):
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, ActionManager.GenericImageAction))
         #PREFIX ACTION DESCRIPTOR
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
+
+
         #EXTENSION ACTION DESCRIPTOR
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Case"), case_change_inputs, ActionManager.CaseChangeAction))
+        self.extension_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
         self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
@@ -276,7 +283,7 @@ class MainWidget(QWidget):
         self.populate_tree(self.model, self.root_tree_node, True)
         self.apply_action()
 
-    def apply_action(self, selected_action, button_inputs):
+    def apply_action(self):
         self.actions = []
         widget_number = self.scroll_area_layout.count()
         for i in range(1, widget_number-1): #do not count the stretch widget
