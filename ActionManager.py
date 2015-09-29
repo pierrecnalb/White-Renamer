@@ -295,10 +295,43 @@ class GenericImageAction(Action):
         return tags[self.metadata].values
 
 class ImageDateTimeOriginal(GenericImageAction):
-    def __init__(self, path_type):
+    def __init__(self, path_type, format_display):
         GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
+        self.format_display = format_display
 
-    def populate_image_action(self):
-        return self.action_descriptors
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        if self.is_modified_date:
+            file_date = os.path.getmtime(file_system_tree_node.get_original_path())
+        elif self.is_created_date:
+            file_date = os.path.getctime(file_system_tree_node.get_original_path())
+        return time.strftime(self.format_display, time.localtime(file_date))
 
+
+class ImageFNumber(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF FNumber')
+
+class ImageExposureTime(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF ExposureTime')
+
+class ImageISO(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF ISOSpeedRatings')
+
+class ImageCameraModel(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'Image Model')
+
+class ImageWidth(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF ExifImageWidth')
+
+class ImageLength(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF ExifImageLength')
+
+class ImageFocalLength(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'EXIF FocalLength')
 
