@@ -74,11 +74,24 @@ class MainWindow(QMainWindow):
         filterInput.textChanged[str].connect(self.get_filter_input)
         
         node_type_selector = QComboBox()
-        node_type_selector = QComboBox()
         node_type_selector.setObjectName('selector')
         node_type_selector.addItems([self.tr("Rename Files"), self.tr("Rename Folders")])
         node_type_selector.currentIndexChanged[int].connect(self.on_selector_changed)
 
+        file_type = QActionGroup(self)
+        self.action_all_files = QAction(self.tr("All"),self)
+        self.action_all_files = self.edit_action(self.action_all_files, self.all_files_click, None, None, None,self.tr('Rename files of any kind.'))
+        self.action_all_files.setCheckable(True)
+        self.action_all_files.setChecked(True)
+        self.action_music_files = QAction(self.tr("Music"),self)
+        self.action_music_files = self.edit_action(self.action_music_files, self.music_files_click, None, None, None,self.tr('Rename only music files.'))
+        self.action_music_files.setCheckable(True)
+        self.action_image_files = QAction(self.tr("Images"),self)
+        self.action_image_files = self.edit_action(self.action_image_files, self.image_files_click, None, None, None,self.tr('Rename only image files.'))
+        self.action_image_files.setCheckable(True)
+        file_type.addAction(self.action_all_files)
+        file_type.addAction(self.action_image_files)
+        file_type.addAction(self.action_music_files)
         # CREATE THE MENU BAR
         menubar = self.menuBar()
         #FILE
@@ -117,7 +130,9 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_recursion)
         self.main_toolbar.addSeparator()
         self.main_toolbar.addWidget(node_type_selector)
-        self.main_toolbar.addSeparator()
+        self.main_toolbar.addAction(self.action_all_files)
+        self.main_toolbar.addAction(self.action_image_files)
+        self.main_toolbar.addAction(self.action_music_files)
         self.main_toolbar.addWidget(filterInput)
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_rename)
@@ -133,6 +148,15 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.main_widget)
 
     def on_selector_changed(self, index):
+        if (index == 1):
+            self.action_music_files.setEnabled(False)
+            self.action_all_files.setEnabled(False)
+            self.action_image_files.setEnabled(False)
+        else:
+            self.action_music_files.setEnabled(True)
+            self.action_all_files.setEnabled(True)
+            self.action_image_files.setEnabled(True)
+
         self.main_widget.on_selector_changed(index)
 
     def get_main_widget(self):
@@ -171,6 +195,13 @@ class MainWindow(QMainWindow):
         elif os.name == 'posix':
             subprocess.call(('xdg-open', filepath))
 
+    def music_files_click(self):
+        self.filters = ""
+    def image_files_click(self):
+        self.filters = ""
+        
+    def all_files_click(self):
+        self.filters = ""
 
     def about_box_click(self):
         '''Popup a box with about message.'''
@@ -205,9 +236,6 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
-        #Aself.directory = os.path.join(os.path.dirname(__file__),"UnitTest","Test Directory")
-        #self.directory ="/home/pierre/Desktop/Test"
-        #self.directory = r"C:\Users\pblanc\Desktop\test"
         self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters)
 
     @Slot()

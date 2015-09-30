@@ -4,7 +4,7 @@ import os
 import time
 import re
 import pdb
-import exifread
+from gi.repository import GExiv2
 
 class ActionDescriptorGroup(object):
     """
@@ -290,48 +290,45 @@ class GenericImageAction(Action):
         self.metadata = metadata
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        f = open(file_system_tree_node.get_original_path(), 'rb')
-        tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
-        return tags[self.metadata].values
+        try:
+            exif = GExiv2.Metadata(file_system_tree_node.get_original_path())
+            return exif[self.metadata]
+        except:
+            return path_part
+
 
 class ImageDateTimeOriginal(GenericImageAction):
-    def __init__(self, path_type, format_display):
-        GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
-        self.format_display = format_display
-
-    def call_on_path_part(self, file_system_tree_node, path_part):
-        if self.is_modified_date:
-            file_date = os.path.getmtime(file_system_tree_node.get_original_path())
-        elif self.is_created_date:
-            file_date = os.path.getctime(file_system_tree_node.get_original_path())
-        return time.strftime(self.format_display, time.localtime(file_date))
-
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.DateTimeOriginal')
 
 class ImageFNumber(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF FNumber')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.FNumber')
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF ExposureTime')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.ExposureTime')
 
 class ImageISO(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF ISOSpeedRatings')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.ISOSpeedRatings')
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'Image Model')
+        GenericImageAction.__init__(self, path_type, 'Exif.Image.Model')
 
-class ImageWidth(GenericImageAction):
+class ImageXDimension(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF ExifImageWidth')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.PixelXDimension')
 
-class ImageLength(GenericImageAction):
+class ImageYDimension(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF ExifImageLength')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.PixelYDimension')
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF FocalLength')
+        GenericImageAction.__init__(self, path_type, 'Exif.Photo.FocalLength')
 
+class ImageArtist(GenericImageAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'Exif.Image.Artist')

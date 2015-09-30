@@ -71,19 +71,28 @@ class MainWidget(QWidget):
         foldername_inputs = []
         image_metadata_inputs = []
         image_date_time_original = []
-        # foldername_inputs.append(ActionManager.ActionInput())
-        #ALL ACTION DESCRIPTOR
-        # image_action_descriptors = ActionManager.ImageMetadataAction()
-        # image_descriptor = image_action_descriptors.populate_image_action()
-        # for image_action in image_descriptor:
-            # self.all_action_descriptors.append(image_action)
-
+        image_f_number = []
+        image_exposure_time = []
+        image_iso = []
+        image_camera_model = []
+        image_x_dimension = []
+        image_y_dimension = []
+        image_focal_length = []
+        image_artist = []
         case_action_descriptors = []
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.LowerCaseAction))
         image_action_descriptors = []
         image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Date"), image_date_time_original, ActionManager.ImageDateTimeOriginal))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("F Number"), image_f_number, ActionManager.ImageFNumber))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Exposure"), image_exposure_time, ActionManager.ImageExposureTime))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("ISO"), image_iso, ActionManager.ImageISO))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Camera Model"), image_camera_model, ActionManager.ImageCameraModel))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("X Dimension"), image_x_dimension, ActionManager.ImageXDimension))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Y Dimension"), image_y_dimension, ActionManager.ImageYDimension))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Focal Length"), image_focal_length, ActionManager.ImageFocalLength))
+        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Artist"), image_artist, ActionManager.ImageArtist))
 
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
