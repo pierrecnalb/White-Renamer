@@ -68,15 +68,28 @@ class MainWindow(QMainWindow):
         self.action_creation_date_sorting = QAction(self.tr('By Creation Date'), self)
         self.action_creation_date_sorting.setCheckable(True)
         self.action_creation_date_sorting = self.edit_action(self.action_creation_date_sorting, self.creation_date_sorting_click, None, None, None,self.tr('Sort the files/folders by creation date.'))
+        sort_group = QActionGroup(self)
+        sort_group.addAction(self.action_name_sorting)
+        sort_group.addAction(self.action_size_sorting)
+        sort_group.addAction(self.action_modified_date_sorting)
+        sort_group.addAction(self.action_creation_date_sorting)
+
         filterInput = QLineEdit()
         filterInput.setPlaceholderText(self.tr("Filter Files..."))
         filterInput.setMaximumWidth(150)
         filterInput.textChanged[str].connect(self.get_filter_input)
+        self.action_files_only = QAction(self.tr('Files only'), self)
+        self.action_files_only.setCheckable(True)
+        self.action_files_only.setChecked(True)
+        self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, None,self.tr('Rename only files.'))
+        self.action_folders_only = QAction(self.tr('Folders only'), self)
+        self.action_folders_only.setCheckable(True)
+        self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, None,self.tr('Rename only folders.'))
         
-        node_type_selector = QComboBox()
+        node_type_selector = QActionGroup(self)
         node_type_selector.setObjectName('selector')
-        node_type_selector.addItems([self.tr("Rename Files"), self.tr("Rename Folders")])
-        node_type_selector.currentIndexChanged[int].connect(self.on_selector_changed)
+        node_type_selector.addAction(self.action_files_only)
+        node_type_selector.addAction(self.action_folders_only)
 
         file_type = QActionGroup(self)
         self.action_all_files = QAction(self.tr("All"),self)
@@ -110,6 +123,13 @@ class MainWindow(QMainWindow):
         menu_edit.addAction(self.action_modified_date_sorting)
         menu_edit.addSeparator()
         menu_edit.addAction(self.action_reverse_sorting)
+        menu_filter = menubar.addMenu(self.tr('&Filter'))
+        menu_filter.addAction(self.action_files_only)
+        menu_filter.addAction(self.action_folders_only)
+        menu_filter.addSeparator()
+        menu_filter.addAction(self.action_all_files)
+        menu_filter.addAction(self.action_image_files)
+        menu_filter.addAction(self.action_music_files)
         #menu_edit.addAction(self.action_add_prefix)
         #menu_edit.addAction(self.action_add_suffix)
         #menu_edit.addAction(self.action_remove_prefix)
@@ -129,7 +149,9 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_hide)
         self.main_toolbar.addAction(self.action_recursion)
         self.main_toolbar.addSeparator()
-        self.main_toolbar.addWidget(node_type_selector)
+        self.main_toolbar.addAction(self.action_files_only)
+        self.main_toolbar.addAction(self.action_folders_only)
+        self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_all_files)
         self.main_toolbar.addAction(self.action_image_files)
         self.main_toolbar.addAction(self.action_music_files)
@@ -147,17 +169,17 @@ class MainWindow(QMainWindow):
         self.main_widget = MainWidget.MainWidget()
         self.setCentralWidget(self.main_widget)
 
-    def on_selector_changed(self, index):
-        if (index == 1):
-            self.action_music_files.setEnabled(False)
-            self.action_all_files.setEnabled(False)
-            self.action_image_files.setEnabled(False)
-        else:
-            self.action_music_files.setEnabled(True)
-            self.action_all_files.setEnabled(True)
-            self.action_image_files.setEnabled(True)
+    def files_only_click(self):
+        self.action_all_files.setEnabled(True)
+        self.action_image_files.setEnabled(True)
+        self.action_music_files.setEnabled(True)
+        self.main_widget.on_selector_changed(0)
 
-        self.main_widget.on_selector_changed(index)
+    def folders_only_click(self):
+        self.action_all_files.setEnabled(False)
+        self.action_image_files.setEnabled(False)
+        self.action_music_files.setEnabled(False)
+        self.main_widget.on_selector_changed(1)
 
     def get_main_widget(self):
         return self.main_widget
@@ -258,34 +280,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def name_sorting_click(self):
-        self.action_name_sorting.setChecked(True)
-        self.action_creation_date_sorting.setChecked(False)
-        self.action_modified_date_sorting.setChecked(False)
-        self.action_size_sorting.setChecked(False)
         self.sorting_criteria = "name"
         self.update_directory()
     @Slot()
     def size_sorting_click(self):
-        self.action_size_sorting.setChecked(True)
-        self.action_name_sorting.setChecked(False)
-        self.action_creation_date_sorting.setChecked(False)
-        self.action_modified_date_sorting.setChecked(False)
         self.sorting_criteria = "size"
         self.update_directory()
     @Slot()
     def creation_date_sorting_click(self):
-        self.action_creation_date_sorting.setChecked(True)
-        self.action_name_sorting.setChecked(False)
-        self.action_modified_date_sorting.setChecked(False)
-        self.action_size_sorting.setChecked(False)
         self.sorting_criteria = "creation_date"
         self.update_directory()
     @Slot()
     def modified_date_sorting_click(self):
-        self.action_modified_date_sorting.setChecked(True)
-        self.action_name_sorting.setChecked(False)
-        self.action_creation_date_sorting.setChecked(False)
-        self.action_size_sorting.setChecked(False)
         self.sorting_criteria = "modified_date"
         self.update_directory()
 
