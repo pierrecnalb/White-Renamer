@@ -5,6 +5,7 @@ import time
 import re
 import pdb
 from gi.repository import GExiv2
+from mutage.easyid3 import EasyID3
 
 class ActionDescriptorGroup(object):
     """
@@ -332,3 +333,36 @@ class ImageFocalLength(GenericImageAction):
 class ImageArtist(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'Exif.Image.Artist')
+
+
+
+
+
+class GenericMusicAction(Action):
+    def __init__(self, path_type, metadata):
+        Action.__init__(self, path_type)
+        self.metadata = metadata
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            audio = EasyID3(file_system_tree_node.get_original_path())
+            return audio[self.metadata]
+        except:
+            return path_part
+
+class MusicArtist(GenericMusicAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'artist')
+class MusicTitle(GenericMusicAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'title')
+class MusicDate(GenericMusicAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'date')
+class MusicAlbum(GenericMusicAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'album')
+class MusicGenre(GenericMusicAction):
+    def __init__(self, path_type):
+        GenericImageAction.__init__(self, path_type, 'genre')
+
