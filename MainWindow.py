@@ -23,8 +23,8 @@ class MainWindow(QMainWindow):
         self.reverse_order = False
         self.resize(1000, 800)
         # self.showMaximized()
-        self.filters = ""
-        self.type_filter = []
+        self.filters = ['']
+        self.type_filters = []
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
@@ -171,16 +171,20 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.main_widget)
 
     def files_only_click(self):
+        self.type_filters = []
         self.action_all_files.setEnabled(True)
         self.action_image_files.setEnabled(True)
         self.action_music_files.setEnabled(True)
         self.main_widget.on_selector_changed(0)
+        self.update_directory()
 
     def folders_only_click(self):
+        self.type_filters = ["folders"]
         self.action_all_files.setEnabled(False)
         self.action_image_files.setEnabled(False)
         self.action_music_files.setEnabled(False)
         self.main_widget.on_selector_changed(1)
+        self.update_directory()
 
     def get_main_widget(self):
         return self.main_widget
@@ -219,14 +223,14 @@ class MainWindow(QMainWindow):
             subprocess.call(('xdg-open', filepath))
 
     def music_files_click(self):
-        self.filters = []
+        self.type_filters = ['.flac', '.mp3', '.m4a']
         self.update_directory()
     def image_files_click(self):
-        self.filters = [.jpg, .tif, .png, .gif, .bmp, .eps, .im, .jfif, .j2p, .jpx, .pcx, .ico, .icns, .psd]
+        self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd']
         self.update_directory()
         
     def all_files_click(self):
-        self.filters = []
+        self.type_filters = []
         self.update_directory()
 
     def about_box_click(self):
@@ -262,7 +266,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
-        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters)
+        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
 
     @Slot()
     def add_prefix_click(self):
@@ -300,7 +304,7 @@ class MainWindow(QMainWindow):
         self.update_directory()
 
     def update_directory(self):
-            self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters)
+            self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
             self.main_widget.apply_action()
 
     @Slot()

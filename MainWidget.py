@@ -79,6 +79,13 @@ class MainWidget(QWidget):
         image_y_dimension = []
         image_focal_length = []
         image_artist = []
+        music_metadata_inputs = []
+        music_artist = []
+        music_title = []
+        music_year = []
+        music_album = []
+        music_genre = []
+        music_track = []
         case_action_descriptors = []
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
         case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
@@ -93,6 +100,13 @@ class MainWidget(QWidget):
         image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Y Dimension"), image_y_dimension, ActionManager.ImageYDimension))
         image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Focal Length"), image_focal_length, ActionManager.ImageFocalLength))
         image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Artist"), image_artist, ActionManager.ImageArtist))
+        music_action_descriptors = []
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Artist"), music_artist, ActionManager.MusicArtist))
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Title"), music_title, ActionManager.MusicTitle))
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Year"), music_year, ActionManager.MusicYear))
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Album"), music_album, ActionManager.MusicAlbum))
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Genre"), music_genre, ActionManager.MusicGenre))
+        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Track"), music_track, ActionManager.MusicTrack))
 
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
@@ -104,11 +118,14 @@ class MainWidget(QWidget):
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
         self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
         self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, ActionManager.GenericImageAction))
+        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, ActionManager.GenericMusicAction))
         #PREFIX ACTION DESCRIPTOR
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
         self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, ActionManager.GenericImageAction))
+        self.prefix_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, ActionManager.GenericMusicAction))
 
 
         #EXTENSION ACTION DESCRIPTOR
@@ -232,7 +249,7 @@ class MainWidget(QWidget):
     def create_folder(self, name):
         os.makedirs(os.path.join(self.directory, name))
         
-    def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters):
+    def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters, type_filters):
         """Process the selected directory to create the tree and modify the files"""
         self.recursion = recursion
         self.show_hidden_files = show_hidden_files
@@ -241,10 +258,11 @@ class MainWidget(QWidget):
         tree = self.main_grid.itemAtPosition(2,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters)
+        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters, type_filters)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
+        self.treeView.expandAll()
         self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
