@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.resize(1000, 800)
         # self.showMaximized()
         self.filters = ""
+        self.type_filter = []
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
@@ -185,7 +186,7 @@ class MainWindow(QMainWindow):
         return self.main_widget
 
     def get_filter_input(self, value):
-        self.filters = value
+        self.filters = value.split(',')
         self.update_directory()
 
     def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
@@ -218,12 +219,15 @@ class MainWindow(QMainWindow):
             subprocess.call(('xdg-open', filepath))
 
     def music_files_click(self):
-        self.filters = ""
+        self.filters = []
+        self.update_directory()
     def image_files_click(self):
-        self.filters = ""
+        self.filters = [.jpg, .tif, .png, .gif, .bmp, .eps, .im, .jfif, .j2p, .jpx, .pcx, .ico, .icns, .psd]
+        self.update_directory()
         
     def all_files_click(self):
-        self.filters = ""
+        self.filters = []
+        self.update_directory()
 
     def about_box_click(self):
         '''Popup a box with about message.'''
