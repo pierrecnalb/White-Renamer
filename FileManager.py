@@ -199,7 +199,7 @@ class FilesCollection(object):
         --reverse_order: boolean that specifies the sorting order. Default is 'False'.
     """
 
-    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters =""):
+    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters =[]):
         self.input_path = input_path
         (self.root_folder, basename)=os.path.split(self.input_path)
         self.use_subdirectory = use_subdirectory
@@ -230,7 +230,14 @@ class FilesCollection(object):
                 else:
                     self.scan(file_system_child_node, sorting_criteria, reverse_order, filters)
             else:
-                if filters == "" or filters in child:
+                if filters != []:
+                    for filter in filters:
+                        if filter in child:
+                            file_rank += 1
+                            file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
+                            tree_node.add_children(file_system_child_node)
+                            break
+                elif filters == []:
                     file_rank += 1
                     file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
                     tree_node.add_children(file_system_child_node)
