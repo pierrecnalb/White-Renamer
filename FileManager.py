@@ -222,9 +222,13 @@ class FilesCollection(object):
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
-                folder_rank += 1
-                file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, folder_rank)
-                tree_node.add_children(file_system_child_node)
+                if filters != ['']:
+                    for filter in filters:
+                        if filter in child:
+                            file_system_child_node = self.add_folder(file_rank, tree_node, child)
+                            break
+                elif filters == ['']:
+                    file_system_child_node = self.add_folder(file_rank, tree_node, child)
                 if (not self.use_subdirectory):
                     continue
                 else:
@@ -238,19 +242,31 @@ class FilesCollection(object):
                             if filters != ['']:
                                 for filter in filters:
                                     if filter in child:
-                                        file_rank += 1
-                                        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
-                                        tree_node.add_children(file_system_child_node)
+                                        self.add_file(file_rank, tree_node, child)
                                         break
                             elif filters == ['']:
-                                file_rank += 1
-                                file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
-                                tree_node.add_children(file_system_child_node)
+                                self.add_file(file_rank, tree_node, child)
                                 break
                 elif type_filters == []:
-                    file_rank += 1
-                    file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
-                    tree_node.add_children(file_system_child_node)
+                    if filters != ['']:
+                        for filter in filters:
+                            if filter in child:
+                                self.add_file(file_rank, tree_node, child)
+                                break
+                    elif filters == ['']:
+                        self.add_file(file_rank, tree_node, child)
+
+
+    def add_file(self, file_rank, tree_node, child):
+        file_rank += 1
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, file_rank)
+        tree_node.add_children(file_system_child_node)
+
+    def add_folder(self, folder_rank, tree_node, child):
+        folder_rank += 1
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, folder_rank)
+        tree_node.add_children(file_system_child_node)
+        return file_system_child_node
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)

@@ -71,6 +71,7 @@ class ActionButton(QWidget):
             subframe.setObjectName("subframe")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
+            sub_grid.setFixedSize()
             if self.are_sub_buttons is False:
                 subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
                 font = QFont()
