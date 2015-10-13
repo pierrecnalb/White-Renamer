@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.resize(1000, 800)
         # self.showMaximized()
         self.filters = ['']
-        self.type_filters = []
+        self.type_filters = ['*.*']
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
@@ -171,7 +171,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.main_widget)
 
     def files_only_click(self):
-        self.type_filters = []
+        self.type_filters = ['*.*']
         self.action_all_files.setEnabled(True)
         self.action_image_files.setEnabled(True)
         self.action_music_files.setEnabled(True)
@@ -226,11 +226,11 @@ class MainWindow(QMainWindow):
         self.type_filters = ['.flac', '.mp3', '.m4a']
         self.update_directory()
     def image_files_click(self):
-        self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd']
+        self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
         self.update_directory()
         
     def all_files_click(self):
-        self.type_filters = []
+        self.type_filters = ['*.*']
         self.update_directory()
 
     def about_box_click(self):

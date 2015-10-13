@@ -290,74 +290,112 @@ class GenericImageAction(Action):
         Action.__init__(self, path_type)
         self.metadata = metadata
 
-    def format_output(self, output):
-            return output
-
-    def call_on_path_part(self, file_system_tree_node, path_part):
-        try:
-            f = open(file_system_tree_node.get_original_path(), 'rb')
-            tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
-            path_part = tags[self.metadata].values
-            return format_output(path_part)
-        except:
-            return path_part
+    def get_exif_tag(self, file):
+        f = open(file, 'rb')
+        tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
+        exif_tag = tags[self.metadata].values
+        return exif_tag
         
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, path_type):#, time_format):
    #     self.time_format = time_format
         GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
+        
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return exif_tag
+        except:
+            return path_part
 
-##    def format_output(path_part)
-##        time.strftime(self.time_format, time.localtime(path_part))
 
 class ImageFNumber(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF FNumber')
         
-    def format_output(path_part):
-        return path_part[0].num/path_part[0].den
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0].num/exif_tag[0].den)
+        except:
+            return path_part        
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF ExposureTime')
-
-    def format_output(path_part):
-        return path_part[0].num/path_part[0].den
+    
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0].num/exif_tag[0].den)
+        except:
+            return path_part     
 
 class ImageISO(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF ISOSpeedRatings')
 
-    def format_output(path_part):
-        return path_part[0]
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0])
+        except:
+            return path_part     
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'Image Model')
-
+    
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return exif_tag
+        except:
+            return path_part  
+            
 class ImageXDimension(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF ExifImageWidth')
-    def format_output(path_part):
-        return path_part[0]
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0])
+        except:
+            return path_part  
 
 class ImageYDimension(GenericImageAction):
     def __init__(self, path_type):
-        GenericImageAction.__init__(self, path_type, 'EXIF Exif ExifImageLength')
-    def format_output(path_part):
-        return path_part[0]
+        GenericImageAction.__init__(self, path_type, 'EXIF ExifImageLength')
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0])
+        except:
+            return path_part  
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF FocalLength')
-    def format_output(path_part):
-        return path_part[0]
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return str(exif_tag[0].num/exif_tag[0].den)
+        except:
+            return path_part  
 
 class ImageArtist(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'Image Artist')
 
-
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
+            return exif_tag
+        except:
+            return path_part  
 
 
 
