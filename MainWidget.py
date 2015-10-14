@@ -71,6 +71,8 @@ class MainWidget(QWidget):
         foldername_inputs = []
         image_metadata_inputs = []
         image_date_time_original = []
+        image_date_time_original.append(ActionManager.ActionInput('time_format', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S"))
+
         image_f_number = []
         image_exposure_time = []
         image_iso = []
