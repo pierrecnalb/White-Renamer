@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
         self.reverse_order = False
         self.resize(1000, 800)
         # self.showMaximized()
-        self.filters = ['']
+        self.filters = ''
         self.type_filters = ['*.*']
 
         #CREATE THE ACTIONS
@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
         return self.main_widget
 
     def get_filter_input(self, value):
-        self.filters = value.split(',')
+        self.filters = value
         self.update_directory()
 
     def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
