@@ -297,14 +297,16 @@ class GenericImageAction(Action):
         return exif_tag
         
 class ImageDateTimeOriginal(GenericImageAction):
-    def __init__(self, path_type):#, time_format):
+    def __init__(self, path_type, time_format):#, time_format):
    #     self.time_format = time_format
         GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
+        self.time_format = time_format
         
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
-            return exif_tag
+            localtime = time.strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
+            return time.strftime(self.time_format, localtime)
         except:
             return path_part
 
