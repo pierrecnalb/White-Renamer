@@ -199,7 +199,7 @@ class FilesCollection(object):
         --reverse_order: boolean that specifies the sorting order. Default is 'False'.
     """
 
-    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters = [], type_filters = []):
+    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters = "", type_filters = []):
         self.input_path = input_path
         (self.root_folder, basename)=os.path.split(self.input_path)
         self.use_subdirectory = use_subdirectory
@@ -222,13 +222,12 @@ class FilesCollection(object):
             if child[0] == '.' and not self.show_hidden_files:
                 continue
             if os.path.isdir(os.path.join(path,child)):
-                # if filters != ['']:
-                    # for filter in filters:
-                        # if filter in child:
-                            # file_system_child_node = self.add_folder(file_rank, tree_node, child)
-                            # break
-                # elif filters == ['']:
-                file_system_child_node = self.add_folder(file_rank, tree_node, child)
+                if filters != "":
+                    if filters in child:
+                        file_system_child_node = self.add_folder(file_rank, tree_node, child)
+                        break
+                elif filters == "":
+                    file_system_child_node = self.add_folder(file_rank, tree_node, child)
                 if (not self.use_subdirectory):
                     continue
                 else:
@@ -239,21 +238,19 @@ class FilesCollection(object):
                 if type_filters != ['*.*']:
                     for type_filter in type_filters:
                         if type_filter in os.path.splitext(child)[1].lower():
-                            if filters != ['']:
-                                for filter in filters:
-                                    if filter in child:
-                                        self.add_file(file_rank, tree_node, child)
-                                        break
-                            elif filters == ['']:
+                            if filters != "":
+                                if filters in child:
+                                    self.add_file(file_rank, tree_node, child)
+                                    break
+                            elif filters == "":
                                 self.add_file(file_rank, tree_node, child)
                                 break
                 elif type_filters == ['*.*']:
-                    if filters != ['']:
-                        for filter in filters:
-                            if filter in child:
-                                self.add_file(file_rank, tree_node, child)
-                                break
-                    elif filters == ['']:
+                    if filters != "":
+                        if filters in child:
+                            self.add_file(file_rank, tree_node, child)
+                            break
+                    elif filters == "":
                         self.add_file(file_rank, tree_node, child)
 
 
