@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
-        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
+        self.action_open = self.edit_action(self.action_open, self.open_directorall_files_icon.svgy_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
         self.action_exit = QAction(self.tr('&Exit'), self)
         self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', "exit_icon.svg", self.tr('Exit the application.'))
         self.action_help = QAction(self.tr('&Help'), self)
@@ -82,10 +82,10 @@ class MainWindow(QMainWindow):
         self.action_files_only = QAction(self.tr('Files only'), self)
         self.action_files_only.setCheckable(True)
         self.action_files_only.setChecked(True)
-        self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, None,self.tr('Rename only files.'))
+        self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, "file_icon.svg",self.tr('Rename only files.'))
         self.action_folders_only = QAction(self.tr('Folders only'), self)
         self.action_folders_only.setCheckable(True)
-        self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, None,self.tr('Rename only folders.'))
+        self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, "folder_icon.svg",self.tr('Rename only folders.'))
         
         node_type_selector = QActionGroup(self)
         node_type_selector.setObjectName('selector')
@@ -94,14 +94,14 @@ class MainWindow(QMainWindow):
 
         file_type = QActionGroup(self)
         self.action_all_files = QAction(self.tr("All"),self)
-        self.action_all_files = self.edit_action(self.action_all_files, self.all_files_click, None, None, None,self.tr('Rename files of any kind.'))
+        self.action_all_files = self.edit_action(self.action_all_files, self.all_files_click, None, None, "all_files_icon.svg",self.tr('Rename files of any kind.'))
         self.action_all_files.setCheckable(True)
         self.action_all_files.setChecked(True)
         self.action_music_files = QAction(self.tr("Music"),self)
-        self.action_music_files = self.edit_action(self.action_music_files, self.music_files_click, None, None, None,self.tr('Rename only music files.'))
+        self.action_music_files = self.edit_action(self.action_music_files, self.music_files_click, None, None, "music_icon.svg",self.tr('Rename only music files.'))
         self.action_music_files.setCheckable(True)
         self.action_image_files = QAction(self.tr("Images"),self)
-        self.action_image_files = self.edit_action(self.action_image_files, self.image_files_click, None, None, None,self.tr('Rename only image files.'))
+        self.action_image_files = self.edit_action(self.action_image_files, self.image_files_click, None, None, "images_icon.svg",self.tr('Rename only image files.'))
         self.action_image_files.setCheckable(True)
         file_type.addAction(self.action_all_files)
         file_type.addAction(self.action_image_files)
@@ -170,22 +170,6 @@ class MainWindow(QMainWindow):
         self.main_widget = MainWidget.MainWidget()
         self.setCentralWidget(self.main_widget)
 
-    def files_only_click(self):
-        self.type_filters = ['*.*']
-        self.action_all_files.setEnabled(True)
-        self.action_image_files.setEnabled(True)
-        self.action_music_files.setEnabled(True)
-        self.main_widget.on_selector_changed(0)
-        self.update_directory()
-
-    def folders_only_click(self):
-        self.type_filters = ["folders"]
-        self.action_all_files.setEnabled(False)
-        self.action_image_files.setEnabled(False)
-        self.action_music_files.setEnabled(False)
-        self.main_widget.on_selector_changed(1)
-        self.update_directory()
-
     def get_main_widget(self):
         return self.main_widget
 
@@ -232,6 +216,24 @@ class MainWindow(QMainWindow):
     def all_files_click(self):
         self.type_filters = ['*.*']
         self.update_directory()
+
+    def files_only_click(self):
+        self.type_filters = ['*.*']
+        self.action_all_files.setChecked(True)
+        self.action_all_files.setEnabled(True)
+        self.action_image_files.setEnabled(True)
+        self.action_music_files.setEnabled(True)
+        self.main_widget.on_selector_changed(0)
+        self.update_directory()
+
+    def folders_only_click(self):
+        self.type_filters = ["folders"]
+        self.action_all_files.setEnabled(False)
+        self.action_image_files.setEnabled(False)
+        self.action_music_files.setEnabled(False)
+        self.main_widget.on_selector_changed(1)
+        self.update_directory()
+
 
     def about_box_click(self):
         '''Popup a box with about message.'''

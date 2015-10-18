@@ -70,6 +70,7 @@ class Action(object):
         """Apply action on the specified part."""
         prefix = ""
         suffix = ""
+        # pdb.set_trace()
         if (file_or_folder == "folder"):
             if (file_system_tree_node.is_folder):
                 if(self.path_type == "folder"):
@@ -179,7 +180,7 @@ class UpperCaseAction(CaseChangeAction):
         --first_letter: boolean making first letter uppercase or lowercase.
         --after_symbols: list of symbols after which the letters are capitalized.
     """
-    def __init__(self, path_type, first_letter = True, after_symbols = ""):
+    def __init__(self, path_type):
         CaseChangeAction.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
@@ -193,7 +194,7 @@ class LowerCaseAction(CaseChangeAction):
         --first_letter: boolean making first letter uppercase or lowercase.
         --after_symbols: list of symbols after which the letters are capitalized.
     """
-    def __init__(self, path_type, first_letter = True, after_symbols = ""):
+    def __init__(self, path_type):
         CaseChangeAction.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
@@ -274,16 +275,21 @@ class DateAction(Action):
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
-    def __init__(self, path_type, start_index, increment):
+    def __init__(self, path_type, start_index, increment, trailing_zero):
         Action.__init__(self, path_type)
         self.start_index = start_index
         self.increment = increment
+        self.trailing_zero = trailing_zero
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         counter = file_system_tree_node.rank
         counter *= self.increment
         counter += self.start_index
-        return str(counter)
+        counter = str(counter)
+        if (len(str(counter)) <= self.trailing_zero + 1):
+            for i in range(self.trailing_zero):
+                counter = "0" + counter
+        return counter
 
 class GenericImageAction(Action):
     def __init__(self, path_type, metadata):

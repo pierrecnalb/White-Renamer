@@ -46,38 +46,38 @@ class TestCases(unittest.TestCase):
     def test_main_uppercase(self):
         """Make all letters uppercase"""
         self.init(True, False, "name", False)
-        action_descriptor = ActionManager.CaseChangeAction
+        action_descriptor = ActionManager.UpperCaseAction
         files = self.files_collection
-        action_args = {'case_choice' : 'uppercase', 'first_letter': False, 'after_symbols': ""}
+        action_args = {}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
         self.apply_actions(action_descriptor, action_args, 'extension', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Uppercase)
-# 
+# # 
     def test_main_lowercase(self):
         """Make all letters lowercase"""
         self.init(True, False, "name", False)
-        action_descriptor = ActionManager.CaseChangeAction
+        action_descriptor = ActionManager.LowerCaseAction
         files = self.files_collection
-        action_args = {'case_choice' : 'lowercase', 'first_letter': False, 'after_symbols': ""}
+        action_args = {}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
         self.apply_actions(action_descriptor, action_args, 'extension', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Lowercase)
-# 
+# # 
     def test_main_titlecase(self):
         """Make first letters Titlecase after space, underscore, dash and period."""
         self.init(True, False, "name", False)
-        action_descriptor = ActionManager.CaseChangeAction
+        action_descriptor = ActionManager.TitleCaseAction
         files = self.files_collection
-        action_args = {'case_choice' : 'titlecase', 'first_letter': True, 'after_symbols': ' -_.'}
+        action_args = {'first_letter': True, 'after_symbols': ' -_.'}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_TitleCase)
-# 
+# # 
     def test_main_delete(self):
         """Delete first letter for folders, second for files and third for extension."""
         self.init(True, False, "name", False)
@@ -91,7 +91,7 @@ class TestCases(unittest.TestCase):
         self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Delete)
-# 
+# # 
     def test_main_replace_without_regex(self):
         """Replace e with 3 and .txt with .ogg."""
         self.init(True, False, "name", False)
@@ -105,7 +105,7 @@ class TestCases(unittest.TestCase):
         self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Replace_without_regex)
-# 
+# # 
     def test_main_replace_with_regex(self):
         """Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf"."""
         self.init(True, False, "name", False)
@@ -119,7 +119,7 @@ class TestCases(unittest.TestCase):
         self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Replace_with_regex)
-# 
+# # 
     def test_main_insert(self):
         """Insert A at position 0 for folder, position 3 for files and position 99 for extension."""
         self.init(True, False, "name", False)
@@ -162,7 +162,7 @@ class TestCases(unittest.TestCase):
         files.batch_undo()
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_OriginalName)
-# 
+# # 
     def test_main_folder_name(self):
         """Use foldername for folders, files."""
         self.init(True, False, "name", False)
@@ -187,41 +187,41 @@ class TestCases(unittest.TestCase):
         self.apply_actions(action_descriptor, action_args_suffix, 'suffix', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Custom_Prefix_Suffix)
+# # 
+    # def test_main_counter_sort_by_name(self):
+        # """Folder with counter from 0 and inc = 1, prefix from 2 and inc = 4. Sorted by name."""
+        # self.init(True, False, "name", False)
+        # action_descriptor = ActionManager.Counter
+        # files = self.files_collection
+        # action_args_folder = {'start_index' : 0, 'increment': 1, 'trailing_zero':1}
+        # action_args_prefix = {'start_index' : 2, 'increment': 4, 'trailing_zero':2}
+        # self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
+        # self.apply_actions(action_descriptor, action_args_prefix, 'prefix', 'file')
+        # self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        # self.compare_with_model_file(TestCasesModel.Main_Counter_Name_Sort)
 # 
-    def test_main_counter_sort_by_name(self):
-        """Folder with counter from 0 and inc = 1, prefix from 2 and inc = 4. Sorted by name."""
-        self.init(True, False, "name", False)
-        action_descriptor = ActionManager.Counter
-        files = self.files_collection
-        action_args_folder = {'start_index' : 0, 'increment': 1}
-        action_args_prefix = {'start_index' : 2, 'increment': 4}
-        self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args_prefix, 'prefix', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Counter_Name_Sort)
-# 
-    def test_main_counter_sort_reverse_by_name(self):
-        """Folder with counter from 0 and inc = 1, file from 0 and inc = 1. Sorted by name in reverse order."""
-        self.init(True, False, "name", True)
-        action_descriptor = ActionManager.Counter
-        files = self.files_collection
-        action_args = {'start_index' : 0, 'increment': 1}
-        self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args, 'file', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Counter_Reverse_Name_Sort)
+    # def test_main_counter_sort_reverse_by_name(self):
+        # """Folder with counter from 0 and inc = 1, file from 0 and inc = 1. Sorted by name in reverse order."""
+        # self.init(True, False, "name", True)
+        # action_descriptor = ActionManager.Counter
+        # files = self.files_collection
+        # action_args = {'start_index' : 0, 'increment': 1, 'trailing_zero':0}
+        # self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
+        # self.apply_actions(action_descriptor, action_args, 'file', 'file')
+        # self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        # self.compare_with_model_file(TestCasesModel.Main_Counter_Reverse_Name_Sort)
 # 
     def test_main_counter_sort_by_size(self):
         """Folder with counter from 0 and inc = 1, file from 0 and inc = 1. Sorted by size."""
         self.init(True, False, "size", False)
         action_descriptor = ActionManager.Counter
         files = self.files_collection
-        action_args = {'start_index' : 0, 'increment': 1}
+        action_args = {'start_index' : 0, 'increment': 1, 'trailing_zero':0}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Main_Counter_Size_Sort)
-# 
+# # 
     def test_accent_encoding(self):
         """Use accent and special characters to see if the encoding is supported."""
         self.init(True, False, "name", False)
@@ -237,6 +237,7 @@ class TestCases(unittest.TestCase):
         self.assertEqual(self.files_list, model_file)
 
     def apply_actions(self, action_descriptor, action_args, path_type, file_or_folder):
+        # pdb.set_trace()
         self.actions = []
         self.populate_actions(action_descriptor, action_args, path_type)
         self.files_collection.process_file_system_tree_node(self.actions, file_or_folder)

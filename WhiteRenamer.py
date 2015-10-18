@@ -30,7 +30,7 @@ def main():
 
     app.installTranslator(translator)
     win = MainWindow.MainWindow()
-    #MainWidget.SizeCalculator(win)
+    # MainWidget.SizeCalculator(win)
     win.show()
     app.exec_()
 

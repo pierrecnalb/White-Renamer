@@ -14,9 +14,9 @@
    height="16"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    version="1.0"
-   sodipodi:docname="subdirectory_icon.svg"
+   sodipodi:docname="new_icon.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/home/matt/.icons/Sirocco/scalable/mimetypes/text-plain.png"
    inkscape:export-xdpi="90"
@@ -30,32 +30,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.8653866"
-     inkscape:cx="-25.8414"
-     inkscape:cy="1.0529997"
+     inkscape:zoom="3.8778156"
+     inkscape:cx="-15.631446"
+     inkscape:cy="-20.912376"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      width="128px"
      height="128px"
      inkscape:showpageshadow="false"
      inkscape:window-width="1440"
-     inkscape:window-height="834"
+     inkscape:window-height="838"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="25"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="true"
-     inkscape:window-maximized="1"
-     inkscape:snap-bbox="true"
-     inkscape:bbox-paths="false"
-     inkscape:bbox-nodes="false"
-     inkscape:snap-bbox-edge-midpoints="false"
-     inkscape:snap-bbox-midpoints="false"
-     inkscape:object-nodes="true"
-     inkscape:snap-intersection-paths="true"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:snap-object-midpoints="true"
-     inkscape:object-paths="true">
+     inkscape:window-maximized="1">
     <sodipodi:guide
        id="guide2226"
        position="32.637397,117.99844"
@@ -402,7 +392,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -411,36 +401,15 @@
      inkscape:label="Calque 1"
      id="layer1"
      inkscape:groupmode="layer">
-    <rect
-       style="fill:#6e6e6e;fill-opacity:1;fill-rule:evenodd;stroke:none"
-       id="rect3027"
-       width="8"
-       height="3"
-       x="2.220446e-16"
-       y="0" />
-    <rect
-       style="fill:#6e6e6e;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline"
-       id="rect3027-1"
-       width="8"
-       height="3"
-       x="8"
-       y="6" />
-    <rect
-       style="fill:#6e6e6e;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline"
-       id="rect3027-1-9"
-       width="8"
-       height="3"
-       x="8"
-       y="13" />
     <path
-       style="fill:none;stroke:#6e6e6e;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
-       d="m 4.1013685,1.101369 0,13.352818 4.908374,0"
-       id="path3833"
-       inkscape:connector-curvature="0" />
+       style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
+       d="M 2,0 C 1.446,0 1,0.446 1,1 L 1,2 15,2 C 15,1.446 14.554,1 14,1 L 7,1 C 7,0.446 6.554,0 6,0 z"
+       id="path3028"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ssccscss" />
     <path
-       style="fill:none;stroke:#6e6e6e;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 4.0646764,7.5012421 5,0"
-       id="path3835"
-       inkscape:connector-curvature="0" />
+       style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
+       d="M 1.5 3 C 0.669 3 0 3.669 0 4.5 L 0 13.5 C 0 14.331 0.669 15 1.5 15 L 14.5 15 C 15.331 15 16 14.331 16 13.5 L 16 4.5 C 16 3.669 15.331 3 14.5 3 L 1.5 3 z M 11.5 8 L 12.5 8 L 12.5 10.5 L 15 10.5 L 15 11.5 L 12.5 11.5 L 12.5 14 L 11.5 14 L 11.5 11.5 L 9 11.5 L 9 10.5 L 11.5 10.5 L 11.5 8 z M 11.5 10.5 L 11.5 11.5 L 12.5 11.5 L 12.5 10.5 L 11.5 10.5 z "
+       id="path3040" />
   </g>
 </svg>

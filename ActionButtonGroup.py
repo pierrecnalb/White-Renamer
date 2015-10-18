@@ -172,7 +172,7 @@ class ActionButtonGroup(QWidget):
         # self.frame_grid.setSizeConstraint(QLayout.SetMinimumSize)
         self.frame_grid.setSizeConstraint(QLayout.SetMinAndMaxSize)
         # self.frame.setFixedWidth(frame_width);
-        # self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
+        self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
         self.frame_name = frame_name
         self.label = QLabel(self.frame_name)
         self.label.setAlignment(Qt.AlignCenter)
@@ -182,7 +182,7 @@ class ActionButtonGroup(QWidget):
         self.label.setFont(font)
         remove_widget = QToolButton()
         remove_widget.setFixedSize(25,25)
-        remove_widget.setIcon(QIcon(":/exit_icon.svg"))
+        remove_widget.setIcon(QIcon(":/delete_icon.svg"))
         remove_widget.setIconSize(QSize(16,16))
         remove_widget.setAutoRaise(True)
         remove_widget.pressed.connect(self.on_remove_widget)

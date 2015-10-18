@@ -24,8 +24,8 @@ class MainWidget(QWidget):
         self.file_or_folder = "file"
         if sys.platform == 'linux':
             self.frame_space = 20
-            self.frame_width = 280
-            self.frame_height = 350
+            self.frame_width = 250
+            self.frame_height = 300
             self.button_width = 25
         elif sys.platform == 'win32' or sys.platform == 'win64':
             self.frame_space = 20
@@ -64,6 +64,7 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(ActionManager.ActionInput('start_index', self.tr('Start At'), int, 0))
         counter_inputs.append(ActionManager.ActionInput('increment', self.tr('Increment'), int, 1))
+        counter_inputs.append(ActionManager.ActionInput('trailing_zero', self.tr('Zero'), int, 0))
         date_inputs = []
         date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
@@ -157,7 +158,7 @@ class MainWidget(QWidget):
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.main_grid.addWidget(self.treeView, 3, 0)
         self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height, "file")
-        # self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
+        self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
         self.file_box.setMinimumSize(self.frame_width, self.frame_height)
         self.file_box.changed.connect(self.apply_action)
         self.file_box.addedBefore.connect(self.add_prefix)
@@ -313,7 +314,6 @@ class MainWidget(QWidget):
         self.apply_action()
 
     def apply_action(self):
-        print(self.file_box.sizeHint())
         self.actions = []
         widget_number = self.scroll_area_layout.count()
         for i in range(1, widget_number-1): #do not count the stretch widget
@@ -329,11 +329,7 @@ class MainWidget(QWidget):
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
-        # print(actiongroup)
-        # print(path_part)
         (action_descriptor, action_args) = actiongroup.get_inputs()
-        # print(action_descriptor)
-        # print(action_args)
         action_class = action_descriptor.action_class
         action_instance = action_class(path_part, **action_args)
         self.actions.append(action_instance)
