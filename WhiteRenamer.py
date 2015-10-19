@@ -17,9 +17,7 @@ def main():
     app = QApplication(sys.argv)
     code_online = urllib.request.urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/WhiteRenamer.py").read().splitlines()
     version_online = code_online[12].decode().split('=')[-1]
-
-
-
+    version_online = version_online.split("'")[1]
     translator = QTranslator()
     locale = QLocale.system().name()[:2]
     if getattr(sys, 'frozen', False):
@@ -35,6 +33,8 @@ def main():
     win = MainWindow.MainWindow()
     # MainWidget.SizeCalculator(win)
     win.show()
+    if(version_online != __version__):
+        win.update_message(__version__, version_online)
     app.exec_()
 
 

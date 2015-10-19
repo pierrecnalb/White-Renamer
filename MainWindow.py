@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
-        self.action_open = self.edit_action(self.action_open, self.open_directorall_files_icon.svgy_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
+        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
         self.action_exit = QAction(self.tr('&Exit'), self)
         self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', "exit_icon.svg", self.tr('Exit the application.'))
         self.action_help = QAction(self.tr('&Help'), self)
@@ -316,3 +316,21 @@ class MainWindow(QMainWindow):
     @Slot()
     def undo_click(self):
         self.main_widget.undo()
+
+    def update_message(self, version, new_version):
+        msg_box = QMessageBox.information(self, "Update available", 
+                """
+                <b>New version available</b> 
+                <p>You are running an old version of White Renamer (v{0}).</p>
+                <p>A newer version is available (v{1}). Do you want to download it ?</p>
+                """.format(version, new_version), QMessageBox.No, QMessageBox.Yes)
+        if msg_box == QMessageBox.No:
+            pass
+        if msg_box == QMessageBox.Yes:
+            new = 2 # open in a new tab, if possible
+            # open a public URL, in this case, the webbrowser docs
+            url = "https://github.com/pierrecnalb/White-Renamer"
+            webbrowser.open(url,new=new)
+            # Save was clicked
+        # elif ret == QMessageBox.Discard:
+            # Don't save was clicked

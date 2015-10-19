@@ -64,7 +64,7 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(ActionManager.ActionInput('start_index', self.tr('Start At'), int, 0))
         counter_inputs.append(ActionManager.ActionInput('increment', self.tr('Increment'), int, 1))
-        counter_inputs.append(ActionManager.ActionInput('trailing_zero', self.tr('Zero'), int, 0))
+        counter_inputs.append(ActionManager.ActionInput('digit_number', self.tr('Number of Digit'), int, 0))
         date_inputs = []
         date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))

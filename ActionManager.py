@@ -275,19 +275,19 @@ class DateAction(Action):
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
-    def __init__(self, path_type, start_index, increment, trailing_zero):
+    def __init__(self, path_type, start_index, increment, digit_number):
         Action.__init__(self, path_type)
         self.start_index = start_index
         self.increment = increment
-        self.trailing_zero = trailing_zero
+        self.digit_number = digit_number
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         counter = file_system_tree_node.rank
         counter *= self.increment
         counter += self.start_index
         counter = str(counter)
-        if (len(str(counter)) <= self.trailing_zero + 1):
-            for i in range(self.trailing_zero):
+        if (len(str(counter)) <= self.digit_number + 1):
+            for i in range(self.digit_number):
                 counter = "0" + counter
         return counter
 
