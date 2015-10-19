@@ -12,8 +12,11 @@ import urllib.request
 
 __version__ = '1.0.0'
 
+
 def main():
     app = QApplication(sys.argv)
+    code_online = urllib.request.urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/WhiteRenamer.py").read().splitlines()
+    version_online = code_online[12].decode().split('=')[-1]
 
 
 
