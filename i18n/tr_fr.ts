@@ -128,12 +128,12 @@
     <message>
         <location filename="../MainWidget.py" line="263"/>
         <source>Original Files</source>
-        <translation>Fichier Originaux</translation>
+        <translation>Fichiers Originaux</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="263"/>
         <source>Modified Files</source>
-        <translation>Fichier Modifiés</translation>
+        <translation>Fichiers Modifiés</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="240"/>
@@ -316,7 +316,7 @@
     <message>
         <location filename="../MainWindow.py" line="54"/>
         <source>Undo</source>
-        <translation>Retour</translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="56"/>
@@ -396,7 +396,7 @@
     <message>
         <location filename="../MainWindow.py" line="55"/>
         <source>Undo the previous renaming.</source>
-        <translation>Annuler la dernière action de renommage.</translation>
+        <translation>Annuler toutes les actions de renommage.</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="58"/>
@@ -501,7 +501,7 @@
     <message>
         <location filename="../MainWindow.py" line="103"/>
         <source>Images</source>
-        <translation>Images.</translation>
+        <translation>Images</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="104"/>

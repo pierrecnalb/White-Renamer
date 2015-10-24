@@ -22,21 +22,21 @@ class MainWidget(QWidget):
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
         self.file_or_folder = "file"
-        if sys.platform == 'linux':
-            self.frame_space = 20
-            self.frame_width = 240
-            self.frame_height = 290
-            self.button_width = 25
-        elif sys.platform == 'win32' or sys.platform == 'win64':
-            self.frame_space = 20
-            self.frame_width = 174
-            self.frame_height = 182
-            self.button_width = 25
-        elif sys.platform == 'darwin':
-            self.frame_space = 20
-            self.frame_width = 210
-            self.frame_height = 210
-            self.button_width = 25
+        # if sys.platform == 'linux':
+        self.frame_space = 20
+        self.frame_width = 250
+        self.frame_height = 290
+        self.button_width = 25
+        # elif sys.platform == 'win32' or sys.platform == 'win64':
+            # self.frame_space = 20
+            # self.frame_width = 
+            # self.frame_height = 182
+            # self.button_width = 25
+        # elif sys.platform == 'darwin':
+            # self.frame_space = 20
+            # self.frame_width = 210
+            # self.frame_height = 210
+            # self.button_width = 25
         self.init_actions()
         self.init_UI()
         #----------------------------------INIT UI---------------------------------------

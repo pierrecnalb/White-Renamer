@@ -44,4 +44,4 @@ White Renamer is distributed in the hope that it will be useful, but WITHOUT ANY
 See the GNU General Public License for more details.
 
 ## Maintainer
-Pierre Blanc<[pierrecnalb@mailbox.org](mailto:pierrecnalb@mailbox.org)>
+Pierre BLANC<[pierrecnalb@mailbox.org](mailto:pierrecnalb@mailbox.org)>
