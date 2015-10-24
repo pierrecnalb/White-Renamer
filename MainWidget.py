@@ -24,8 +24,8 @@ class MainWidget(QWidget):
         self.file_or_folder = "file"
         if sys.platform == 'linux':
             self.frame_space = 20
-            self.frame_width = 250
-            self.frame_height = 300
+            self.frame_width = 240
+            self.frame_height = 290
             self.button_width = 25
         elif sys.platform == 'win32' or sys.platform == 'win64':
             self.frame_space = 20
@@ -159,7 +159,7 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.treeView, 3, 0)
         self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height, "file")
         self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
-        self.file_box.setMinimumSize(self.frame_width, self.frame_height)
+        self.file_box.setFixedSize(self.frame_width, self.frame_height)
         self.file_box.changed.connect(self.apply_action)
         self.file_box.addedBefore.connect(self.add_prefix)
         self.file_box.addedAfter.connect(self.add_suffix)

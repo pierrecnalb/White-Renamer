@@ -57,27 +57,28 @@
 \section{Introduction}
 White Renamer is a software that ease the pain of renaming multiple files and folders by doing it in batch. The user can choose many actions to perform on the selected directory. The following sections describes what those actions are, and how to use it.
 
-\section{Description}
-White Renamer has a simple UI containing two distinct parts : the top part displays boxes representing the structure of the files. \\
-The first box : \emph{Folder} represents the changes made on the folders inside the selected directory.\\
-The second box : \emph{File} represents the changes made on the files inside the selected directory.\\
-The third box : \emph{Extension} represents the changes made on the extension of the files.\\
+\section{The User Interface}
+White Renamer has a simple UI containing two distinct parts : the top part displays boxes representing the structure of the files (file + extension or folder). \\
 Some optional boxes can be inserted : \emph{Prefix} and \emph{Suffix} that give the possiblity to add prefix(es) or suffix(es) to the filename.\\
-
 The bottom part displays a live preview of the changes made to the files/folders.
 
-
-\section{Step by step}
-\begin{enumerate}
-        \item Select which directory you want to process.
-        \item Select if you want to rename hidden directories.
-        \item Select if you want to rename subfolders.
-        \item Enter the desired pattern to rename only specific files.
-        \item Sort by name(default), size or date in normal or reverse order.
-        \item Add some prefixes and/or suffixes.
-        \item Select the desired actions to perform on the folders, files and extensions.
-        \item Press on Rename.
-\end{enumerate}
+\section{The Toolbar}
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{toolbar.png}
+        % \caption{}
+        \label{toolbar}
+\end{figure}
+% \begin{enumerate}
+        % \item Select which directory you want to process.
+        % \item Select if you want to rename hidden directories.
+        % \item Select if you want to rename subfolders.
+        % \item Enter the desired pattern to rename only specific files.
+        % \item Sort by name(default), size or date in normal or reverse order.
+        % \item Add some prefixes and/or suffixes.
+        % \item Select the desired actions to perform on the folders, files and extensions.
+        % \item Press on Rename.
+% \end{enumerate}
 
 \section{List of available actions}
 The following actions are available :
@@ -95,7 +96,7 @@ Three capitalization options are available :
         \item \textbf{Titlecase} : gives the possiblity to uppercase the first letter of each words.
                 \begin{itemize}
                         \item \emph{First Letter} : if checked, the first letter of the string will be capitalized. 
-                        \item \emph{And After} : represents the characters after which the letter will go uppercase. 
+                        \item \emph{And After} : represents the characters after which the letter will be uppercase. 
                 \end{itemize}
                 E.g : if First Letter is checked and ``And After = \_'' the file \emph{my\_file} will become My\_File
         \item \textbf{Uppercase} : The whole string will be converted to uppercase.
@@ -210,6 +211,7 @@ resulting RE will match the second character.
 \begin{itemize}
         \item \textbf{Start At} : starting number of the counter. 
         \item \textbf{Increment} : increment number of the counter.
+        \item \textbf{Number Of Digit} : prepend one or more '0'.
 \end{itemize}
 
 \subsection*{Date}
@@ -238,6 +240,39 @@ resulting RE will match the second character.
 %p  Locale's equivalent of either AM or PM.
 \end{verbatim}
         \endgroup
+\end{itemize}
+
+
+\subsection*{Image Metadata}
+(\emph{see figure \ref{ImageMetadata}})\\
+
+Retrieves the exif metadata of the image. Several options are available:
+\begin{itemize}
+        \item \textbf{Original Date} : the date at which the image was taken.
+                \begin{itemize}
+                        \item \emph{Format} : date format specification. See section on date for more details. 
+                \end{itemize}
+        \item \textbf{F Number} : Aperture size.
+        \item \textbf{Exposure} : (self explanatory).
+        \item \textbf{ISO} : (self explanatory).
+        \item \textbf{Camera Model} : (self explanatory).
+        \item \textbf{X Dimension} : length in pixels.
+        \item \textbf{Y Dimension} : height in pixels.
+        \item \textbf{Focal Length} : (self explanatory)
+        \item \textbf{Artist} : (self explanatory)
+\end{itemize}
+
+\subsection*{Music Metadata}
+(\emph{see figure \ref{MusicMetadata}})\\
+
+Retrieves the metadata of the music files. Several options are available:
+\begin{itemize}
+        \item \textbf{Artist}
+        \item \textbf{Title} 
+        \item \textbf{Year}
+        \item \textbf{Album} 
+        \item \textbf{Genre} 
+        \item \textbf{Track} 
 \end{itemize}
 
 \section{Examples}
@@ -295,6 +330,18 @@ resulting RE will match the second character.
         \includegraphics[width=\textwidth]{Date.png}
         \caption{Date option example.}
         \label{Date}
+\end{figure}
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{ImageMetadata.png}
+        \caption{Image Metadata option example.}
+        \label{ImageMetadata}
+\end{figure}
+\begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{MusicMetadata.png}
+        \caption{Music Metadata option example.}
+        \label{MusicMetadata}
 \end{figure}
 
 \end{document}

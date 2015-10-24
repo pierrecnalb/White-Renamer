@@ -53,7 +53,7 @@ class ActionButton(QWidget):
         if isinstance(current_combo_selection, ActionManager.ActionDescriptorGroup):
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
-            subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
+            subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
             font = QFont()
@@ -73,7 +73,7 @@ class ActionButton(QWidget):
             sub_grid = QGridLayout(subframe)
             sub_grid.setObjectName("subgrid")
             if self.are_sub_buttons is False:
-                subframe.setStyleSheet("QFrame#subframe{border:1px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
+                subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
                 font = QFont()
                 font.setWeight(55)
                 font.setBold(True)
@@ -164,13 +164,13 @@ class ActionButtonGroup(QWidget):
         self.frame = QFrame(self)
         self.frame.setObjectName("frame")
         if ("fix" in frame_type):
-            self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(210, 210, 210); border-radius: 4px; padding:0px; background-color: rgb(210, 210, 210)};")
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(210, 210, 210); border-radius: 7px; padding:0px; background-color: rgb(230, 230, 230)};")
         else:
-            self.frame.setStyleSheet("QFrame#frame{border:1px solid rgb(220, 220, 220); border-radius: 4px; padding:0px; background-color: rgb(244, 244, 244)};")
+            self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(220, 220, 220); border-radius: 7px; padding:0px; background-color: rgb(244, 244, 244)};")
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
         # self.frame_grid.setSizeConstraint(QLayout.SetMinimumSize)
-        self.frame_grid.setSizeConstraint(QLayout.SetMinAndMaxSize)
+        # self.frame_grid.setSizeConstraint(QLayout.SetMinAndMaxSize)
         # self.frame.setFixedWidth(frame_width);
         self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
         self.frame_name = frame_name

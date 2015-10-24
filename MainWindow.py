@@ -160,6 +160,7 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_rename)
         self.main_toolbar.addAction(self.action_undo)
+        self.main_toolbar.setIconSize(QSize(24,24))
 
         empty = QWidget();
         empty.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Preferred)

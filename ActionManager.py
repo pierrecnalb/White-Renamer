@@ -412,29 +412,69 @@ class GenericMusicAction(Action):
         Action.__init__(self, path_type)
         self.metadata = metadata
 
-    def call_on_path_part(self, file_system_tree_node, path_part):
-        try:
-            audio = EasyID3(file_system_tree_node.get_original_path())
-            return ', '.join(audio[self.metadata])
-        except:
-            return path_part
+    def get_metadata_tag(self, file):
+        audio = EasyID3(file)
+        return ', '.join(audio[self.metadata])
+
 
 class MusicArtist(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'artist')
+
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
+
 class MusicTitle(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'title')
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
+
 class MusicYear(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'date')
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
+
 class MusicAlbum(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'album')
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
+
 class MusicTrack(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'tracknumber')
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
+
 class MusicGenre(GenericMusicAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'genre')
+    def call_on_path_part(self, file_system_tree_node, path_part):
+        try:
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
+            return metadata_tag
+        except:
+            return path_part
 
