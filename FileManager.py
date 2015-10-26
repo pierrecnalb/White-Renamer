@@ -299,13 +299,14 @@ class FilesCollection(object):
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
-    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
+    def execute_method_on_nodes(self, tree_node, methods, *optional_argument):
         """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
         if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
             #Do not apply the actions to the selected directory.
-            method(tree_node, *optional_argument)
+            for method in methods:
+                method(tree_node, *optional_argument)
         for child in tree_node.get_children():
             self.execute_method_on_nodes(child, method, *optional_argument)
 
@@ -327,6 +328,7 @@ class FilesCollection(object):
                     children_names.append(same_level_tree_node.modified_filedescriptor.basename)
 
     def process_file_system_tree_node(self, actions, file_or_folder):
+        methods = []
         self.execute_method_on_nodes(self.root_tree_node, self.reset)
         self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions, file_or_folder)
         self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
