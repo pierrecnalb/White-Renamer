@@ -251,7 +251,7 @@ class MainWidget(QWidget):
 
     def create_folder(self, name):
         os.makedirs(os.path.join(self.directory, name))
-        
+
     def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters, type_filters):
         """Process the selected directory to create the tree and modify the files"""
         self.recursion = recursion

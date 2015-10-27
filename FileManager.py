@@ -118,6 +118,7 @@ class FileSystemTreeNode(object):
         self.is_folder = is_folder
         self._rank = rank
 
+
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
         return file_system_tree_node
@@ -188,6 +189,46 @@ class FileSystemTreeNode(object):
     def rank(self, value):
         self._rank = value
 
+    def rename(self):
+        # self.execute_method_on_nodes(self.root_tree_node, {self.find_duplicates : []})
+        try:
+            shutil.move(self.get_original_path(), self.get_modified_path())
+            self.original_filedescriptor = self.modified_filedescriptor
+        except IOError as e:
+            raise Exception(str(e))
+
+    def undo(self, tree_node):
+        try:
+            shutil.move(self.get_original_path(), self.get_backup_path())
+            self.original_filedescriptor = self.backup_filedescriptor
+        except IOError as e:
+            raise Exception(str(e))
+
+    def match_type_filters(self, type_filters):
+        if (type_filters == '*.*'):
+            return True
+        if(self.is_folder and type_filters == "folders"):
+            return True
+        elif(self.is_folder is False):
+            name = self.original_filedescriptor.extension.lower()
+            for ext in type_filters:
+                if (name in ext):
+                    return True
+        return False
+
+    def match_custom_filter(self, filters):
+        if(self.is_folder is False):
+            name = self.original_filedescriptor.filename.lower()
+            if (name in filters):
+                return True
+        return False
+
+    def is_hidden(self):
+        if(self.original_filedescriptor.basename[0] == '.'):
+            return True
+        return False
+
+
 class FilesCollection(object):
     """
     Contains all the FilesSystemTreeNodes representing the files system structure with all subdirectories, starting from the input path.
@@ -208,7 +249,6 @@ class FilesCollection(object):
         self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, 0)
         self.scan(self.root_tree_node, sorting_criteria, reverse_order, filters, type_filters)
         self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
-        self.flat_tree_list = []
         self.renamed_files_list = []
         self.file_rank = -1
         self.folder_rank = -1
@@ -305,10 +345,10 @@ class FilesCollection(object):
         duplicate_counter = 1
         if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
             #Do not apply the actions to the selected directory.
-            for method in methods:
-                method(tree_node, *optional_argument)
+            for key, value in methods.items():
+                key(tree_node, *value)
         for child in tree_node.get_children():
-            self.execute_method_on_nodes(child, method, *optional_argument)
+            self.execute_method_on_nodes(child, methods, *optional_argument)
 
     def find_duplicates(self, tree_node):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
@@ -328,25 +368,28 @@ class FilesCollection(object):
                     children_names.append(same_level_tree_node.modified_filedescriptor.basename)
 
     def process_file_system_tree_node(self, actions, file_or_folder):
-        methods = []
-        self.execute_method_on_nodes(self.root_tree_node, self.reset)
-        self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions, file_or_folder)
-        self.execute_method_on_nodes(self.root_tree_node, self.find_duplicates)
+        methods = {}
+        methods[self.reset] = []
+        methods[self.call_actions] = [actions, file_or_folder]
+        self.execute_method_on_nodes(self.root_tree_node, methods)
+        # self.execute_method_on_nodes(self.root_tree_node, self.reset)
+        # self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions, file_or_folder)
 
     def call_actions(self, tree_node, actions, file_or_folder):
         for action in actions:
             tree_node = action.call(tree_node, file_or_folder)
 
-    def rename(self, tree_node):
-        try:
-            shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
-            tree_node.original_filedescriptor = tree_node.modified_filedescriptor
-        except IOError as e:
-            raise Exception(str(e))
+    # def rename(self, tree_node):
+        # # self.execute_method_on_nodes(self.root_tree_node, {self.find_duplicates : []})
+        # try:
+            # shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
+            # tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+        # except IOError as e:
+            # raise Exception(str(e))
 
-    def undo(self, tree_node):
-        shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
-        tree_node.original_filedescriptor = tree_node.backup_filedescriptor
+    # def undo(self, tree_node):
+        # shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
+        # tree_node.original_filedescriptor = tree_node.backup_filedescriptor
 
     def batch_rename(self):
         self.execute_method_on_nodes(self.root_tree_node, self.rename)
