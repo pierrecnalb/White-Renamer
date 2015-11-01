@@ -108,7 +108,7 @@ class FileSystemTreeNode(object):
         --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
         --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
     """
-    def __init__(self, root_path, parent, original_filedescriptor, is_folder, rank):
+    def __init__(self, root_path, parent, original_filedescriptor, is_folder):
         self.children = []
         self._root_path = root_path
         self._original_filedescriptor = original_filedescriptor
@@ -116,7 +116,7 @@ class FileSystemTreeNode(object):
         self._parent = parent
         self._backup_filedescriptor = self._original_filedescriptor
         self.is_folder = is_folder
-        self._rank = rank
+        self._rank = 0
 
 
     def add_children(self, file_system_tree_node):
@@ -221,6 +221,8 @@ class FileSystemTreeNode(object):
             name = self.original_filedescriptor.filename.lower()
             if (name in filters):
                 return True
+        if(filters == ""):
+            return True
         return False
 
     def is_hidden(self):
@@ -246,70 +248,44 @@ class FilesCollection(object):
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         root_filedescriptor = FileDescriptor(basename, True)
-        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, 0)
-        self.scan(self.root_tree_node, sorting_criteria, reverse_order, filters, type_filters)
-        self.root_tree_node_backup = copy.deepcopy(self.root_tree_node)
+        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True)
+        self.scan(self.root_tree_node)
+        self.files_collection = copy.deepcopy(self.root_tree_node)
         self.renamed_files_list = []
-        self.file_rank = -1
-        self.folder_rank = -1
 
-    def scan(self, tree_node, sorting_criteria, reverse_order, filters, type_filters):
+    def scan(self, tree_node):
         """Creates the files system structure with FileSystemTreeNode."""
         path = self.get_full_path(tree_node.get_original_relative_path())
-        children = sorted(os.listdir(path), key = lambda file : self.get_file_sorting_criteria(os.path.join(path, file), sorting_criteria), reverse=reverse_order)
-        self.folder_rank = -1
-        self.file_rank = -1
+        children = os.listdir(path)
         for child in children:
-            #Check for hidden files
-            if child[0] == '.' and not self.show_hidden_files:
-                continue
             if os.path.isdir(os.path.join(path,child)):
-                if filters != "":
-                    if filters in os.path.splitext(child)[0].lower():
-                        file_system_child_node = self.add_folder(self.folder_rank, tree_node, child)
-                        if (not self.use_subdirectory):
-                            continue
-                        else:
-                            self.scan(file_system_child_node, sorting_criteria, reverse_order, filters, type_filters)
-                elif filters == "":
-                    file_system_child_node = self.add_folder(self.folder_rank, tree_node, child)
-                    if (not self.use_subdirectory):
-                        continue
-                    else:
-                        self.scan(file_system_child_node, sorting_criteria, reverse_order, filters, type_filters)
-            else:
-                if type_filters == "folders":
+                file_system_child_node = self.add_folder(tree_node, child)
+                if (not self.use_subdirectory):
                     continue
-                if type_filters != ['*.*']:
-                    for type_filter in type_filters:
-                        if type_filter in os.path.splitext(child)[1].lower():
-                            if filters != "":
-                                if filters in os.path.splitext(child)[0].lower():
-                                    self.add_file(self.file_rank, tree_node, child)
-                            elif filters == "":
-                                self.add_file(self.file_rank, tree_node, child)
-                            break
-                elif type_filters == ['*.*']:
-                    if filters != "":
-                        if filters in os.path.splitext(child)[0].lower():
-                            self.add_file(self.file_rank, tree_node, child)
-                    elif filters == "":
-                        self.add_file(self.file_rank, tree_node, child)
+                else:
+                    self.scan(file_system_child_node)
+            else:
+                self.add_file(tree_node, child)
 
 
-    def add_file(self, file_rank, tree_node, child):
-        self.file_rank += 1
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, self.file_rank)
+    def show_hidden_files(self, tree_node):
+        if(self.show_hidden_files is True and tree_node.is_hidden is True):
+            pass
+
+    def add_file(self, tree_node, child):
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False)
         tree_node.add_children(file_system_child_node)
 
-    def add_folder(self, folder_rank, tree_node, child):
-        self.folder_rank += 1
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, self.folder_rank)
+    def add_folder(self, tree_node, child):
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True)
         tree_node.add_children(file_system_child_node)
         return file_system_child_node
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
+
+
+
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
         """
@@ -332,23 +308,22 @@ class FilesCollection(object):
 
 
     def get_file_system_tree_node(self):
-        return self.root_tree_node
+        return self.files_collection
 
     def reset(self, tree_node):
         """Reset the modified filedescriptor with the original one."""
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
-    def execute_method_on_nodes(self, tree_node, methods, *optional_argument):
+    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
         """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
         children_names = []
         duplicate_counter = 1
         if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
             #Do not apply the actions to the selected directory.
-            for key, value in methods.items():
-                key(tree_node, *value)
+            method(tree_node, *optional_argument)
         for child in tree_node.get_children():
-            self.execute_method_on_nodes(child, methods, *optional_argument)
+            self.execute_method_on_nodes(child, method, *optional_argument)
 
     def find_duplicates(self, tree_node):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
