@@ -8,6 +8,7 @@ from PySide.QtSvg  import *
 import resource_rc
 import MainWidget
 import webbrowser
+import FileManager
 
 
 __version__ = '1.0.0'
@@ -21,6 +22,7 @@ class MainWindow(QMainWindow):
         self.show_hidden_files = False
         self.sorting_criteria = "name"
         self.reverse_order = False
+        self.files_collection = None
         self.resize(1000, 800)
         # self.showMaximized()
         self.filters = ''
@@ -176,7 +178,7 @@ class MainWindow(QMainWindow):
 
     def get_filter_input(self, value):
         self.filters = value
-        self.update_directory()
+        self.reset_files_collection()
 
     def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
         '''This method adds to action: icon, shortcut, ToolTip,\
@@ -209,14 +211,14 @@ class MainWindow(QMainWindow):
 
     def music_files_click(self):
         self.type_filters = ['.flac', '.mp3', '.m4a']
-        self.update_directory()
+        self.reset_files_collection()
     def image_files_click(self):
         self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
-        self.update_directory()
+        self.reset_files_collection()
         
     def all_files_click(self):
         self.type_filters = ['*.*']
-        self.update_directory()
+        self.reset_files_collection()
 
     def files_only_click(self):
         self.type_filters = ['*.*']
@@ -225,7 +227,7 @@ class MainWindow(QMainWindow):
         self.action_image_files.setEnabled(True)
         self.action_music_files.setEnabled(True)
         self.main_widget.on_selector_changed(0)
-        self.update_directory()
+        self.reset_files_collection()
 
     def folders_only_click(self):
         self.type_filters = ["folders"]
@@ -233,7 +235,7 @@ class MainWindow(QMainWindow):
         self.action_image_files.setEnabled(False)
         self.action_music_files.setEnabled(False)
         self.main_widget.on_selector_changed(1)
-        self.update_directory()
+        self.reset_files_collection()
 
 
     def about_box_click(self):
@@ -252,7 +254,7 @@ class MainWindow(QMainWindow):
         self.use_subfolder = value
         if self.directory is None:
             return
-        self.update_directory()
+        self.reset_files_collection()
 
     @Slot()
     def hide_files_click(self, value):
@@ -262,14 +264,15 @@ class MainWindow(QMainWindow):
             self.show_hidden_files = True
         if self.directory is None:
             return
-        self.update_directory()
+        self.files_collection.display_hidden_files = value
+        self.files_collection.filter_collection()
 
     @Slot()
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
-        self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
+        self.reset_files_collection()
 
     @Slot()
     def add_prefix_click(self):
@@ -287,28 +290,29 @@ class MainWindow(QMainWindow):
     @Slot()
     def reverse_sorting_click(self, value):
         self.reverse_order = value
-        self.update_directory()
+        self.reset_files_collection()
 
     @Slot()
     def name_sorting_click(self):
         self.sorting_criteria = "name"
-        self.update_directory()
+        self.reset_files_collection()
     @Slot()
     def size_sorting_click(self):
         self.sorting_criteria = "size"
-        self.update_directory()
+        self.reset_files_collection()
     @Slot()
     def creation_date_sorting_click(self):
         self.sorting_criteria = "creation_date"
-        self.update_directory()
+        self.reset_files_collection()
     @Slot()
     def modified_date_sorting_click(self):
         self.sorting_criteria = "modified_date"
-        self.update_directory()
+        self.reset_files_collection()
 
-    def update_directory(self):
-            self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
-            self.main_widget.apply_action()
+    def reset_files_collection(self):
+        self.files_collection = FileManager.FilesCollection(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
+        self.main_widget.update_directory(self.files_collection)
+        # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
 
     @Slot()
     def rename_click(self):

@@ -108,7 +108,7 @@ class FileSystemTreeNode(object):
         --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
         --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
     """
-    def __init__(self, root_path, parent, original_filedescriptor, is_folder):
+    def __init__(self, root_path, parent, original_filedescriptor, is_folder, is_hidden):
         self.children = []
         self._root_path = root_path
         self._original_filedescriptor = original_filedescriptor
@@ -116,12 +116,22 @@ class FileSystemTreeNode(object):
         self._parent = parent
         self._backup_filedescriptor = self._original_filedescriptor
         self.is_folder = is_folder
+        self.is_hidden = is_hidden
         self._rank = 0
 
 
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
         return file_system_tree_node
+
+    def remove_node(self):
+        siblings = self._parent.get_children()
+        for i, sibling in enumerate(siblings):
+            print(i)
+            print("{0} -- {1}".format(sibling.get_original_relative_path(), self.get_original_relative_path()))
+            if(sibling.get_original_path() == self.get_original_path()):
+                siblings.pop(i)
+        self.children = []
 
     def get_children(self):
         return self.children
@@ -226,9 +236,7 @@ class FileSystemTreeNode(object):
         return False
 
     def is_hidden(self):
-        if(self.original_filedescriptor.basename[0] == '.'):
-            return True
-        return False
+        return self.is_hidden
 
 
 class FilesCollection(object):
@@ -248,9 +256,9 @@ class FilesCollection(object):
         self.use_subdirectory = use_subdirectory
         self.show_hidden_files = show_hidden_files
         root_filedescriptor = FileDescriptor(basename, True)
-        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True)
+        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, False)
         self.scan(self.root_tree_node)
-        self.files_collection = copy.deepcopy(self.root_tree_node)
+        self.get_filtered_collection()
         self.renamed_files_list = []
 
     def scan(self, tree_node):
@@ -267,24 +275,38 @@ class FilesCollection(object):
             else:
                 self.add_file(tree_node, child)
 
+    def filter_node(self, tree_node):
+        if (not self.show_hidden_files and tree_node.is_hidden):
+            tree_node.remove_node()
+    
+    def filter_hidden(self, tree_node):
+        if (not self.show_hidden_files and tree_node.is_hidden):
+            tree_node.remove_node()
 
-    def show_hidden_files(self, tree_node):
-        if(self.show_hidden_files is True and tree_node.is_hidden is True):
-            pass
+    def get_filtered_collection(self):
+        self.files_collection = copy.deepcopy(self.root_tree_node)
+        self.execute_method_on_nodes(self.files_collection, self.filter_node)
+        return self.files_collection
 
     def add_file(self, tree_node, child):
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False)
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, child.startswith('.'))
         tree_node.add_children(file_system_child_node)
 
     def add_folder(self, tree_node, child):
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True)
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, child.startswith('.'))
         tree_node.add_children(file_system_child_node)
         return file_system_child_node
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
 
+    @property
+    def display_hidden_files(self):
+        self.show_hidden_files = True
 
+    @display_hidden_files.setter
+    def display_hidden_files(self, value):
+        self.show_hidden_files = value
 
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):

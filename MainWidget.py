@@ -252,21 +252,27 @@ class MainWidget(QWidget):
     def create_folder(self, name):
         os.makedirs(os.path.join(self.directory, name))
 
-    def input_directory(self, directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters, type_filters):
+    def update_directory(self, files_collection):
         """Process the selected directory to create the tree and modify the files"""
-        self.recursion = recursion
-        self.show_hidden_files = show_hidden_files
-        self.sorting_criteria = sorting_criteria
-        self.reverse_order = reverse_order
+        self.files_collection = files_collection
+        self.redraw_tree()
+    
+    def redraw_tree(self):
         tree = self.main_grid.itemAtPosition(2,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.files_collection = FileManager.FilesCollection(directory, recursion, show_hidden_files, sorting_criteria, reverse_order, filters, type_filters)
         self.root_tree_node = self.files_collection.get_file_system_tree_node()
         self.populate_tree(self.model, self.root_tree_node, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.treeView.expandAll()
         self.apply_action()
+
+    def filter_collection(self):
+        self.files_collection.get_filtered_collection()
+        self.redraw_tree()
+
+    def show_hidden_files(self, value):
+        self.files_collection.display_hidden_files = value
 
     def populate_tree(self, parent, tree_node, reset_view):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
