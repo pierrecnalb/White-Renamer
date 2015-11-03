@@ -239,6 +239,38 @@ class FileSystemTreeNode(object):
         return self.is_hidden
 
 
+class FilteredFiles(object):
+
+    def __init__(self, files_collection, show_hidden_files):
+        self.files_collection = files_collection
+        self.show_hidden_files = show_hidden_files
+
+    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
+        """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
+        if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
+            #Do not apply the actions to the selected directory.
+            method(tree_node, *optional_argument)
+        for child in tree_node.get_children():
+            if (self.filter_files is True):
+                continue
+            self.execute_method_on_nodes(child, method, *optional_argument)
+
+    def get_filtered_files(self, tree_node):
+        filtered_files = copy.deepcopy(self.files_collection)
+        for child in tree_node.get_children():
+            if (self.filter_files is True):
+                continue
+            self.get_filtered_node(child, method)
+        return 
+
+    def filter_files(self):
+        if (not self.show_hidden_files and tree_node.is_hidden):
+            return True
+        else:
+            return False
+
+
+
 class FilesCollection(object):
     """
     Contains all the FilesSystemTreeNodes representing the files system structure with all subdirectories, starting from the input path.
@@ -250,15 +282,13 @@ class FilesCollection(object):
         --reverse_order: boolean that specifies the sorting order. Default is 'False'.
     """
 
-    def __init__(self, input_path, use_subdirectory, show_hidden_files, sorting_criteria="name", reverse_order=False, filters = "", type_filters = ["*.*"]):
+    def __init__(self, input_path, use_subdirectory):
         self.input_path = input_path
         (self.root_folder, basename)=os.path.split(self.input_path)
         self.use_subdirectory = use_subdirectory
-        self.show_hidden_files = show_hidden_files
         root_filedescriptor = FileDescriptor(basename, True)
         self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, False)
         self.scan(self.root_tree_node)
-        self.get_filtered_collection()
         self.renamed_files_list = []
 
     def scan(self, tree_node):
@@ -275,18 +305,9 @@ class FilesCollection(object):
             else:
                 self.add_file(tree_node, child)
 
-    def filter_node(self, tree_node):
-        if (not self.show_hidden_files and tree_node.is_hidden):
-            tree_node.remove_node()
-    
-    def filter_hidden(self, tree_node):
-        if (not self.show_hidden_files and tree_node.is_hidden):
-            tree_node.remove_node()
-
-    def get_filtered_collection(self):
-        self.files_collection = copy.deepcopy(self.root_tree_node)
-        self.execute_method_on_nodes(self.files_collection, self.filter_node)
-        return self.files_collection
+    def filter_collection(self, show_hidden_files):
+        filtered_collection = FilteredFiles(self.root_tree_node, show_hidden_files)
+        return filtered_collection
 
     def add_file(self, tree_node, child):
         file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, child.startswith('.'))
@@ -299,14 +320,6 @@ class FilesCollection(object):
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
-
-    @property
-    def display_hidden_files(self):
-        self.show_hidden_files = True
-
-    @display_hidden_files.setter
-    def display_hidden_files(self, value):
-        self.show_hidden_files = value
 
 
     def get_file_sorting_criteria(self, directory, sorting_criteria):
