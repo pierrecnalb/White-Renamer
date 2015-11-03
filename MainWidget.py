@@ -17,7 +17,7 @@ class MainWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.files_collection = None
+        self.filtered_files = None
         self.all_action_descriptors = []
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
@@ -252,27 +252,19 @@ class MainWidget(QWidget):
     def create_folder(self, name):
         os.makedirs(os.path.join(self.directory, name))
 
-    def update_directory(self, files_collection):
+    def set_filtered_files(self, filtered_files):
         """Process the selected directory to create the tree and modify the files"""
-        self.files_collection = files_collection
+        self.filtered_files = filtered_files
         self.redraw_tree()
-    
+
     def redraw_tree(self):
         tree = self.main_grid.itemAtPosition(2,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.root_tree_node = self.files_collection.get_file_system_tree_node()
-        self.populate_tree(self.model, self.root_tree_node, True)
+        self.populate_tree(self.model, self.filtered_files, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.treeView.expandAll()
         self.apply_action()
-
-    def filter_collection(self):
-        self.files_collection.get_filtered_collection()
-        self.redraw_tree()
-
-    def show_hidden_files(self, value):
-        self.files_collection.display_hidden_files = value
 
     def populate_tree(self, parent, tree_node, reset_view):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
@@ -305,18 +297,18 @@ class MainWidget(QWidget):
     def rename(self):
         """Rename all the files and folders."""
         try:
-            self.files_collection.batch_rename()
+            self.filtered_files.batch_rename()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
-        self.populate_tree(self.model, self.root_tree_node, True)
-        #self.files_collection.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
-        #self.files_collection.get_renamed_files()
+        self.populate_tree(self.model, self.filtered_files, True)
+        #self.filtered_files.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
+        #self.filtered_files.get_renamed_files()
         #shutil.rmtree(self.directory)
 
     def undo(self):
         """Undo the previous renaming action."""
-        self.files_collection.batch_undo()
-        self.populate_tree(self.model, self.root_tree_node, True)
+        self.filtered_files.batch_undo()
+        self.populate_tree(self.model, self.filtered_files, True)
         self.apply_action()
 
     def apply_action(self):
@@ -325,13 +317,13 @@ class MainWidget(QWidget):
         for i in range(1, widget_number-1): #do not count the stretch widget
             action_button_group = self.scroll_area_layout.itemAt(i).widget()
             self.populate_actions(action_button_group, action_button_group.get_frame_type())
-        if self.files_collection is not None:
+        if self.filtered_files is not None:
             try:
-                self.files_collection.process_file_system_tree_node(self.actions, self.file_or_folder)
+                self.filtered_files.process_file_system_tree_node(self.actions, self.file_or_folder)
             except Exception as e:
                 QMessageBox.warning(self, "Warning", str(e))
             #refresh tree
-            self.populate_tree(self.model, self.root_tree_node, False)
+            self.populate_tree(self.model, self.filtered_files, False)
 
     def populate_actions(self, actiongroup, path_part):
         """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
