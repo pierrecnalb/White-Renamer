@@ -19,9 +19,7 @@ class MainWindow(QMainWindow):
         self.setUnifiedTitleAndToolBarOnMac(True)
         self.directory = None
         self.use_subfolder = False
-        self.show_hidden_files = False
-        self.sorting_criteria = "name"
-        self.reverse_order = False
+        self.filtered_collection = None
         self.files_collection = None
         self.resize(1000, 800)
         # self.showMaximized()
@@ -88,7 +86,7 @@ class MainWindow(QMainWindow):
         self.action_folders_only = QAction(self.tr('Folders only'), self)
         self.action_folders_only.setCheckable(True)
         self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, "folder_icon.svg",self.tr('Rename only folders.'))
-        
+
         node_type_selector = QActionGroup(self)
         node_type_selector.setObjectName('selector')
         node_type_selector.addAction(self.action_files_only)
@@ -215,7 +213,7 @@ class MainWindow(QMainWindow):
     def image_files_click(self):
         self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
         self.reset_files_collection()
-        
+
     def all_files_click(self):
         self.type_filters = ['*.*']
         self.reset_files_collection()
@@ -258,14 +256,10 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def hide_files_click(self, value):
-        if value == False:
-            self.show_hidden_files = False
-        elif value == True:
-            self.show_hidden_files = True
-        if self.directory is None:
-            return
-        self.files_collection.display_hidden_files = value
-        self.files_collection.filter_collection()
+        self.filtered_collection = self.files_collection.filter_collection(value)
+
+    def are_hidden_files_shown(self):
+        return self.action_hide.isChecked()
 
     @Slot()
     def open_directory_dialog_click(self):
@@ -310,8 +304,9 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def reset_files_collection(self):
-        self.files_collection = FileManager.FilesCollection(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
-        self.main_widget.update_directory(self.files_collection)
+        self.files_collection = FileManager.FilesCollection(self.directory, self.use_subfolder)
+        self.filtered_collection = self.files_collection.filter_collection(self.are_hidden_files_shown())
+        self.main_widget.set_filtered_files(self.filtered_collection)
         # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
 
     @Slot()
