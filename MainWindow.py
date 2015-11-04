@@ -23,8 +23,8 @@ class MainWindow(QMainWindow):
         self.files_collection = None
         self.resize(1000, 800)
         # self.showMaximized()
-        self.filters = ''
-        self.type_filters = ['*.*']
+        self.name_filter = ''
+        self.files_type = ['*.*']
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
@@ -41,14 +41,6 @@ class MainWindow(QMainWindow):
         self.action_hide = QAction(self.tr('Show Hidden Files'), self)
         self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+h', "hidden_icon.svg",self.tr('Show hidden files.'))
         self.action_hide.setCheckable(True)
-        self.action_add_prefix = QAction(self.tr('Add Prefix'), self)
-        self.action_add_prefix = self.edit_action(self.action_add_prefix, self.add_prefix_click, None, None, None,self.tr('Add prefix.'))
-        self.action_add_suffix = QAction(self.tr('Add Suffix'), self)
-        self.action_add_suffix = self.edit_action(self.action_add_suffix, self.add_suffix_click, None, None, None,self.tr('Add suffix.'))
-        self.action_remove_prefix = QAction(self.tr('Remove Prefix'), self)
-        self.action_remove_prefix = self.edit_action(self.action_remove_prefix, self.remove_prefix_click, None, None, None,self.tr('Remove prefix.'))
-        self.action_remove_suffix = QAction(self.tr('Remove Suffix'), self)
-        self.action_remove_suffix = self.edit_action(self.action_remove_suffix, self.remove_suffix_click, None, None, None,self.tr('Remove suffix.'))
         self.action_rename = QAction(self.tr('&Rename'), self)
         self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+enter', "run_icon.svg",self.tr('Rename the files/folders.'))
         self.action_undo = QAction(self.tr('Undo'), self)
@@ -78,7 +70,7 @@ class MainWindow(QMainWindow):
         filterInput = QLineEdit()
         filterInput.setPlaceholderText(self.tr("Filter Files..."))
         filterInput.setMaximumWidth(150)
-        filterInput.textChanged[str].connect(self.get_filter_input)
+        filterInput.textChanged[str].connect(self.get_name_filter)
         self.action_files_only = QAction(self.tr('Files only'), self)
         self.action_files_only.setCheckable(True)
         self.action_files_only.setChecked(True)
@@ -174,8 +166,8 @@ class MainWindow(QMainWindow):
     def get_main_widget(self):
         return self.main_widget
 
-    def get_filter_input(self, value):
-        self.filters = value
+    def get_name_filter(self, value):
+        self.name_filter = value
         self.reset_files_collection()
 
     def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
@@ -208,18 +200,18 @@ class MainWindow(QMainWindow):
             subprocess.call(('xdg-open', filepath))
 
     def music_files_click(self):
-        self.type_filters = ['.flac', '.mp3', '.m4a']
+        self.files_type = ['.flac', '.mp3', '.m4a']
         self.reset_files_collection()
     def image_files_click(self):
-        self.type_filters = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
+        self.files_type = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
         self.reset_files_collection()
 
     def all_files_click(self):
-        self.type_filters = ['*.*']
+        self.files_type = ['*.*']
         self.reset_files_collection()
 
     def files_only_click(self):
-        self.type_filters = ['*.*']
+        self.files_type = ['*.*']
         self.action_all_files.setChecked(True)
         self.action_all_files.setEnabled(True)
         self.action_image_files.setEnabled(True)
@@ -228,7 +220,7 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def folders_only_click(self):
-        self.type_filters = ["folders"]
+        self.files_type = ["folders"]
         self.action_all_files.setEnabled(False)
         self.action_image_files.setEnabled(False)
         self.action_music_files.setEnabled(False)
@@ -256,7 +248,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def hide_files_click(self, value):
-        self.filtered_collection = self.files_collection.filter_collection(value)
+        self.files_system_view = self.files_system.generate_files_system_view(value, self.files_type, self.name_filter)
+        self.main_widget.set_filtered_files(self.files_system_view)
 
     def are_hidden_files_shown(self):
         return self.action_hide.isChecked()
@@ -267,19 +260,6 @@ class MainWindow(QMainWindow):
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
         self.reset_files_collection()
-
-    @Slot()
-    def add_prefix_click(self):
-        self.main_widget.add_prefix()
-    @Slot()
-    def add_suffix_click(self):
-        self.main_widget.add_suffix()
-    @Slot()
-    def remove_prefix_click(self):
-        self.main_widget.remove_prefix()
-    @Slot()
-    def remove_suffix_click(self):
-        self.main_widget.remove_suffix()
 
     @Slot()
     def reverse_sorting_click(self, value):
@@ -304,10 +284,10 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def reset_files_collection(self):
-        self.files_collection = FileManager.FilesCollection(self.directory, self.use_subfolder)
-        self.filtered_collection = self.files_collection.filter_collection(self.are_hidden_files_shown())
-        self.main_widget.set_filtered_files(self.filtered_collection)
-        # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.filters, self.type_filters)
+        self.files_system = FileManager.FilesSystem(self.directory, self.use_subfolder)
+        self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter)
+        self.main_widget.set_filtered_files(self.files_system_view)
+        # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.name_filter, self.files_type)
 
     @Slot()
     def rename_click(self):

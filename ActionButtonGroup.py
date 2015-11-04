@@ -218,11 +218,14 @@ class ActionButtonGroup(QWidget):
         self.grid.addWidget(self.action_group, 1, 0, 1, 3)
         self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
         # self.grid.setSizeConstraint(QLayout.SetFixedSize)
-        (self.selected_action, self.action_inputs) = self.action_group.get_inputs()
         # self.frame.adjustSize()
 
-    def get_inputs(self):
-        return (self.selected_action, self.action_inputs)
+    def get_action_with_inputs(self):
+        (selected_action_descriptor, action_args) = self.action_group.get_inputs()
+        action_class = selected_action_descriptor.action_class
+        action_instance = action_class(self.frame_type, **action_args)
+        return action_instance
+
 
     def change(self, selected_action, button_inputs):
         '''Emit signal when added.'''

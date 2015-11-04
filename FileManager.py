@@ -115,23 +115,14 @@ class FileSystemTreeNode(object):
         self._modified_filedescriptor = self._original_filedescriptor
         self._parent = parent
         self._backup_filedescriptor = self._original_filedescriptor
-        self.is_folder = is_folder
-        self.is_hidden = is_hidden
+        self._is_folder = is_folder
+        self._is_hidden = is_hidden
         self._rank = 0
 
 
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
         return file_system_tree_node
-
-    def remove_node(self):
-        siblings = self._parent.get_children()
-        for i, sibling in enumerate(siblings):
-            print(i)
-            print("{0} -- {1}".format(sibling.get_original_relative_path(), self.get_original_relative_path()))
-            if(sibling.get_original_path() == self.get_original_path()):
-                siblings.pop(i)
-        self.children = []
 
     def get_children(self):
         return self.children
@@ -167,6 +158,10 @@ class FileSystemTreeNode(object):
         return os.path.join(self._root_path, self.get_backup_relative_path())
 
     @property
+    def is_folder(self):
+        return self._is_folder
+
+    @property
     def original_filedescriptor(self):
         return self._original_filedescriptor
 
@@ -199,87 +194,164 @@ class FileSystemTreeNode(object):
     def rank(self, value):
         self._rank = value
 
-    def rename(self):
-        # self.execute_method_on_nodes(self.root_tree_node, {self.find_duplicates : []})
-        try:
-            shutil.move(self.get_original_path(), self.get_modified_path())
-            self.original_filedescriptor = self.modified_filedescriptor
-        except IOError as e:
-            raise Exception(str(e))
+    @property
+    def is_hidden(self):
+        return self._is_hidden
 
-    def undo(self, tree_node):
-        try:
-            shutil.move(self.get_original_path(), self.get_backup_path())
-            self.original_filedescriptor = self.backup_filedescriptor
-        except IOError as e:
-            raise Exception(str(e))
-
-    def match_type_filters(self, type_filters):
-        if (type_filters == '*.*'):
+    def match_files_type(self, files_type):
+        if (files_type == ['*.*']):
             return True
-        if(self.is_folder and type_filters == "folders"):
+        if(self.is_folder and files_type == ["folders"]):
             return True
         elif(self.is_folder is False):
             name = self.original_filedescriptor.extension.lower()
-            for ext in type_filters:
+            for ext in files_type:
                 if (name in ext):
                     return True
         return False
 
-    def match_custom_filter(self, filters):
+    def match_name_filter(self, name_filter):
         if(self.is_folder is False):
-            name = self.original_filedescriptor.filename.lower()
-            if (name in filters):
+            name = str(self.original_filedescriptor.filename).lower()
+            if (name_filter in name):
                 return True
-        if(filters == ""):
+        if(name_filter == ""):
             return True
         return False
 
+
+class FileSystemTreeNodeView(object):
+    """
+    Represents a portion of the FileSystemTreeNode depending on filters chosen by the users.
+    Parameters:
+        --root_path: string that represents the whole path of the current file or directory.
+        --parent: the FileSystemTreeNode parent of the current FileSystemTreeNode.
+        --original_filedescriptor: represents the current file or directory basename.
+        --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
+        --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
+    """
+    def __init__(self, file_system_tree_node):
+        self._rank = 0
+        self.children = []
+        self.files_system_tree_node = file_system_tree_node
+
+    def add_children(self, file_system_tree_node_view):
+        self.children.append(file_system_tree_node_view)
+
+    def get_children(self):
+        return self.children
+
+    def get_parent(self):
+        return self.files_system_tree_node.get_parent()
+
+    def get_original_relative_path(self):
+        return self.files_system_tree_node.get_original_relative_path()
+
+    def get_modified_relative_path(self):
+        return self.files_system_tree_node.get_modified_relative_path()
+
+    def get_backup_relative_path(self):
+        return self.files_system_tree_node.get_backup_relative_path()
+
+    def get_original_path(self):
+        return self.files_system_tree_node.get_original_path()
+
+    def get_modified_path(self):
+        return self.files_system_tree_node.get_modified_path()
+
+    def get_backup_path(self):
+        return self.files_system_tree_node.get_backup_path()
+
+    @property
+    def is_folder(self):
+        return self.files_system_tree_node.is_folder
+
+    @property
+    def original_filedescriptor(self):
+        return self.files_system_tree_node.original_filedescriptor
+
+    @original_filedescriptor.setter
+    def original_filedescriptor(self, value):
+        self.files_system_tree_node.original_filedescriptor = value
+
+    @property
+    def modified_filedescriptor(self):
+        return self.files_system_tree_node.modified_filedescriptor
+
+    @modified_filedescriptor.setter
+    def modified_filedescriptor(self, value):
+        self.files_system_tree_node.modified_filedescriptor = value
+
+    @property
+    def backup_filedescriptor(self):
+        return self.files_system_tree_node.backup_filedescriptor
+
+    @backup_filedescriptor.setter
+    def backup_filedescriptor(self, value):
+        self.files_system_tree_node.backup_filedescriptor = value
+
+    @property
+    def rank(self):
+        """Give the position of the file according to the sorting criteria."""
+        return self._rank
+
+    @rank.setter
+    def rank(self, value):
+        self._rank = value
+
+    def match_files_type(self, files_type):
+        self.files_system_tree_node.match_files_type(files_type)
+
+    def match_name_filter(self, name_filter):
+        self.files_system_tree_node.match_name_filter(name_filter)
+
+    @property
     def is_hidden(self):
-        return self.is_hidden
+        self.files_system_tree_node.is_hidden()
 
 
-class FilteredFiles(object):
+class FilesSystemView(object):
+    """
+    Represents a portion of the FilesSystem. This portion depends on the following filters:
+    Parameters:
+        --show_hidden_files: whether or not to show the hidden files.
+    """
 
-    def __init__(self, files_collection, show_hidden_files):
-        self.files_collection = files_collection
+    def __init__(self, root_tree_node, show_hidden_files, files_type, name_filter):
         self.show_hidden_files = show_hidden_files
+        self.files_type = files_type
+        self.name_filter = name_filter
+        self.root_tree_node_view = FileSystemTreeNodeView(root_tree_node)
+        self.filter_files(root_tree_node, self.root_tree_node_view)
 
-    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
-        """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
-        if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
-            #Do not apply the actions to the selected directory.
-            method(tree_node, *optional_argument)
-        for child in tree_node.get_children():
-            if (self.filter_files is True):
+    def filter_files(self, tree_node, tree_node_view):
+        for tree_node_child in tree_node.get_children():
+            if (self.is_filtered_tree_node(tree_node_child) is True):
                 continue
-            self.execute_method_on_nodes(child, method, *optional_argument)
+            tree_node_child_view = FileSystemTreeNodeView(tree_node_child)
+            tree_node_view.add_children(tree_node_child_view)
+            if (tree_node_child.is_folder):
+                self.filter_files(tree_node_child, tree_node_child_view)
 
-    def get_filtered_files(self, tree_node):
-        filtered_files = copy.deepcopy(self.files_collection)
-        for child in tree_node.get_children():
-            if (self.filter_files is True):
-                continue
-            self.get_filtered_node(child, method)
-        return 
-
-    def filter_files(self):
+    def is_filtered_tree_node(self, tree_node):
         if (not self.show_hidden_files and tree_node.is_hidden):
             return True
-        else:
-            return False
+        if (not tree_node.match_files_type(self.files_type)):
+            return True
+        if (not tree_node.match_name_filter(self.name_filter)):
+            return True
+        return False
+
+    def get_file_system_tree_node(self):
+        return self.root_tree_node_view
 
 
-
-class FilesCollection(object):
+class FilesSystem(object):
     """
-    Contains all the FilesSystemTreeNodes representing the files system structure with all subdirectories, starting from the input path.
+    Contains all the FilesSystemTreeNodes representing the files system structure with or without the subdirectories, starting from the input path.
     Parameters:
         --input_path: string that represents the root directory to start the files collection from.
         --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
-        --show_hidden_files: boolean that tells to look at hidden files or not.
-        --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
-        --reverse_order: boolean that specifies the sorting order. Default is 'False'.
     """
 
     def __init__(self, input_path, use_subdirectory):
@@ -305,10 +377,6 @@ class FilesCollection(object):
             else:
                 self.add_file(tree_node, child)
 
-    def filter_collection(self, show_hidden_files):
-        filtered_collection = FilteredFiles(self.root_tree_node, show_hidden_files)
-        return filtered_collection
-
     def add_file(self, tree_node, child):
         file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, child.startswith('.'))
         tree_node.add_children(file_system_child_node)
@@ -321,44 +389,37 @@ class FilesCollection(object):
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
 
-
-    def get_file_sorting_criteria(self, directory, sorting_criteria):
-        """
-        Criteria to sort the files.
-        Parameters:
-            --directory: path to the specified file/folder.
-            --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
-        """
-        (protection_bits, inode_number, device, hard_link, user_id, group_id, size, acessed_time, modification_time, creation_time) = os.stat(directory)
-        if sorting_criteria == "size":
-            return size
-        elif sorting_criteria == "modified_date":
-            return modification_time
-        elif sorting_criteria ==  "creation_date":
-            return creation_time
-        elif sorting_criteria == "name":
-            return directory.lower()
-        else:
-            return None
+    def generate_files_system_view(self, show_hidden_files, files_type, name_filter):
+        files_system_view = FilesSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter)
+        return files_system_view
 
 
-    def get_file_system_tree_node(self):
-        return self.files_collection
+class Controller(object):
+    def __init__(self, files_system_view):
+        self.files_system_view = files_system_view
+        self.root_tree_node_view = self.files_system_view.get_file_system_tree_node()
+        self.actions = []
+
+    def populate_actions(self, action_button_group):
+        (action_descriptor, action_args) = actiongroup.get_inputs()
+        action_class = action_descriptor.action_class
+        action_instance = action_class(path_part, **action_args)
+        self.actions.append(action_instance)
+
+
+    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
+        """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
+        if tree_node.get_original_relative_path() != self.root_tree_node_view.get_original_relative_path():
+            #Do not apply the actions to the selected directory.
+            method(tree_node, *optional_argument)
+        for child in tree_node.get_children():
+            self.execute_method_on_nodes(child, method, *optional_argument)
 
     def reset(self, tree_node):
         """Reset the modified filedescriptor with the original one."""
         tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
-    def execute_method_on_nodes(self, tree_node, method, *optional_argument):
-        """Execute a method on a given FileSystemTreeNode with zero or more optional arguments."""
-        children_names = []
-        duplicate_counter = 1
-        if tree_node.get_original_relative_path() != os.path.split(self.input_path)[-1]:
-            #Do not apply the actions to the selected directory.
-            method(tree_node, *optional_argument)
-        for child in tree_node.get_children():
-            self.execute_method_on_nodes(child, method, *optional_argument)
 
     def find_duplicates(self, tree_node):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
@@ -378,31 +439,33 @@ class FilesCollection(object):
                     children_names.append(same_level_tree_node.modified_filedescriptor.basename)
 
     def process_file_system_tree_node(self, actions, file_or_folder):
-        methods = {}
-        methods[self.reset] = []
-        methods[self.call_actions] = [actions, file_or_folder]
-        self.execute_method_on_nodes(self.root_tree_node, methods)
-        # self.execute_method_on_nodes(self.root_tree_node, self.reset)
-        # self.execute_method_on_nodes(self.root_tree_node, self.call_actions, actions, file_or_folder)
+        # methods = {}
+        # methods[self.reset] = []
+        # methods[self.call_actions] = [actions, file_or_folder]
+        # self.execute_method_on_nodes(self.root_tree_node_view, self.call_actions, actions, file_or_folder)
+        self.execute_method_on_nodes(self.root_tree_node_view, self.reset)
+        self.execute_method_on_nodes(self.root_tree_node_view, self.call_actions, actions, file_or_folder)
+    
+        
 
     def call_actions(self, tree_node, actions, file_or_folder):
         for action in actions:
             tree_node = action.call(tree_node, file_or_folder)
 
-    # def rename(self, tree_node):
-        # # self.execute_method_on_nodes(self.root_tree_node, {self.find_duplicates : []})
-        # try:
-            # shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
-            # tree_node.original_filedescriptor = tree_node.modified_filedescriptor
-        # except IOError as e:
-            # raise Exception(str(e))
+    def rename(self, tree_node):
+        # self.execute_method_on_nodes(self.root_tree_node, {self.find_duplicates : []})
+        try:
+            shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
+            tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+        except IOError as e:
+            raise Exception(str(e))
 
-    # def undo(self, tree_node):
-        # shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
-        # tree_node.original_filedescriptor = tree_node.backup_filedescriptor
+    def undo(self, tree_node):
+        shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
+        tree_node.original_filedescriptor = tree_node.backup_filedescriptor
 
     def batch_rename(self):
-        self.execute_method_on_nodes(self.root_tree_node, self.rename)
+        self.execute_method_on_nodes(self.root_tree_node, FileSystemTreeNodeView.rename)
 
     def batch_undo(self):
         self.execute_method_on_nodes(self.root_tree_node, self.undo)
@@ -439,3 +502,24 @@ class FilesCollection(object):
 
     def get_renamed_files(self):
         self.save_result_to_file("hooh", self.renamed_files_list)
+
+
+
+    def get_file_sorting_criteria(self, directory, sorting_criteria):
+        """
+        Criteria to sort the files.
+        Parameters:
+            --directory: path to the specified file/folder.
+            --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
+        """
+        (protection_bits, inode_number, device, hard_link, user_id, group_id, size, acessed_time, modification_time, creation_time) = os.stat(directory)
+        if sorting_criteria == "size":
+            return size
+        elif sorting_criteria == "modified_date":
+            return modification_time
+        elif sorting_criteria ==  "creation_date":
+            return creation_time
+        elif sorting_criteria == "name":
+            return directory.lower()
+        else:
+            return None

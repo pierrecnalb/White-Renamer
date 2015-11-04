@@ -17,7 +17,7 @@ class MainWidget(QWidget):
 
     def __init__(self):
         QWidget.__init__(self)
-        self.filtered_files = None
+        self.files_system_view = None
         self.all_action_descriptors = []
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
@@ -252,19 +252,21 @@ class MainWidget(QWidget):
     def create_folder(self, name):
         os.makedirs(os.path.join(self.directory, name))
 
-    def set_filtered_files(self, filtered_files):
+    def set_filtered_files(self, files_system_view):
         """Process the selected directory to create the tree and modify the files"""
-        self.filtered_files = filtered_files
+        self.files_system_view = files_system_view
+        self.controller = FileManager.Controller(self.files_system_view)
         self.redraw_tree()
 
     def redraw_tree(self):
         tree = self.main_grid.itemAtPosition(2,0)
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
-        self.populate_tree(self.model, self.filtered_files, True)
+        root_tree_node_view = self.files_system_view.get_file_system_tree_node()
+        self.populate_tree(self.model, root_tree_node_view, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.treeView.expandAll()
-        self.apply_action()
+        # self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
@@ -297,18 +299,18 @@ class MainWidget(QWidget):
     def rename(self):
         """Rename all the files and folders."""
         try:
-            self.filtered_files.batch_rename()
+            self.files_system_view.batch_rename()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
-        self.populate_tree(self.model, self.filtered_files, True)
-        #self.filtered_files.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
-        #self.filtered_files.get_renamed_files()
+        self.populate_tree(self.model, self.files_system_view, True)
+        #self.files_system_view.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
+        #self.files_system_view.get_renamed_files()
         #shutil.rmtree(self.directory)
 
     def undo(self):
         """Undo the previous renaming action."""
-        self.filtered_files.batch_undo()
-        self.populate_tree(self.model, self.filtered_files, True)
+        self.files_system_view.batch_undo()
+        self.populate_tree(self.model, self.files_system_view, True)
         self.apply_action()
 
     def apply_action(self):
@@ -316,21 +318,15 @@ class MainWidget(QWidget):
         widget_number = self.scroll_area_layout.count()
         for i in range(1, widget_number-1): #do not count the stretch widget
             action_button_group = self.scroll_area_layout.itemAt(i).widget()
-            self.populate_actions(action_button_group, action_button_group.get_frame_type())
-        if self.filtered_files is not None:
+            self.actions.append(action_button_group.get_action_with_inputs())
+        if self.files_system_view is not None:
             try:
-                self.filtered_files.process_file_system_tree_node(self.actions, self.file_or_folder)
+                self.controller.process_file_system_tree_node(self.actions, self.file_or_folder)
             except Exception as e:
                 QMessageBox.warning(self, "Warning", str(e))
             #refresh tree
-            self.populate_tree(self.model, self.filtered_files, False)
+            self.populate_tree(self.model, self.files_system_view.get_file_system_tree_node(), False)
 
-    def populate_actions(self, actiongroup, path_part):
-        """populate the list of actions depending on the parameters entered in the ActionButtonGroup"""
-        (action_descriptor, action_args) = actiongroup.get_inputs()
-        action_class = action_descriptor.action_class
-        action_instance = action_class(path_part, **action_args)
-        self.actions.append(action_instance)
 
 class SizeCalculator(object):
     def __init__(self, main_window):
