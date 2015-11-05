@@ -106,9 +106,11 @@ class FileSystemTreeNode(object):
         --parent: the FileSystemTreeNode parent of the current FileSystemTreeNode.
         --original_filedescriptor: represents the current file or directory basename.
         --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
-        --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
+        --size: size of the file in bytes.
+        --modified_date: time of last modification.
+        --created_date: time of creation.
     """
-    def __init__(self, root_path, parent, original_filedescriptor, is_folder, is_hidden):
+    def __init__(self, root_path, parent, original_filedescriptor, is_folder, is_hidden, size, modified_date, created_date):
         self.children = []
         self._root_path = root_path
         self._original_filedescriptor = original_filedescriptor
@@ -117,9 +119,13 @@ class FileSystemTreeNode(object):
         self._backup_filedescriptor = self._original_filedescriptor
         self._is_folder = is_folder
         self._is_hidden = is_hidden
-        self._rank = 0
-
-
+        self._size = size
+        self._modified_date = modified_date
+        self._created_date = created_date
+        
+    def __repr__(self):
+        return self.get_original_relative_path()
+    
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
         return file_system_tree_node
@@ -156,6 +162,15 @@ class FileSystemTreeNode(object):
 
     def get_backup_path(self):
         return os.path.join(self._root_path, self.get_backup_relative_path())
+    @property
+    def size(self):
+        return self._size
+    @property
+    def modified_date(self):
+        return self._modified_date
+    @property
+    def created_date(self):
+        return self._created_date
 
     @property
     def is_folder(self):
@@ -184,15 +199,6 @@ class FileSystemTreeNode(object):
     @backup_filedescriptor.setter
     def backup_filedescriptor(self, value):
         self._backup_filedescriptor = value
-
-    @property
-    def rank(self):
-        """Give the position of the file according to the sorting criteria."""
-        return self._rank
-
-    @rank.setter
-    def rank(self, value):
-        self._rank = value
 
     @property
     def is_hidden(self):
@@ -224,16 +230,16 @@ class FileSystemTreeNodeView(object):
     """
     Represents a portion of the FileSystemTreeNode depending on filters chosen by the users.
     Parameters:
-        --root_path: string that represents the whole path of the current file or directory.
-        --parent: the FileSystemTreeNode parent of the current FileSystemTreeNode.
-        --original_filedescriptor: represents the current file or directory basename.
-        --is_folder: boolean that tells if the current FileSystemTreeNode is a directory or a file.
+        --file_system_tree_node: original filesystemtreenode
         --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
     """
-    def __init__(self, file_system_tree_node):
-        self._rank = 0
+    def __init__(self, file_system_tree_node, rank):
+        self._rank = rank
         self.children = []
         self.files_system_tree_node = file_system_tree_node
+
+    def __repr__(self):
+        return self.files_system_tree_node.__repr__()
 
     def add_children(self, file_system_tree_node_view):
         self.children.append(file_system_tree_node_view)
@@ -261,6 +267,15 @@ class FileSystemTreeNodeView(object):
 
     def get_backup_path(self):
         return self.files_system_tree_node.get_backup_path()
+    @property
+    def size(self):
+        return self.files_system_tree_node.size
+    @property
+    def modified_date(self):
+        return self.files_system_tree_node.modified_date
+    @property
+    def created_date(self):
+        return self.files_system_tree_node.created_date
 
     @property
     def is_folder(self):
@@ -317,18 +332,23 @@ class FilesSystemView(object):
         --show_hidden_files: whether or not to show the hidden files.
     """
 
-    def __init__(self, root_tree_node, show_hidden_files, files_type, name_filter):
+    def __init__(self, root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
         self.show_hidden_files = show_hidden_files
         self.files_type = files_type
         self.name_filter = name_filter
-        self.root_tree_node_view = FileSystemTreeNodeView(root_tree_node)
+        self.sorting_criteria = sorting_criteria
+        print(sorting_criteria)
+        self.reverse_order = reverse_order
+        self.root_tree_node_view = FileSystemTreeNodeView(root_tree_node, 0)
         self.filter_files(root_tree_node, self.root_tree_node_view)
 
     def filter_files(self, tree_node, tree_node_view):
-        for tree_node_child in tree_node.get_children():
+        rank = -1
+        for tree_node_child in sorted(tree_node.get_children(), key = lambda node: self.get_sorting_key(node), reverse=self.reverse_order):
             if (self.is_filtered_tree_node(tree_node_child) is True):
                 continue
-            tree_node_child_view = FileSystemTreeNodeView(tree_node_child)
+            rank += 1
+            tree_node_child_view = FileSystemTreeNodeView(tree_node_child, rank)
             tree_node_view.add_children(tree_node_child_view)
             if (tree_node_child.is_folder):
                 self.filter_files(tree_node_child, tree_node_child_view)
@@ -344,7 +364,32 @@ class FilesSystemView(object):
 
     def get_file_system_tree_node(self):
         return self.root_tree_node_view
+ 
+    def natural_sort(self, tree_node):
+        """ Sorts the given iterable in the way that is expected.
+        """
+        filename = tree_node.original_filedescriptor.basename
+        convert = lambda text: int(text) if text.isdigit() else text
+        alphanum_key = [convert(c) for c in re.split('([0-9]+)', filename)]
+        return alphanum_key
 
+    def get_sorting_key(self, tree_node):
+        """
+        Criteria to sort the files.
+        Parameters:
+            --tree_node: path to the specified file/folder.
+            --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
+        """
+        if self.sorting_criteria == "size":
+            return tree_node.size
+        elif self.sorting_criteria == "modified_date":
+            return tree_node.modified_date
+        elif self.sorting_criteria ==  "creation_date":
+            return tree_node.created_date
+        elif self.sorting_criteria == "name":
+            return self.natural_sort(tree_node)
+        else:
+            return None
 
 class FilesSystem(object):
     """
@@ -359,7 +404,7 @@ class FilesSystem(object):
         (self.root_folder, basename)=os.path.split(self.input_path)
         self.use_subdirectory = use_subdirectory
         root_filedescriptor = FileDescriptor(basename, True)
-        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, False)
+        self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, False,0,0,0 )
         self.scan(self.root_tree_node)
         self.renamed_files_list = []
 
@@ -368,29 +413,33 @@ class FilesSystem(object):
         path = self.get_full_path(tree_node.get_original_relative_path())
         children = os.listdir(path)
         for child in children:
+            print(child)
+            size = os.path.getsize(os.path.join(path,child))#return 0 when folders.
+            modified_date = os.path.getmtime(os.path.join(path,child))
+            created_date = os.path.getctime(os.path.join(path,child))
             if os.path.isdir(os.path.join(path,child)):
-                file_system_child_node = self.add_folder(tree_node, child)
+                file_system_child_node = self.add_folder(tree_node, child, size, modified_date, created_date)
                 if (not self.use_subdirectory):
                     continue
                 else:
                     self.scan(file_system_child_node)
             else:
-                self.add_file(tree_node, child)
+                self.add_file(tree_node, child, size, modified_date, created_date)
 
-    def add_file(self, tree_node, child):
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, child.startswith('.'))
+    def add_file(self, tree_node, child, size, modified_date, created_date):
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, False), False, child.startswith('.'), size, modified_date, created_date)
         tree_node.add_children(file_system_child_node)
 
-    def add_folder(self, tree_node, child):
-        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, child.startswith('.'))
+    def add_folder(self, tree_node, child, size, modified_date, created_date):
+        file_system_child_node = FileSystemTreeNode(self.root_folder,tree_node, FileDescriptor(child, True), True, child.startswith('.'), size, modified_date, created_date)
         tree_node.add_children(file_system_child_node)
         return file_system_child_node
 
     def get_full_path(self, *children):
         return os.path.join(self.root_folder, *children)
 
-    def generate_files_system_view(self, show_hidden_files, files_type, name_filter):
-        files_system_view = FilesSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter)
+    def generate_files_system_view(self, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
+        files_system_view = FilesSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order )
         return files_system_view
 
 
@@ -503,23 +552,3 @@ class Controller(object):
     def get_renamed_files(self):
         self.save_result_to_file("hooh", self.renamed_files_list)
 
-
-
-    def get_file_sorting_criteria(self, directory, sorting_criteria):
-        """
-        Criteria to sort the files.
-        Parameters:
-            --directory: path to the specified file/folder.
-            --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
-        """
-        (protection_bits, inode_number, device, hard_link, user_id, group_id, size, acessed_time, modification_time, creation_time) = os.stat(directory)
-        if sorting_criteria == "size":
-            return size
-        elif sorting_criteria == "modified_date":
-            return modification_time
-        elif sorting_criteria ==  "creation_date":
-            return creation_time
-        elif sorting_criteria == "name":
-            return directory.lower()
-        else:
-            return None
