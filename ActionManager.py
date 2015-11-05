@@ -268,9 +268,9 @@ class DateAction(Action):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         if self.is_modified_date:
-            file_date = os.path.getmtime(file_system_tree_node.get_original_path())
+            file_date = file_system_tree_node.modified_date
         elif self.is_created_date:
-            file_date = os.path.getctime(file_system_tree_node.get_original_path())
+            file_date = file_systme_tree_node.created_date
         return time.strftime(self.format_display, time.localtime(file_date))
 
 class Counter(Action):
