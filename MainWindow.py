@@ -25,7 +25,9 @@ class MainWindow(QMainWindow):
         # self.showMaximized()
         self.name_filter = ''
         self.files_type = ['*.*']
-
+        self.reverse_order = False
+        self.sorting_criteria = "name"
+        
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
         self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
@@ -248,8 +250,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def hide_files_click(self, value):
-        self.files_system_view = self.files_system.generate_files_system_view(value, self.files_type, self.name_filter)
-        self.main_widget.set_filtered_files(self.files_system_view)
+        self.show_hidden_files = value
+        self.reset_files_collection()
 
     def are_hidden_files_shown(self):
         return self.action_hide.isChecked()
@@ -285,7 +287,7 @@ class MainWindow(QMainWindow):
 
     def reset_files_collection(self):
         self.files_system = FileManager.FilesSystem(self.directory, self.use_subfolder)
-        self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter)
+        self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
         self.main_widget.set_filtered_files(self.files_system_view)
         # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.name_filter, self.files_type)
 
