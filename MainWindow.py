@@ -1,14 +1,14 @@
 #author pierrecnalb
 #copyright pierrecnalb
 import subprocess, os, sys
+import MainWidget
 import PySide
 from PySide.QtCore import *
-from PySide.QtGui  import *
+from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
 from PySide.QtSvg  import *
 import resource_rc
-import MainWidget
 import webbrowser
-import FileManager
+import FileSystem
 
 
 __version__ = '1.0.0'
@@ -218,7 +218,7 @@ class MainWindow(QMainWindow):
         self.action_all_files.setEnabled(True)
         self.action_image_files.setEnabled(True)
         self.action_music_files.setEnabled(True)
-        self.main_widget.on_selector_changed(0)
+        self.main_widget.is_file(True)
         self.reset_files_collection()
 
     def folders_only_click(self):
@@ -226,7 +226,7 @@ class MainWindow(QMainWindow):
         self.action_all_files.setEnabled(False)
         self.action_image_files.setEnabled(False)
         self.action_music_files.setEnabled(False)
-        self.main_widget.on_selector_changed(1)
+        self.main_widget.is_file(False)
         self.reset_files_collection()
 
 
@@ -286,10 +286,9 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def reset_files_collection(self):
-        self.files_system = FileManager.FilesSystem(self.directory, self.use_subfolder)
+        self.files_system = FileSystem.FilesSystem(self.directory, self.use_subfolder)
         self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
         self.main_widget.set_filtered_files(self.files_system_view)
-        # self.main_widget.input_directory(self.directory, self.use_subfolder, self.show_hidden_files, self.sorting_criteria, self.reverse_order, self.name_filter, self.files_type)
 
     @Slot()
     def rename_click(self):

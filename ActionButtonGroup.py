@@ -2,7 +2,7 @@
 #copyright pierrecnalb
 import PySide
 from PySide.QtCore import *
-from PySide.QtGui  import *
+from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
 from PySide.QtSvg  import *
 import resource_rc
 import ActionManager

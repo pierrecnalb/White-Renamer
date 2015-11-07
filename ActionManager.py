@@ -286,8 +286,9 @@ class Counter(Action):
         counter *= self.increment
         counter += self.start_index
         counter = str(counter)
-        if (len(str(counter)) <= self.digit_number + 1):
-            for i in range(self.digit_number):
+        number_length = len(str(counter))
+        if (number_length < self.digit_number):
+            for i in range(self.digit_number - number_length):
                 counter = "0" + counter
         return counter
 

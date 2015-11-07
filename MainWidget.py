@@ -4,14 +4,13 @@ import os
 import sys
 import PySide
 from PySide.QtCore import *
-from PySide.QtGui  import *
+# from PySide.QtGui  import *
+from PySide.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
 from PySide.QtSvg  import *
 import ActionManager
 import ActionButtonGroup
-import FileManager
+import FileSystem
 import resource_rc
-import io
-import pdb
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
 
@@ -24,7 +23,7 @@ class MainWidget(QWidget):
         self.file_or_folder = "file"
         # if sys.platform == 'linux':
         self.frame_space = 20
-        self.frame_width = 250
+        self.frame_width = 260
         self.frame_height = 290
         self.button_width = 25
         # elif sys.platform == 'win32' or sys.platform == 'win64':
@@ -64,7 +63,7 @@ class MainWidget(QWidget):
         counter_inputs = []
         counter_inputs.append(ActionManager.ActionInput('start_index', self.tr('Start At'), int, 0))
         counter_inputs.append(ActionManager.ActionInput('increment', self.tr('Increment'), int, 1))
-        counter_inputs.append(ActionManager.ActionInput('digit_number', self.tr('Number of Digit'), int, 0))
+        counter_inputs.append(ActionManager.ActionInput('digit_number', self.tr('Number of Digit'), int, 1))
         date_inputs = []
         date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
         date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
@@ -195,14 +194,14 @@ class MainWidget(QWidget):
         font = QFont()
         font.setWeight(75)
         font.setBold(True)
-        pattern_label = QLabel("Pattern")
+        pattern_label = QLabel(self.tr("Pattern"))
         pattern_label.setFont(font)
         self.main_grid.addWidget(pattern_label,0,0)
         self.main_grid.addLayout(hLayout,1,0)
         self.folder_icon = QIcon(":/folder_icon.svg")
         self.file_icon = QIcon(":/file_icon.svg")
-        self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
-        label = QLabel("Preview")
+        # self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
+        label = QLabel(self.tr("Preview"))
         label.setFont(font)
         self.main_grid.addWidget(label,2,0)
 
@@ -214,6 +213,7 @@ class MainWidget(QWidget):
         self.prefix_box.removed.connect(self.remove_widget)
         self.prefix_box.changed.connect(self.apply_action)
         self.scroll_area_layout.insertWidget(self.scroll_area_layout.indexOf(widget_caller) , self.prefix_box)
+        self.apply_action()
 
     def add_suffix(self, widget_caller):
         self.suffix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Suffix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "suffix")
@@ -223,18 +223,20 @@ class MainWidget(QWidget):
         self.suffix_box.removed.connect(self.remove_widget)
         self.suffix_box.changed.connect(self.apply_action)
         self.scroll_area_layout.insertWidget(self.scroll_area_layout.indexOf(widget_caller) + 1, self.suffix_box)
+        self.apply_action()
 
     def remove_widget(self, widget_caller):
         self.scroll_area_layout.removeWidget(widget_caller)
         widget_caller.destruct_layout()
+        self.apply_action()
 
-    def on_selector_changed(self, index):
-        if index == 0:
+    def is_file(self, value):
+        if value is True:
             self.file_or_folder = "file"
             self.file_box.set_label(self.tr("File"))
             self.file_box.set_frame_type("file")
             self.extension_box.show()
-        elif index == 1:
+        else:
             self.file_or_folder = "folder"
             self.extension_box.hide()
             self.file_box.set_label(self.tr("Folder"))
@@ -244,18 +246,11 @@ class MainWidget(QWidget):
     def get_action_button_group(self):
         return self.file_box
 
-    def create_file(self, name):
-        file = io.open(os.path.join(self.directory, name), 'w')
-        file.write(name)
-        file.close()
-
-    def create_folder(self, name):
-        os.makedirs(os.path.join(self.directory, name))
-
     def set_filtered_files(self, files_system_view):
         """Process the selected directory to create the tree and modify the files"""
         self.files_system_view = files_system_view
-        self.controller = FileManager.Controller(self.files_system_view)
+        self.controller = FileSystem.Controller(self.files_system_view)
+        self.apply_action()
         self.redraw_tree()
 
     def redraw_tree(self):
@@ -266,7 +261,6 @@ class MainWidget(QWidget):
         self.populate_tree(self.model, root_tree_node_view, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.treeView.expandAll()
-        # self.apply_action()
 
     def populate_tree(self, parent, tree_node, reset_view):
         """Populate the tree with the selected directory. If reset_view is False, only the modified_files are updated."""
@@ -299,18 +293,15 @@ class MainWidget(QWidget):
     def rename(self):
         """Rename all the files and folders."""
         try:
-            self.files_system_view.batch_rename()
+            self.controller.batch_rename()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
-        self.populate_tree(self.model, self.files_system_view, True)
-        #self.files_system_view.parse_renamed_files(self.directory, self.sorting_criteria, self.reverse_order)
-        #self.files_system_view.get_renamed_files()
-        #shutil.rmtree(self.directory)
+        self.populate_tree(self.model, self.files_system_view.get_file_system_tree_node(), True)
 
     def undo(self):
         """Undo the previous renaming action."""
-        self.files_system_view.batch_undo()
-        self.populate_tree(self.model, self.files_system_view, True)
+        self.controller.batch_undo()
+        self.populate_tree(self.model, self.files_system_view.get_file_system_tree_node(), True)
         self.apply_action()
 
     def apply_action(self):
@@ -321,7 +312,7 @@ class MainWidget(QWidget):
             self.actions.append(action_button_group.get_action_with_inputs())
         if self.files_system_view is not None:
             try:
-                self.controller.process_file_system_tree_node(self.actions, self.file_or_folder)
+                self.controller.batch_update(self.actions, self.file_or_folder)
             except Exception as e:
                 QMessageBox.warning(self, "Warning", str(e))
             #refresh tree
