@@ -270,7 +270,7 @@ class DateAction(Action):
         if self.is_modified_date:
             file_date = file_system_tree_node.modified_date
         elif self.is_created_date:
-            file_date = file_systme_tree_node.created_date
+            file_date = file_system_tree_node.created_date
         return time.strftime(self.format_display, time.localtime(file_date))
 
 class Counter(Action):

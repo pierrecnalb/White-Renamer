@@ -3,17 +3,9 @@
 <context>
     <name></name>
     <message>
-        <location filename="../MainWindow.py" line="263"/>
+        <location filename="../MainWindow.py" line="260"/>
         <source>Select Directory</source>
         <translation>Sélectionner un répertoire</translation>
-    </message>
-</context>
-<context>
-    <name>Controller</name>
-    <message>
-        <location filename="../FileSystem.py" line="352"/>
-        <source>Names conflict: several items have the same name. Please choose new options to avoid duplicates.</source>
-        <translation>Conflit de noms: plusieurs éléments partagent le même nom. Veuillez choisir de nouvelles options pour éviter les doublons.</translation>
     </message>
 </context>
 <context>
@@ -101,27 +93,27 @@
     <message>
         <location filename="../MainWidget.py" line="136"/>
         <source>Custom Name</source>
-        <translation>Nom Donné</translation>
+        <translation>Nom donné</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="126"/>
         <source>Folder Name</source>
-        <translation>Nom du Dossier</translation>
+        <translation>Nom du dossier</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="137"/>
         <source>Find And Replace</source>
-        <translation>Trouver Et Remplacer</translation>
+        <translation>Trouver et remplacer</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="138"/>
         <source>Insert Characters</source>
-        <translation>Insérer Lettres</translation>
+        <translation>Insérer lettres</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="139"/>
         <source>Delete Characters</source>
-        <translation>Supprimer Lettres</translation>
+        <translation>Supprimer lettres</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="127"/>
@@ -136,12 +128,12 @@
     <message>
         <location filename="../MainWidget.py" line="259"/>
         <source>Original Files</source>
-        <translation>Fichiers Originaux</translation>
+        <translation>Fichiers originaux</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="259"/>
         <source>Modified Files</source>
-        <translation>Fichiers Modifiés</translation>
+        <translation>Fichiers modifiés</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="242"/>
@@ -166,17 +158,17 @@
     <message>
         <location filename="../MainWidget.py" line="47"/>
         <source>First Letter</source>
-        <translation>1ère Lettre</translation>
+        <translation>1ère lettre</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="48"/>
         <source>And After</source>
-        <translation>Et Après</translation>
+        <translation>Et après</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="134"/>
         <source>Original Name</source>
-        <translation>Nom Original</translation>
+        <translation>Nom original</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="66"/>
@@ -221,7 +213,7 @@
     <message>
         <location filename="../MainWidget.py" line="103"/>
         <source>Focal Length</source>
-        <translation>Longueur Focale</translation>
+        <translation>Longueur focale</translation>
     </message>
     <message>
         <location filename="../MainWidget.py" line="106"/>
@@ -297,19 +289,19 @@
         <translation>&amp;Quitter</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="137"/>
+        <location filename="../MainWindow.py" line="133"/>
         <source>&amp;Help</source>
         <translation>&amp;Aide</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="38"/>
         <source>&amp;About</source>
-        <translation>À Propos</translation>
+        <translation>À propos</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="43"/>
         <source>Show Hidden Files</source>
-        <translation>Montrer Fichiers Cachés</translation>
+        <translation>Montrer les fichiers cachés</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="48"/>
@@ -324,22 +316,22 @@
     <message>
         <location filename="../MainWindow.py" line="53"/>
         <source>By Name</source>
-        <translation>Par Nom</translation>
+        <translation>Par nom</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="57"/>
         <source>By Size</source>
-        <translation>Par Taille</translation>
+        <translation>Par taille</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="60"/>
         <source>By Modified Date</source>
-        <translation>Par Date de Modification</translation>
+        <translation>Par date de modification</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="63"/>
         <source>By Creation Date</source>
-        <translation>Par Date de Création</translation>
+        <translation>Par date de création</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="106"/>
@@ -347,7 +339,7 @@
         <translation>&amp;Fichier</translation>
     </message>
     <message>
-        <location filename="../MainWindow.py" line="133"/>
+        <location filename="../MainWindow.py" line="129"/>
         <source>&amp;Tool</source>
         <translation>&amp;Outil</translation>
     </message>
@@ -429,7 +421,7 @@
     <message>
         <location filename="../MainWindow.py" line="40"/>
         <source>Show Subdirectories</source>
-        <translation>Montrer Sous-Dossiers</translation>
+        <translation>Montrer les sous-dossiers</translation>
     </message>
     <message>
         <location filename="../MainWindow.py" line="46"/>

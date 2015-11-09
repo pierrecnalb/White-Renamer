@@ -135,10 +135,12 @@ class FilesSystemView(object):
                 self.filter_files(tree_node_child, tree_node_child_view)
 
     def is_filtered_tree_node(self, tree_node):
-        if (tree_node.is_folder and tree_node.has_children):
-            return False
         if (not self.show_hidden_files and tree_node.is_hidden):
             return True
+        if(tree_node.has_children is False and tree_node.is_folder is True and self.files_type != ["folders"]):
+            return True
+        if (tree_node.is_folder and tree_node.has_children):
+            return False
         if (not tree_node.match_files_type(self.files_type)):
             return True
         if (not tree_node.match_name_filter(self.name_filter)):

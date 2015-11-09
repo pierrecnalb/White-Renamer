@@ -5,8 +5,6 @@ import shutil
 import copy
 import io
 import FileSystemView
-import PySide
-from PySide import QtCore, QtGui
 
 class FileDescriptor(object):
     """
@@ -351,7 +349,7 @@ class Controller(object):
         if tree_node.get_parent() is not None:
             for same_level_tree_node in tree_node.get_parent().get_children():
                 if (same_level_tree_node.modified_filedescriptor.basename in children_names):
-                    raise Exception(self.tr("Names conflict: several items have the same name. Please choose new options to avoid duplicates.")) 
+                    raise Exception("Names conflict: several items have the same name. Please choose new options to avoid duplicates.") 
                 else:
                     children_names.append(same_level_tree_node.modified_filedescriptor.basename)
 

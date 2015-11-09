@@ -22,12 +22,12 @@ class MainWindow(QMainWindow):
         self.filtered_collection = None
         self.files_collection = None
         self.resize(1000, 800)
-        # self.showMaximized()
+        self.showMaximized()
         self.name_filter = ''
         self.files_type = ['*.*']
         self.reverse_order = False
         self.sorting_criteria = "name"
-        
+
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
         self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
@@ -125,10 +125,6 @@ class MainWindow(QMainWindow):
         menu_filter.addAction(self.action_all_files)
         menu_filter.addAction(self.action_image_files)
         menu_filter.addAction(self.action_music_files)
-        #menu_edit.addAction(self.action_add_prefix)
-        #menu_edit.addAction(self.action_add_suffix)
-        #menu_edit.addAction(self.action_remove_prefix)
-        #menu_edit.addAction(self.action_remove_suffix)
         #TOOL
         menu_tool = menubar.addMenu(self.tr('&Tool'))
         menu_tool.addAction(self.action_rename)
@@ -202,10 +198,10 @@ class MainWindow(QMainWindow):
             subprocess.call(('xdg-open', filepath))
 
     def music_files_click(self):
-        self.files_type = ['.flac', '.mp3', '.m4a']
+        self.files_type = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
         self.reset_files_collection()
     def image_files_click(self):
-        self.files_type = ['.jpg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
+        self.files_type = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
         self.reset_files_collection()
 
     def all_files_click(self):
@@ -260,8 +256,11 @@ class MainWindow(QMainWindow):
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
-        self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
-        self.reset_files_collection()
+        try:
+            self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
+            self.reset_files_collection()
+        except Exception as e:
+            msg_box = QMessageBox.warning(self, "Invalid directory", "Please select a valid directory." )
 
     @Slot()
     def reverse_sorting_click(self, value):
