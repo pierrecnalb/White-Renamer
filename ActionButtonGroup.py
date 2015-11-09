@@ -3,7 +3,6 @@
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
-from PySide.QtSvg  import *
 import resource_rc
 import ActionManager
 
@@ -182,19 +181,19 @@ class ActionButtonGroup(QWidget):
         self.label.setFont(font)
         remove_widget = QToolButton()
         remove_widget.setFixedSize(25,25)
-        remove_widget.setIcon(QIcon(":/delete_icon.svg"))
+        remove_widget.setIcon(QIcon(":/delete_icon.png"))
         remove_widget.setIconSize(QSize(16,16))
         remove_widget.setAutoRaise(True)
         remove_widget.pressed.connect(self.on_remove_widget)
         add_prefix = QToolButton()
         add_prefix.setFixedSize(25,25)
-        add_prefix.setIcon(QIcon(":/add_icon.svg"))
+        add_prefix.setIcon(QIcon(":/add_icon.png"))
         add_prefix.setIconSize(QSize(16,16))
         add_prefix.setAutoRaise(True)
         add_prefix.pressed.connect(self.on_add_prefix)
         add_suffix = QToolButton()
         add_suffix.setFixedSize(25,25)
-        add_suffix.setIcon(QIcon(":/add_icon.svg"))
+        add_suffix.setIcon(QIcon(":/add_icon.png"))
         add_suffix.setIconSize(QSize(16,16))
         add_suffix.setAutoRaise(True)
         add_suffix.pressed.connect(self.on_add_suffix)

@@ -5,7 +5,7 @@ import MainWidget
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
-from PySide.QtSvg  import *
+# from PySide.Qtpng  import *
 import resource_rc
 import webbrowser
 import FileSystem
@@ -30,26 +30,26 @@ class MainWindow(QMainWindow):
 
         #CREATE THE ACTIONS
         self.action_open = QAction(self.tr('&Open'), self)
-        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.svg" ,self.tr('Open directory.'))
+        self.action_open = self.edit_action(self.action_open, self.open_directory_dialog_click, None, 'ctrl+o', "new_icon.png" ,self.tr('Open directory.'))
         self.action_exit = QAction(self.tr('&Exit'), self)
-        self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', "exit_icon.svg", self.tr('Exit the application.'))
+        self.action_exit = self.edit_action(self.action_exit, self.close, None,'ctrl+q', "exit_icon.png", self.tr('Exit the application.'))
         self.action_help = QAction(self.tr('&Help'), self)
-        self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+h', 'help_icon.svg', self.tr('Show help page.'))
+        self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+h', 'help_icon.png', self.tr('Show help page.'))
         self.action_about = QAction(self.tr('&About'), self)
         self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('About Box.'))
         self.action_recursion = QAction(self.tr('Show Subdirectories'), self)
-        self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.svg",self.tr('Rename subdirectories recursively.'))
+        self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.png",self.tr('Rename subdirectories recursively.'))
         self.action_recursion.setCheckable(True)
         self.action_hide = QAction(self.tr('Show Hidden Files'), self)
-        self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+h', "hidden_icon.svg",self.tr('Show hidden files.'))
+        self.action_hide = self.edit_action(self.action_hide, self.hide_files_click, bool, 'ctrl+h', "hidden_icon.png",self.tr('Show hidden files.'))
         self.action_hide.setCheckable(True)
         self.action_rename = QAction(self.tr('&Rename'), self)
-        self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+enter', "run_icon.svg",self.tr('Rename the files/folders.'))
+        self.action_rename = self.edit_action(self.action_rename, self.rename_click, None, 'ctrl+enter', "run_icon.png",self.tr('Rename the files/folders.'))
         self.action_undo = QAction(self.tr('Undo'), self)
-        self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', "undo_icon.svg",self.tr('Undo the previous renaming.'))
+        self.action_undo = self.edit_action(self.action_undo, self.undo_click, None, 'ctrl+z', "undo_icon.png",self.tr('Undo the previous renaming.'))
         self.action_reverse_sorting = QAction(self.tr('Reverse'), self)
         self.action_reverse_sorting.setCheckable(True)
-        self.action_reverse_sorting = self.edit_action(self.action_reverse_sorting, self.reverse_sorting_click, bool, None, "order_icon.svg",self.tr('Reverse the sorting order.'))
+        self.action_reverse_sorting = self.edit_action(self.action_reverse_sorting, self.reverse_sorting_click, bool, None, "order_icon.png",self.tr('Reverse the sorting order.'))
         self.action_name_sorting = QAction(self.tr('By Name'), self)
         self.action_name_sorting.setCheckable(True)
         self.action_name_sorting = self.edit_action(self.action_name_sorting, self.name_sorting_click, None, None, None,self.tr('Sort the files/folders by name.'))
@@ -76,10 +76,10 @@ class MainWindow(QMainWindow):
         self.action_files_only = QAction(self.tr('Files only'), self)
         self.action_files_only.setCheckable(True)
         self.action_files_only.setChecked(True)
-        self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, "file_icon.svg",self.tr('Rename only files.'))
+        self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, "file_icon.png",self.tr('Rename only files.'))
         self.action_folders_only = QAction(self.tr('Folders only'), self)
         self.action_folders_only.setCheckable(True)
-        self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, "folder_icon.svg",self.tr('Rename only folders.'))
+        self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, "folder_icon.png",self.tr('Rename only folders.'))
 
         node_type_selector = QActionGroup(self)
         node_type_selector.setObjectName('selector')
@@ -88,14 +88,14 @@ class MainWindow(QMainWindow):
 
         file_type = QActionGroup(self)
         self.action_all_files = QAction(self.tr("All"),self)
-        self.action_all_files = self.edit_action(self.action_all_files, self.all_files_click, None, None, "all_files_icon.svg",self.tr('Rename files of any kind.'))
+        self.action_all_files = self.edit_action(self.action_all_files, self.all_files_click, None, None, "all_files_icon.png",self.tr('Rename files of any kind.'))
         self.action_all_files.setCheckable(True)
         self.action_all_files.setChecked(True)
         self.action_music_files = QAction(self.tr("Music"),self)
-        self.action_music_files = self.edit_action(self.action_music_files, self.music_files_click, None, None, "music_icon.svg",self.tr('Rename only music files.'))
+        self.action_music_files = self.edit_action(self.action_music_files, self.music_files_click, None, None, "music_icon.png",self.tr('Rename only music files.'))
         self.action_music_files.setCheckable(True)
         self.action_image_files = QAction(self.tr("Images"),self)
-        self.action_image_files = self.edit_action(self.action_image_files, self.image_files_click, None, None, "images_icon.svg",self.tr('Rename only image files.'))
+        self.action_image_files = self.edit_action(self.action_image_files, self.image_files_click, None, None, "images_icon.png",self.tr('Rename only image files.'))
         self.action_image_files.setCheckable(True)
         file_type.addAction(self.action_all_files)
         file_type.addAction(self.action_image_files)
@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addSeparator()
         self.main_toolbar.addAction(self.action_rename)
         self.main_toolbar.addAction(self.action_undo)
-        self.main_toolbar.setIconSize(QSize(24,24))
+        self.main_toolbar.setIconSize(QSize(16,16))
 
         empty = QWidget();
         empty.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Preferred)
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         '''This method adds to action: icon, shortcut, ToolTip,\
         StatusTip and can connect triggered action to slot '''
         if icon is not None:
-            action.setIcon(QIcon(":/%s" % (icon)))
+            action.setIcon(QIcon(":/{0}".format(icon)))
         if shortcut is not None:
             action.setShortcut(shortcut)
         if tip is not None:

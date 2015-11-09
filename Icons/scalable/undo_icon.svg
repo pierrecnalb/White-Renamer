@@ -12,10 +12,13 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg7384"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.48.5 r10040"
    height="16"
-   sodipodi:docname="file_icon.svg"
-   width="16.000002">
+   sodipodi:docname="undo_icon.svg"
+   width="16.000002"
+   inkscape:export-filename="/home/pierre/Documents/Programs/White-Renamer/Icons/16x16/undo_icon.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <metadata
      id="metadata90">
     <rdf:RDF>
@@ -29,9 +32,9 @@
     </rdf:RDF>
   </metadata>
   <sodipodi:namedview
-     inkscape:cy="7.8754421"
+     inkscape:cy="7.3605069"
      inkscape:current-layer="layer13"
-     inkscape:window-width="1440"
+     inkscape:window-width="719"
      pagecolor="#555753"
      showborder="true"
      showguides="true"
@@ -41,22 +44,22 @@
      inkscape:object-nodes="true"
      inkscape:pageshadow="2"
      inkscape:guide-bbox="true"
-     inkscape:window-x="0"
+     inkscape:window-x="720"
      inkscape:snap-bbox="true"
      bordercolor="#666666"
      id="namedview88"
-     inkscape:window-maximized="1"
+     inkscape:window-maximized="0"
      inkscape:snap-global="true"
-     inkscape:window-y="25"
+     inkscape:window-y="27"
      gridtolerance="10"
-     inkscape:zoom="18.307717"
-     inkscape:window-height="838"
+     inkscape:zoom="25.891022"
+     inkscape:window-height="834"
      borderopacity="1"
      guidetolerance="10"
-     inkscape:cx="8.3313775"
+     inkscape:cx="8.3473879"
      inkscape:bbox-paths="false"
      inkscape:snap-grids="true"
-     inkscape:pageopacity="1"
+     inkscape:pageopacity="0"
      inkscape:snap-to-guides="true">
     <inkscape:grid
        visible="true"
@@ -104,6 +107,57 @@
          offset="1"
          id="stop2651" />
     </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4176"
+       id="linearGradient4182"
+       x1="8"
+       y1="0"
+       x2="8"
+       y2="16"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4176">
+      <stop
+         style="stop-color:#6e6e6e;stop-opacity:1;"
+         offset="0"
+         id="stop4178" />
+      <stop
+         style="stop-color:#6e6e6e;stop-opacity:0;"
+         offset="1"
+         id="stop4180" />
+    </linearGradient>
+    <marker
+       inkscape:stockid="EmptyTriangleInM"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker7800"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4861"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#6e6e6e;fill-opacity:1;fill-rule:evenodd;stroke:#6e6e6e;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,1.8,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="EmptyTriangleOutM"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="EmptyTriangleOutM"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4870"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#6e6e6e;fill-opacity:1;fill-rule:evenodd;stroke:#6e6e6e;stroke-width:1pt;stroke-opacity:1"
+         transform="matrix(0.4,0,0,0.4,-1.8,0)" />
+    </marker>
   </defs>
   <g
      transform="translate(-482,-176)"
@@ -136,12 +190,37 @@
        id="g40072"
        inkscape:label="folder-remote" />
     <path
-       style="color:#000000;fill:#6e6e6e;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="M 2.96875,0 C 1.87937,0 1,0.87937 1,1.96875 l 0,12.0625 C 1,15.12063 1.87937,16 2.96875,16 l 10.0625,0 C 14.12063,16 15.108063,15.115257 15,14.03125 L 15,4 11,0 z M 4,2 l 5,0 0,4 4,0 0,7 c 0,0.554 -0.446,1 -1,1 L 4,14 C 3.446,14 3,13.554 3,13 L 3,3 C 3,2.446 3.446,2 4,2 z"
-       transform="translate(482,176)"
-       id="path3028"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ssssssccsscccssssss" />
+       sodipodi:type="arc"
+       style="fill:none;stroke:#6e6e6e;stroke-width:1.79999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-mid:none;marker-end:none;display:inline"
+       id="path14375"
+       sodipodi:cx="7.9976754"
+       sodipodi:cy="-7.989584"
+       sodipodi:rx="4.7271895"
+       sodipodi:ry="4.72719"
+       d="m 3.2704863,-7.9916107 a 4.7271895,4.72719 0 1 1 4.4223266,4.719376"
+       transform="matrix(0.99999996,-2.9001088e-4,-2.9001087e-4,-0.99999996,481.99864,176.28555)"
+       sodipodi:start="3.1420214"
+       sodipodi:end="7.9185177"
+       sodipodi:open="true"
+       inkscape:transform-center-y="0.017506042" />
+    <path
+       sodipodi:type="star"
+       style="fill:#6e6e6e;fill-opacity:1;stroke:#6e6e6e;stroke-width:20.81970787;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="path15354"
+       sodipodi:sides="3"
+       sodipodi:cx="91.916008"
+       sodipodi:cy="92.456696"
+       sodipodi:r1="37.556999"
+       sodipodi:r2="18.7785"
+       sodipodi:arg1="-1.0427219"
+       sodipodi:arg2="0.0044756728"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 110.83989,60.015752 110.54875,125.06573 54.359385,92.288604 z"
+       transform="matrix(0.04803141,-1.392963e-5,-1.392963e-5,-0.04803141,484.35442,184.05632)"
+       inkscape:transform-center-x="1.6778925"
+       inkscape:transform-center-y="-4.6453854" />
   </g>
   <g
      transform="translate(-482,-176)"

@@ -1,19 +1,19 @@
 <RCC>
   <qresource>
-    <file alias="file_icon.svg">Icons/file_icon.svg</file>
-    <file alias="folder_icon.svg">Icons/folder_icon.svg</file>
-    <file alias="hidden_icon.svg">Icons/hidden_icon.svg</file>
-    <file alias="new_icon.svg">Icons/new_icon.svg</file>
-    <file alias="order_icon.svg">Icons/order_icon.svg</file>
-    <file alias="run_icon.svg">Icons/run_icon.svg</file>
-    <file alias="undo_icon.svg">Icons/undo_icon.svg</file>
-    <file alias="subdirectory_icon.svg">Icons/subdirectory_icon.svg</file>
-    <file alias="help_icon.svg">Icons/help_icon.svg</file>
-    <file alias="exit_icon.svg">Icons/exit_icon.svg</file>
-    <file alias="add_icon.svg">Icons/add_icon.svg</file>
-    <file alias="delete_icon.svg">Icons/delete_icon.svg</file>
-    <file alias="all_files_icon.svg">Icons/all_files_icon.svg</file>
-    <file alias="music_icon.svg">Icons/music_icon.svg</file>
-    <file alias="images_icon.svg">Icons/images_icon.svg</file>
+    <file alias="file_icon.png">Icons/16x16/file_icon.png</file>
+    <file alias="folder_icon.png">Icons/16x16/folder_icon.png</file>
+    <file alias="hidden_icon.png">Icons/16x16/hidden_icon.png</file>
+    <file alias="new_icon.png">Icons/16x16/new_icon.png</file>
+    <file alias="order_icon.png">Icons/16x16/order_icon.png</file>
+    <file alias="run_icon.png">Icons/16x16/run_icon.png</file>
+    <file alias="undo_icon.png">Icons/16x16/undo_icon.png</file>
+    <file alias="subdirectory_icon.png">Icons/16x16/subdirectory_icon.png</file>
+    <file alias="help_icon.png">Icons/16x16/help_icon.png</file>
+    <file alias="exit_icon.png">Icons/16x16/exit_icon.png</file>
+    <file alias="add_icon.png">Icons/16x16/add_icon.png</file>
+    <file alias="delete_icon.png">Icons/16x16/delete_icon.png</file>
+    <file alias="all_files_icon.png">Icons/16x16/all_files_icon.png</file>
+    <file alias="music_icon.png">Icons/16x16/music_icon.png</file>
+    <file alias="images_icon.png">Icons/16x16/images_icon.png</file>
   </qresource>
 </RCC>

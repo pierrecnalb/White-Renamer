@@ -5,7 +5,7 @@ import sys
 import PySide
 from PySide.QtCore import *
 from PySide.QtGui  import *
-from PySide.QtSvg  import *
+# from PySide.QtSvg  import *
 import resource_rc
 import MainWindow
 import urllib.request

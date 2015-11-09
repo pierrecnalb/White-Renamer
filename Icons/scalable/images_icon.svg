@@ -15,7 +15,10 @@
    inkscape:version="0.48.5 r10040"
    height="16"
    sodipodi:docname="hidden_icon.svg"
-   width="16.000002">
+   width="16.000002"
+   inkscape:export-filename="/home/pierre/Documents/Programs/White-Renamer/Icons/24x24/hidden_icon.png"
+   inkscape:export-xdpi="134.99998"
+   inkscape:export-ydpi="134.99998">
   <metadata
      id="metadata90">
     <rdf:RDF>
@@ -29,9 +32,9 @@
     </rdf:RDF>
   </metadata>
   <sodipodi:namedview
-     inkscape:cy="18.633256"
-     inkscape:current-layer="svg7384"
-     inkscape:window-width="720"
+     inkscape:cy="7.3605069"
+     inkscape:current-layer="layer13"
+     inkscape:window-width="719"
      pagecolor="#555753"
      showborder="true"
      showguides="true"
@@ -41,7 +44,7 @@
      inkscape:object-nodes="true"
      inkscape:pageshadow="2"
      inkscape:guide-bbox="true"
-     inkscape:window-x="0"
+     inkscape:window-x="720"
      inkscape:snap-bbox="true"
      bordercolor="#666666"
      id="namedview88"
@@ -49,16 +52,15 @@
      inkscape:snap-global="true"
      inkscape:window-y="27"
      gridtolerance="10"
-     inkscape:zoom="3.8712058"
+     inkscape:zoom="25.891022"
      inkscape:window-height="834"
      borderopacity="1"
      guidetolerance="10"
-     inkscape:cx="-6.5455722"
+     inkscape:cx="8.3473879"
      inkscape:bbox-paths="false"
      inkscape:snap-grids="true"
-     inkscape:pageopacity="1"
-     inkscape:snap-to-guides="true"
-     inkscape:snap-page="false">
+     inkscape:pageopacity="0"
+     inkscape:snap-to-guides="true">
     <inkscape:grid
        visible="true"
        spacingx="1px"
@@ -73,18 +75,6 @@
      id="title9167">Gnome Symbolic Icon Theme</title>
   <defs
      id="defs7386">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4176">
-      <stop
-         style="stop-color:#6e6e6e;stop-opacity:1;"
-         offset="0"
-         id="stop4178" />
-      <stop
-         style="stop-color:#6e6e6e;stop-opacity:0;"
-         offset="1"
-         id="stop4180" />
-    </linearGradient>
     <radialGradient
        inkscape:collect="always"
        xlink:href="#StandardGradient"
@@ -126,6 +116,28 @@
        x2="8"
        y2="16"
        gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4176">
+      <stop
+         style="stop-color:#6e6e6e;stop-opacity:1;"
+         offset="0"
+         id="stop4178" />
+      <stop
+         style="stop-color:#6e6e6e;stop-opacity:0;"
+         offset="1"
+         id="stop4180" />
+    </linearGradient>
+    <linearGradient
+       gradientTransform="translate(482,176)"
+       y2="16"
+       x2="8"
+       y1="0"
+       x1="8"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3018"
+       xlink:href="#linearGradient4176"
+       inkscape:collect="always" />
   </defs>
   <g
      transform="translate(-482,-176)"
@@ -158,12 +170,11 @@
        id="g40072"
        inkscape:label="folder-remote" />
     <path
-       style="color:#000000;fill:url(#linearGradient4182);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1"
-       d="M 2.96875,0 C 1.87937,0 1,0.87937 1,1.96875 l 0,12.0625 C 1,15.12063 1.87937,16 2.96875,16 l 10.0625,0 C 14.12063,16 15.108063,15.115257 15,14.03125 L 15,4 11,0 z M 4,2 l 5,0 0,4 4,0 0,7 c 0,0.554 -0.446,1 -1,1 L 4,14 C 3.446,14 3,13.554 3,13 L 3,3 C 3,2.446 3.446,2 4,2 z"
-       id="path3028"
+       style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
+       d="m 484,178 0,1 -1,0 c -0.554,0 -1,0.38256 -1,0.875 l 0,9.25 c 0,0.49244 0.446,0.875 1,0.875 l 14,0 c 0.554,0 1,-0.38256 1,-0.875 l 0,-9.25 C 498,179.38256 497.554,179 497,179 l -10,0 0,-1 z m 0,2 3,0 0,1 -3,0 z m 9,1 c 2.20914,0 4,1.79086 4,4 0,2.20914 -1.79086,4 -4,4 -2.20914,0 -4,-1.79086 -4,-4 0,-2.20914 1.79086,-4 4,-4 z m 0,2 c -1.10457,0 -2,0.89543 -2,2 0,1.10457 0.89543,2 2,2 1.10457,0 2,-0.89543 2,-2 0,-1.10457 -0.89543,-2 -2,-2 z"
+       id="rect2915"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ssssssccsscccssssss"
-       transform="translate(482,176)" />
+       sodipodi:nodetypes="ccssssssssccccccccssssssssss" />
   </g>
   <g
      transform="translate(-482,-176)"
@@ -176,11 +187,4 @@
      id="layer15"
      inkscape:label="emblems"
      style="display:inline" />
-  <path
-     style="fill:#6e6e6e;fill-opacity:1;stroke:none;display:inline"
-     d="m 7.2040797,5.6870586 c -0.9199066,0 -1.850674,0.3715068 -2.5520393,1.0745429 -1.40273,1.4060726 -1.4027303,3.6756195 0,5.0816925 1.1104954,1.113139 2.7579201,1.343304 4.0966951,0.693976 0.03523,-0.01708 0.07716,-0.04885 0.111932,-0.06716 0.2173235,-0.08603 0.7634735,-0.244597 1.052158,0.04477 0.2141255,0.214634 0.1425575,0.499954 0.4701135,0.828289 l 2.193858,2.193857 c 0.0023,-0.0023 0.422495,0.429204 0.85068,0 0.429838,-0.430863 0.0063,-0.865178 0,-0.873068 L 11.256005,12.470113 C 10.928448,12.141775 10.664222,12.214635 10.450098,12 c -0.353011,-0.353852 -0.02109,-1.074191 0,-1.119316 C 11.097887,9.5387201 10.866616,7.8747423 9.7561215,6.7616015 9.054755,6.0585654 8.1239865,5.6870586 7.2040797,5.6870586 z m 0,0.9178386 c 1.4878203,0 2.6863598,1.2173786 2.6863598,2.7087437 0,1.4913651 -1.1985395,2.6863571 -2.6863598,2.6863571 -1.4878203,0 -2.6863572,-1.194992 -2.6863572,-2.6863571 4e-7,-1.4913651 1.198537,-2.7087437 2.6863572,-2.7087437 z"
-     id="path3007"
-     inkscape:connector-curvature="0"
-     inkscape:transform-center-x="-1.4282636"
-     inkscape:transform-center-y="1.4383028" />
 </svg>

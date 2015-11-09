@@ -6,7 +6,7 @@ import PySide
 from PySide.QtCore import *
 # from PySide.QtGui  import *
 from PySide.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
-from PySide.QtSvg  import *
+# from PySide.Qtpng  import *
 import ActionManager
 import ActionButtonGroup
 import FileSystem
@@ -198,8 +198,8 @@ class MainWidget(QWidget):
         pattern_label.setFont(font)
         self.main_grid.addWidget(pattern_label,0,0)
         self.main_grid.addLayout(hLayout,1,0)
-        self.folder_icon = QIcon(":/folder_icon.svg")
-        self.file_icon = QIcon(":/file_icon.svg")
+        self.folder_icon = QIcon(":/folder_icon.png")
+        self.file_icon = QIcon(":/file_icon.png")
         # self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
         label = QLabel(self.tr("Preview"))
         label.setFont(font)
