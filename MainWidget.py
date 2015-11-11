@@ -250,8 +250,8 @@ class MainWidget(QWidget):
         """Process the selected directory to create the tree and modify the files"""
         self.files_system_view = files_system_view
         self.controller = FileSystem.Controller(self.files_system_view)
-        # self.apply_action()
         self.redraw_tree()
+        self.apply_action()
 
     def redraw_tree(self):
         tree = self.main_grid.itemAtPosition(2,0)

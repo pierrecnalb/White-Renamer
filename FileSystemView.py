@@ -124,11 +124,17 @@ class FilesSystemView(object):
         self.filter_files(root_tree_node, self.root_tree_node_view)
 
     def filter_files(self, tree_node, tree_node_view):
-        rank = -1
+        rank_file = -1
+        rank_folder = -1
         for tree_node_child in sorted(tree_node.get_children(), key = lambda node: self.get_sorting_key(node), reverse=self.reverse_order):
             if (self.is_filtered_tree_node(tree_node_child) is True):
                 continue
-            rank += 1
+            if (tree_node_child.is_folder):
+                rank_folder += 1
+                rank = rank_folder
+            else:
+                rank_file +=1
+                rank = rank_file
             tree_node_child_view = FileSystemTreeNodeView(tree_node_child, rank)
             tree_node_view.add_children(tree_node_child_view)
             if (tree_node_child.is_folder):

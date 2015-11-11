@@ -1,4 +1,4 @@
-\documentclass[11pt, a4paper]{scrartcl}
+\documentclass[10pt, a4paper]{scrartcl}
 \usepackage{lmodern}
 \usepackage[protrusion=true,expansion=true]{microtype}
 \pagestyle{empty}
@@ -89,12 +89,10 @@ The following actions are available :
 
 \subsection*{Original Name}
 (\emph{see figure \ref{OriginalName}})\\
-
 No changes are made. The files or folders keep their original names.
 
 \subsection*{Case}
 (\emph{see figure \ref{Case}})\\
-
 Three capitalization options are available :
 \begin{itemize}
         \item \textbf{Titlecase} : gives the possiblity to uppercase the first letter of each words.
@@ -109,19 +107,16 @@ Three capitalization options are available :
 
 \subsection*{Custom Name}
 (\emph{see figure \ref{CustomName}})\\
-
 \begin{itemize}
         \item \textbf{New Name} : changes the original name to the given new name.
 \end{itemize}
 
 \subsection*{Folder Name}
 (\emph{see figure \ref{FolderName}})\\
-
 Gives the name of the parent folder.
 
 \subsection*{Find And Replace}
 (\emph{see figure \ref{FindAndReplace}})\\
-
 \begin{itemize}
         \item \textbf{Replace} : which characters should be replaced.
         \item \textbf{With} : with which characters the found token should be replaced.
@@ -158,8 +153,6 @@ The special characters are:
        (?<!...) Matches if not preceded by ... (must be fixed length).
        (?(id/name)yes|no) Matches yes pattern if the group with id/name matched,
                           the (optional) no pattern otherwise.
-
-   
 The special sequences consist of "\\" and a character from the list
 below.  If the ordinary character is not on the list, then the
 resulting RE will match the second character.
@@ -187,15 +180,12 @@ resulting RE will match the second character.
              as letters for the current locale.
     \W       Matches the complement of \w.
     \\       Matches a literal backslash.
-
-
 \end{verbatim}
          \endgroup
 \end{itemize}
 
 \subsection*{Insert Characters}
 (\emph{see figure \ref{Insert}})\\
-
 \begin{itemize}
         \item \textbf{Insert} : what characters should be inserted.
         \item \textbf{At Position} : position, in the original name, of the characters to be inserted. 0 represents the beginning of the string.
@@ -203,7 +193,6 @@ resulting RE will match the second character.
 
 \subsection*{Delete Characters}
 (\emph{see figure \ref{Delete}})\\
-
 \begin{itemize}
         \item \textbf{From} : starting position of the characters to remove.
         \item \textbf{To} : ending position of the characters to remove.
@@ -211,7 +200,6 @@ resulting RE will match the second character.
 
 \subsection*{Counter}
 (\emph{see figure \ref{Counter}})\\
-
 \begin{itemize}
         \item \textbf{Start At} : starting number of the counter. 
         \item \textbf{Increment} : increment number of the counter.
@@ -220,7 +208,6 @@ resulting RE will match the second character.
 
 \subsection*{Date}
 (\emph{see figure \ref{Date}})\\
-
 \begin{itemize}
         \item \textbf{Modified} : date of the last modification.
         \item \textbf{Created} : date of the creation.
@@ -249,26 +236,24 @@ resulting RE will match the second character.
 
 \subsection*{Image Metadata}
 (\emph{see figure \ref{ImageMetadata}})\\
-
 Retrieves the exif metadata of the image. Several options are available:
 \begin{itemize}
         \item \textbf{Original Date} : the date at which the image was taken.
                 \begin{itemize}
                         \item \emph{Format} : date format specification. See section on date for more details. 
                 \end{itemize}
-        \item \textbf{F Number} : Aperture size.
-        \item \textbf{Exposure} : (self explanatory).
-        \item \textbf{ISO} : (self explanatory).
-        \item \textbf{Camera Model} : (self explanatory).
-        \item \textbf{X Dimension} : length in pixels.
-        \item \textbf{Y Dimension} : height in pixels.
-        \item \textbf{Focal Length} : (self explanatory)
-        \item \textbf{Artist} : (self explanatory)
+        \item \textbf{F Number}
+        \item \textbf{Exposure}
+        \item \textbf{ISO}
+        \item \textbf{Camera Model}
+        \item \textbf{X Dimension}
+        \item \textbf{Y Dimension}
+        \item \textbf{Focal Length}
+        \item \textbf{Artist}
 \end{itemize}
 
 \subsection*{Music Metadata}
 (\emph{see figure \ref{MusicMetadata}})\\
-
 Retrieves the metadata of the music files. Several options are available:
 \begin{itemize}
         \item \textbf{Artist}
@@ -280,7 +265,6 @@ Retrieves the metadata of the music files. Several options are available:
 \end{itemize}
 
 \section{Examples}
-
 \begin{figure}[!ht]
         \centering
         \includegraphics[width=\textwidth]{OriginalName.png}

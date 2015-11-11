@@ -219,6 +219,7 @@ class MainWindow(QMainWindow):
 
     def folders_only_click(self):
         self.files_type = ["folders"]
+        self.action_all_files.setChecked(True)
         self.action_all_files.setEnabled(False)
         self.action_image_files.setEnabled(False)
         self.action_music_files.setEnabled(False)
