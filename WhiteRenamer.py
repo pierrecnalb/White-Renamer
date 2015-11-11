@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #author : pierrecnalb
 #copyright pierrecnalb
 import os
@@ -33,7 +34,7 @@ def main():
     win.show()
     try:
         code_online = urllib.request.urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/WhiteRenamer.py").read().splitlines()
-        version_online = code_online[12].decode().split('=')[-1]
+        version_online = code_online[13].decode().split('=')[-1]
         version_online = version_online.split("'")[1]
         if(version_online != __version__):
             win.update_message(__version__, "version_online")
