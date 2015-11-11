@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#author : pierrecnalb
+#WhiteRenamer.py
 #copyright pierrecnalb
 import os
 import sys
