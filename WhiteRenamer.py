@@ -28,6 +28,7 @@ def main():
 
     app.installTranslator(translator)
     win = MainWindow.MainWindow()
+    app.setWindowIcon(QIcon(':/white_renamer48.png'))
     # MainWidget.SizeCalculator(win)
     win.show()
     try:

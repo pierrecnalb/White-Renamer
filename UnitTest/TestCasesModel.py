@@ -190,3 +190,52 @@ os.path.join("TestDirectory","FOLDER1éèùà€ç","sub fOlder_1éèùà€ç")
 os.path.join("TestDirectory","FOLDER1éèùà€ç","sub fOlder_1éèùà€ç","sub file 1éèùà€ç.txt"),
 os.path.join("TestDirectory","FOLDER1éèùà€ç","sub fOlder_1éèùà€ç","sub file 2éèùà€ç.txt"),
 os.path.join("TestDirectory","l'appostropheéèùà€ç.txt")]
+
+Image_Date = [
+os.path.join("TestDirectory","2013-05-07 15:01:29.jpg"),
+os.path.join("TestDirectory","2013-05-07 15:09:31.jpg"),
+os.path.join("TestDirectory","2013-05-07 15:12:31.jpg")]
+
+Image_XDimension = [
+os.path.join("TestDirectory","4288DSC0001.jpg"),
+os.path.join("TestDirectory","4288DSC0002.jpg"),
+os.path.join("TestDirectory","4288DSC0003.jpg")]
+
+Image_YDimension = [
+os.path.join("TestDirectory","2848DSC0001.jpg"),
+os.path.join("TestDirectory","2848DSC0002.jpg"),
+os.path.join("TestDirectory","2848DSC0003.jpg")]
+
+Image_ISO = [
+os.path.join("TestDirectory","320DSC0001.jpg"),
+os.path.join("TestDirectory","320DSC0002.jpg"),
+os.path.join("TestDirectory","320DSC0003.jpg")]
+
+Image_Camera = [
+os.path.join("TestDirectory","NIKON D90DSC0001.jpg"),
+os.path.join("TestDirectory","NIKON D90DSC0002.jpg"),
+os.path.join("TestDirectory","NIKON D90DSC0003.jpg")]
+
+Music_Artist = [
+os.path.join("TestDirectory","Pierre Blanc01CompositionFlight19.mp3"),
+os.path.join("TestDirectory","Pierre Blanc02CompositionDarkness.mp3")]
+
+Music_Album = [
+os.path.join("TestDirectory","Pierre Blanc's Album01CompositionFlight19.mp3"),
+os.path.join("TestDirectory","Pierre Blanc's Album02CompositionDarkness.mp3")]
+
+Music_Year = [
+os.path.join("TestDirectory","201301CompositionFlight19.mp3"),
+os.path.join("TestDirectory","201302CompositionDarkness.mp3")]
+
+Music_Title = [
+os.path.join("TestDirectory","Flight 19.mp3"),
+os.path.join("TestDirectory","Beyond The Darkness.mp3")]
+
+Music_Genre = [
+os.path.join("TestDirectory","Post Rock.mp3"),
+os.path.join("TestDirectory","Rock.mp3")]
+
+Music_Track = [
+os.path.join("TestDirectory","01.mp3"),
+os.path.join("TestDirectory","02.mp3")]

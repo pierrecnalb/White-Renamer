@@ -23,10 +23,7 @@ class ActionButton(QWidget):
             self.combobox.addItem(str(element))
         self.grid.addWidget(self.combobox, 0, 0, 1, 1)
         self.combobox.currentIndexChanged[int].connect(self.on_combobox_changed)
-        # self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        # self.grid.addItem(self.spacerItem,2,0,1,1)
         self.grid.setRowStretch(2,1)
-        # self.grid.setSizeConstraint(QLayout.SetMinAndMaxSize)
         self.populate_widget(self.action_descriptors[0])
         self.store_inputs()
 
@@ -155,8 +152,6 @@ class ActionButtonGroup(QWidget):
 
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height, frame_type):
         QWidget.__init__(self)
-        # self.selected_action = None
-        # self.button_inputs_dict = {}
         self.maximum_height_size = frame_height
         self.maximum_width_size = frame_width
         self.frame_type = frame_type
@@ -168,9 +163,6 @@ class ActionButtonGroup(QWidget):
             self.frame.setStyleSheet("QFrame#frame{border:2px solid rgb(220, 220, 220); border-radius: 7px; padding:0px; background-color: rgb(244, 244, 244)};")
         self.frame_grid = QGridLayout(self.frame) #this is a hidden grid to handle the objects in the frame as if it was a grid.
         self.frame_grid.setObjectName("frame_grid")
-        # self.frame_grid.setSizeConstraint(QLayout.SetMinimumSize)
-        # self.frame_grid.setSizeConstraint(QLayout.SetMinAndMaxSize)
-        # self.frame.setFixedWidth(frame_width);
         self.frame.setGeometry(QRect(0, 0, self.maximum_width_size, self.maximum_height_size))
         self.frame_name = frame_name
         self.label = QLabel(self.frame_name)
@@ -197,7 +189,6 @@ class ActionButtonGroup(QWidget):
         add_suffix.setIconSize(QSize(16,16))
         add_suffix.setAutoRaise(True)
         add_suffix.pressed.connect(self.on_add_suffix)
-        # self.spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid = QGridLayout()
         self.grid.setObjectName("grid")
  
@@ -211,13 +202,15 @@ class ActionButtonGroup(QWidget):
         if (self.frame_type == "file" or frame_type == "folder"):
             self.grid.addWidget(add_prefix, 0 ,0 ,1 ,1)
             self.grid.addWidget(add_suffix, 0 ,2 ,1 ,1)
-        # self.populate_actions()
+        if (self.frame_type =="extension"):
+            empty = QWidget();
+            empty.setMinimumSize(add_suffix.size())
+            self.grid.addWidget(empty, 0 ,0 ,1 ,1)
+            self.grid.addWidget(empty, 0 ,2 ,1 ,1)
         self.action_group = ActionButton(action_descriptors, False)
         self.action_group.action_changed.connect(self.change)
         self.grid.addWidget(self.action_group, 1, 0, 1, 3)
         self.frame_grid.addLayout(self.grid, 0, 0, 1, 1)
-        # self.grid.setSizeConstraint(QLayout.SetFixedSize)
-        # self.frame.adjustSize()
 
     def get_action_with_inputs(self):
         (selected_action_descriptor, action_args) = self.action_group.get_inputs()

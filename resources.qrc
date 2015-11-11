@@ -15,5 +15,8 @@
     <file alias="all_files_icon.png">Icons/16x16/all_files_icon.png</file>
     <file alias="music_icon.png">Icons/16x16/music_icon.png</file>
     <file alias="images_icon.png">Icons/16x16/images_icon.png</file>
+    <file alias="white_renamer16.png">Icons/white_renamer16.png</file>
+    <file alias="white_renamer32.png">Icons/white_renamer32.png</file>
+    <file alias="white_renamer48.png">Icons/white_renamer48.png</file>
   </qresource>
 </RCC>

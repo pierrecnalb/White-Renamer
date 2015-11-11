@@ -298,10 +298,10 @@ class GenericImageAction(Action):
         self.metadata = metadata
 
     def get_exif_tag(self, file):
-        f = open(file, 'rb')
-        tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
-        exif_tag = tags[self.metadata].values
-        return exif_tag
+        with open(file, 'rb') as f:
+            tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
+            exif_tag = tags[self.metadata].values
+            return exif_tag
         
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, path_type, time_format):#, time_format):
