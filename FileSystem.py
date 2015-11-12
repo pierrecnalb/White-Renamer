@@ -1,9 +1,10 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import os
-import shutil
-import copy
-import io
+from os import listdir
+from os.path import getsize, join, isdir, getmtime, getctime, abspath, relpath, split, splitext
+from shutil import move
+from copy import deepcopy
+from io import open
 import FileSystemView
 
 class FileDescriptor(object):
@@ -17,7 +18,7 @@ class FileDescriptor(object):
         self._basename = basename
         self.is_folder = is_folder
         if (self.is_folder is False):
-            (self._filename, self._extension) = os.path.splitext(self._basename)
+            (self._filename, self._extension) = splitext(self._basename)
             self._extension = self._extension[1:] #remove dot
             self._foldername = ""
         else:
@@ -137,30 +138,30 @@ class FileSystemTreeNode(object):
 
     def get_original_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_original_relative_path(), self._original_filedescriptor.basename)
+            return join(self._parent.get_original_relative_path(), self._original_filedescriptor.basename)
         else:
             return self._original_filedescriptor.basename
 
     def get_modified_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_modified_relative_path(), self._modified_filedescriptor.basename)
+            return join(self._parent.get_modified_relative_path(), self._modified_filedescriptor.basename)
         else:
             return self._modified_filedescriptor.basename
 
     def get_backup_relative_path(self):
         if self._parent != None:
-            return os.path.join(self._parent.get_backup_relative_path(), self._backup_filedescriptor.basename)
+            return join(self._parent.get_backup_relative_path(), self._backup_filedescriptor.basename)
         else:
             return self._backup_filedescriptor.basename
 
     def get_original_path(self):
-        return os.path.join(self._root_path, self.get_original_relative_path())
+        return join(self._root_path, self.get_original_relative_path())
 
     def get_modified_path(self):
-        return os.path.join(self._root_path, self.get_modified_relative_path())
+        return join(self._root_path, self.get_modified_relative_path())
 
     def get_backup_path(self):
-        return os.path.join(self._root_path, self.get_backup_relative_path())
+        return join(self._root_path, self.get_backup_relative_path())
     @property
     def size(self):
         return self._size
@@ -247,7 +248,7 @@ class FilesSystem(object):
 
     def __init__(self, input_path, use_subdirectory):
         self.input_path = input_path
-        (self.root_folder, basename)=os.path.split(self.input_path)
+        (self.root_folder, basename)=split(self.input_path)
         self.use_subdirectory = use_subdirectory
         root_filedescriptor = FileDescriptor(basename, True)
         self.root_tree_node = FileSystemTreeNode(self.root_folder, None, root_filedescriptor, True, False,0,0,0 )
@@ -257,12 +258,12 @@ class FilesSystem(object):
     def scan(self, tree_node):
         """Creates the files system structure with FileSystemTreeNode."""
         path = self.get_full_path(tree_node.get_original_relative_path())
-        children = os.listdir(path)
+        children = listdir(path)
         for child in children:
-            size = os.path.getsize(os.path.join(path,child))#return 0 when folders.
-            modified_date = os.path.getmtime(os.path.join(path,child))
-            created_date = os.path.getctime(os.path.join(path,child))
-            if os.path.isdir(os.path.join(path,child)):
+            size = getsize(join(path,child))#return 0 when folders.
+            modified_date = getmtime(join(path,child))
+            created_date = getctime(join(path,child))
+            if isdir(join(path,child)):
                 file_system_child_node = self.add_folder(tree_node, child, size, modified_date, created_date)
                 if (not self.use_subdirectory):
                     continue
@@ -283,7 +284,7 @@ class FilesSystem(object):
         return file_system_child_node
 
     def get_full_path(self, *children):
-        return os.path.join(self.root_folder, *children)
+        return join(self.root_folder, *children)
 
     def generate_files_system_view(self, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
         files_system_view = FileSystemView.FilesSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order )
@@ -327,20 +328,20 @@ class Controller(object):
 
     def reset(self, tree_node):
         """Reset the modified filedescriptor with the original one."""
-        tree_node.modified_filedescriptor = copy.deepcopy(tree_node.original_filedescriptor)
+        tree_node.modified_filedescriptor = deepcopy(tree_node.original_filedescriptor)
         return tree_node
 
     def rename(self, tree_node):
         # self.reset(tree_node)
         try:
             self.has_duplicates(tree_node)
-            shutil.move(tree_node.get_original_path(), tree_node.get_modified_path())
+            move(tree_node.get_original_path(), tree_node.get_modified_path())
             tree_node.original_filedescriptor = tree_node.modified_filedescriptor
         except IOError as e:
             raise Exception(str(e))
 
     def undo(self, tree_node):
-        shutil.move(tree_node.get_original_path(), tree_node.get_backup_path())
+        move(tree_node.get_original_path(), tree_node.get_backup_path())
         tree_node.original_filedescriptor = tree_node.backup_filedescriptor
 
     def has_duplicates(self, tree_node):
@@ -368,27 +369,27 @@ class Controller(object):
         return self.flat_tree_list
 
     def save_result_to_file(self, name, input_list):
-        directory = os.path.join(os.path.dirname(__file__),"UnitTest", "TestCase1_Models", name)
-        file = io.open(directory, 'w+')
+        directory = join(dirname(__file__),"UnitTest", "TestCase1_Models", name)
+        file = open(directory, 'w+')
         for line in input_list:
             file.writelines(line + '\n')
         file.close()
 
     def parse_renamed_files(self, input_path, sorting_criteria, reverse_order):
-        input_path = os.path.abspath(input_path)
-        directory_files = sorted(os.listdir(input_path), key = lambda file : self.get_file_sorting_criteria(os.path.join(input_path, file), sorting_criteria), reverse=reverse_order)
+        input_path = abspath(input_path)
+        directory_files = sorted(listdir(input_path), key = lambda file : self.get_file_sorting_criteria(join(input_path, file), sorting_criteria), reverse=reverse_order)
         for filename in directory_files:
-            filepath = os.path.join(input_path, filename)
+            filepath = join(input_path, filename)
             if filename[0] == '.' and not self.show_hidden_files:
                 continue
-            if os.path.isdir(filepath):
-                self.renamed_files_list.append(os.path.relpath(filepath, self.root_folder))
+            if isdir(filepath):
+                self.renamed_files_list.append(relpath(filepath, self.root_folder))
                 if (not self.use_subdirectory):
                     continue
                 else:
                     self.parse_renamed_files(filepath, sorting_criteria, reverse_order)
             else:
-                self.renamed_files_list.append(os.path.relpath(filepath, self.root_folder))
+                self.renamed_files_list.append(relpath(filepath, self.root_folder))
 
     def get_renamed_files(self):
         self.save_result_to_file("hooh", self.renamed_files_list)
