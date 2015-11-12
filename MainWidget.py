@@ -1,16 +1,11 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import os
-import sys
-import PySide
-from PySide.QtCore import *
-# from PySide.QtGui  import *
 from PySide.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
-# from PySide.Qtpng  import *
 import ActionManager
 import ActionButtonGroup
 import FileSystem
 import resource_rc
+
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
 
@@ -21,21 +16,10 @@ class MainWidget(QWidget):
         self.prefix_action_descriptors = []
         self.extension_action_descriptors = []
         self.file_or_folder = "file"
-        # if sys.platform == 'linux':
         self.frame_space = 20
         self.frame_width = 260
         self.frame_height = 290
         self.button_width = 25
-        # elif sys.platform == 'win32' or sys.platform == 'win64':
-            # self.frame_space = 20
-            # self.frame_width = 
-            # self.frame_height = 182
-            # self.button_width = 25
-        # elif sys.platform == 'darwin':
-            # self.frame_space = 20
-            # self.frame_width = 210
-            # self.frame_height = 210
-            # self.button_width = 25
         self.init_actions()
         self.init_UI()
         #----------------------------------INIT UI---------------------------------------
@@ -200,7 +184,6 @@ class MainWidget(QWidget):
         self.main_grid.addLayout(hLayout,1,0)
         self.folder_icon = QIcon(":/folder_icon.png")
         self.file_icon = QIcon(":/file_icon.png")
-        # self.directory = os.path.join(os.path.dirname(__file__),"UnitTest")
         label = QLabel(self.tr("Preview"))
         label.setFont(font)
         self.main_grid.addWidget(label,2,0)
