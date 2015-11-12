@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 #WhiteRenamer.py
 #copyright pierrecnalb
-import os
+from os import path
 import sys
-import PySide
-from PySide.QtCore import *
-from PySide.QtGui  import *
-# from PySide.QtSvg  import *
 import resource_rc
 import MainWindow
-import urllib.request
+from urllib.request import urlopen
+from PySide.QtGui import QApplication, QIcon
+from PySide.QtCore import QTranslator, QLocale
+import resource_rc
+import MainWindow
 
-__version__ = '1.0.1'
+__version__ = '1.0.0'
 
 
 def main():
@@ -20,10 +20,10 @@ def main():
     locale = QLocale.system().name()[:2]
     if getattr(sys, 'frozen', False):
         # frozen
-        dir_ = os.path.dirname(sys.executable)
+        dir_ = path.dirname(executable)
     else:
         # unfrozen
-        dir_ = os.path.dirname(os.path.realpath(__file__))
+        dir_ = path.dirname(path.realpath(__file__))
     if locale == "fr":
         translator.load('i18n/tr_fr', dir_)
 
@@ -33,11 +33,11 @@ def main():
     # MainWidget.SizeCalculator(win)
     win.show()
     try:
-        code_online = urllib.request.urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/WhiteRenamer.py").read().splitlines()
+        code_online = urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/WhiteRenamer.py").read().splitlines()
         version_online = code_online[13].decode().split('=')[-1]
         version_online = version_online.split("'")[1]
         if(version_online != __version__):
-            win.update_message(__version__, "version_online")
+            win.update_message(__version__, version_online)
     except:
         pass
     app.exec_()
