@@ -1,6 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import re
+from re import split
 import FileSystem
 
 
@@ -161,7 +161,7 @@ class FilesSystemView(object):
         """
         filename = tree_node.original_filedescriptor.basename
         convert = lambda text: int(text) if text.isdigit() else text
-        alphanum_key = [convert(c) for c in re.split('([0-9]+)', filename)]
+        alphanum_key = [convert(c) for c in split('([0-9]+)', filename)]
         return alphanum_key
 
     def get_sorting_key(self, tree_node):
