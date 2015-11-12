@@ -1,7 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import PySide
-from PySide.QtCore import *
+from PySide.QtCore import Signal, QRect, Qt, QSize
 from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
 import resource_rc
 import ActionManager
