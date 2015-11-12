@@ -1,10 +1,8 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import os
-import time
-import re
-import pdb
-import exifread
+from time import strftime, strptime, localtime
+from re import sub
+from exifread import process_file
 from mutagen.easyid3 import EasyID3
 
 class ActionDescriptorGroup(object):
@@ -118,7 +116,7 @@ class CharacterReplacementAction(Action):
         if not self.regex:
             return path_part.replace(self.old_char,self.new_char)
         else:
-            return re.sub(self.old_char, self.new_char, path_part)
+            return sub(self.old_char, self.new_char, path_part)
 
 class OriginalNameAction(Action):
     """Gets the original name."""
@@ -271,7 +269,7 @@ class DateAction(Action):
             file_date = file_system_tree_node.modified_date
         elif self.is_created_date:
             file_date = file_system_tree_node.created_date
-        return time.strftime(self.format_display, time.localtime(file_date))
+        return strftime(self.format_display, localtime(file_date))
 
 class Counter(Action):
     """Count the number of files starting from start_index with the given increment."""
@@ -299,7 +297,7 @@ class GenericImageAction(Action):
 
     def get_exif_tag(self, file):
         with open(file, 'rb') as f:
-            tags = exifread.process_file(f, details=False, stop_tag=self.metadata)
+            tags = process_file(f, details=False, stop_tag=self.metadata)
             exif_tag = tags[self.metadata].values
             return exif_tag
         
@@ -312,8 +310,8 @@ class ImageDateTimeOriginal(GenericImageAction):
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
-            localtime = time.strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
-            return time.strftime(self.time_format, localtime)
+            localtime = strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
+            return strftime(self.time_format, localtime)
         except:
             return path_part
 
