@@ -1,13 +1,13 @@
 #author pierrecnalb
 #copyright pierrecnalb
-import subprocess, os, sys
+import sys
+from os import path, name, startfile, getcwd
+from subprocess import call
 import MainWidget
-import PySide
-from PySide.QtCore import *
+from PySide.QtCore import Slot, QSize
 from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
-# from PySide.Qtpng  import *
+from webbrowser import open
 import resource_rc
-import webbrowser
 import FileSystem
 
 
@@ -186,16 +186,16 @@ class MainWindow(QMainWindow):
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
         if getattr(sys, 'frozen', False): # frozen
-            dir_ = os.path.dirname(sys.executable)
+            dir_ = path.dirname(sys.executable)
         else: # unfrozen
-            dir_ = os.path.dirname(os.path.realpath(__file__))
-        filepath = os.path.join(dir_, "Documentation", "Documentation.pdf")
+            dir_ = path.dirname(path.realpath(__file__))
+        filepath = path.join(dir_, "Documentation", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
             subprocess.call(('open', filepath))
-        elif os.name == 'nt':
-            os.startfile(filepath)
-        elif os.name == 'posix':
+        elif name == 'nt':
+            startfile(filepath)
+        elif name == 'posix':
             subprocess.call(('xdg-open', filepath))
 
     def music_files_click(self):
@@ -259,9 +259,10 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         try:
-            self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
+            self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), getcwd(), flags)
             self.reset_files_collection()
         except Exception as e:
+            print(str(e))
             msg_box = QMessageBox.warning(self, "Invalid directory", "Please select a valid directory." )
 
     @Slot()
