@@ -188,9 +188,10 @@ class MainWindow(QMainWindow):
         '''Read and display a help file- currently the README.txt.'''
         if getattr(sys, 'frozen', False): # frozen
             dir_ = dirname(sys.executable)
+            filepath = join(dir_, "Documentation.pdf")
         else: # unfrozen
             dir_ = dirname(realpath(__file__))
-        filepath = join(dir_, "Documentation", "Documentation.pdf")
+            filepath = join(dir_, "Documentation", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
             call(('open', filepath))
@@ -313,7 +314,7 @@ class MainWindow(QMainWindow):
         if msg_box == QMessageBox.Yes:
             new = 2 # open in a new tab, if possible
             # open a public URL, in this case, the webbrowser docs
-            url = "https://github.com/pierrecnalb/White-Renamer"
+            url = "https://github.com/pierrecnalb/WhiteRenamer-builds"
             webbrowser.open(url,new=new)
             # Save was clicked
         # elif ret == QMessageBox.Discard:
