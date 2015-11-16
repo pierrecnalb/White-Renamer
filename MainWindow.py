@@ -1,7 +1,7 @@
 #author pierrecnalb
 #copyright pierrecnalb
 import sys
-from os import name, startfile, getcwd
+import os
 from os.path import dirname, join, realpath
 from subprocess import call
 import MainWidget
@@ -193,11 +193,11 @@ class MainWindow(QMainWindow):
         filepath = join(dir_, "Documentation", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
-            subprocess.call(('open', filepath))
-        elif name == 'nt':
-            startfile(filepath)
-        elif name == 'posix':
-            subprocess.call(('xdg-open', filepath))
+            call(('open', filepath))
+        elif os.name == 'nt':
+            os.startfile(filepath)
+        elif os.name == 'posix':
+            call(('xdg-open', filepath))
 
     def music_files_click(self):
         self.files_type = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
@@ -260,7 +260,7 @@ class MainWindow(QMainWindow):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
         try:
-            self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), getcwd(), flags)
+            self.directory = QFileDialog.getExistingDirectory(self,self.tr("Select Directory"), os.getcwd(), flags)
             self.reset_files_collection()
         except Exception as e:
             print(str(e))
