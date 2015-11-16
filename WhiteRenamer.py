@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #WhiteRenamer.py
 #copyright pierrecnalb
-from os import path
+from os.path import dirname, realpath
 import sys
 import resource_rc
 import MainWindow
@@ -20,10 +20,10 @@ def main():
     locale = QLocale.system().name()[:2]
     if getattr(sys, 'frozen', False):
         # frozen
-        dir_ = path.dirname(executable)
+        dir_ = dirname(sys.executable)
     else:
         # unfrozen
-        dir_ = path.dirname(path.realpath(__file__))
+        dir_ = dirname(realpath(__file__))
     if locale == "fr":
         translator.load('i18n/tr_fr', dir_)
 

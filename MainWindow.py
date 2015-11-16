@@ -1,7 +1,8 @@
 #author pierrecnalb
 #copyright pierrecnalb
 import sys
-from os import path, name, startfile, getcwd
+from os import name, startfile, getcwd
+from os.path import dirname, join, realpath
 from subprocess import call
 import MainWidget
 from PySide.QtCore import Slot, QSize
@@ -186,10 +187,10 @@ class MainWindow(QMainWindow):
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
         if getattr(sys, 'frozen', False): # frozen
-            dir_ = path.dirname(sys.executable)
+            dir_ = dirname(sys.executable)
         else: # unfrozen
-            dir_ = path.dirname(path.realpath(__file__))
-        filepath = path.join(dir_, "Documentation", "Documentation.pdf")
+            dir_ = dirname(realpath(__file__))
+        filepath = join(dir_, "Documentation", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
             subprocess.call(('open', filepath))
