@@ -184,9 +184,9 @@ class MainWidget(QWidget):
         self.main_grid.addLayout(hLayout,1,0)
         self.folder_icon = QIcon(":/folder_icon.png")
         self.file_icon = QIcon(":/file_icon.png")
-        label = QLabel(self.tr("Preview"))
-        label.setFont(font)
-        self.main_grid.addWidget(label,2,0)
+        self.preview_label = QLabel(self.tr("Preview"))
+        self.preview_label.setFont(font)
+        self.main_grid.addWidget(self.preview_label,2,0)
 
     def add_prefix(self, widget_caller):
         self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "prefix")
@@ -241,6 +241,7 @@ class MainWidget(QWidget):
         self.model.clear()
         self.model.setHorizontalHeaderLabels([self.tr("Original Files"),self.tr("Modified Files")])
         root_tree_node_view = self.files_system_view.get_file_system_tree_node()
+        self.preview_label.setText(self.tr("Preview") + ": " + root_tree_node_view.get_original_path())
         self.populate_tree(self.model, root_tree_node_view, True)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.treeView.expandAll()
