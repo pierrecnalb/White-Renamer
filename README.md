@@ -40,6 +40,12 @@ The bottom part displays a live preview of the changes made to the files/folders
 The builds can be found at this address :
 ![https://github.com/pierrecnalb/WhiteRenamer-builds](https://github.com/pierrecnalb/WhiteRenamer-builds)
 
+## Dependencies
+* python3
+* exifread
+* pyside
+* mutagen
+
 ## License
 White Renamer is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
