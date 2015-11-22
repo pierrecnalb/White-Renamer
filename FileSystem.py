@@ -1,10 +1,11 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 from os import listdir
-from os.path import getsize, join, isdir, getmtime, getctime, abspath, relpath, split, splitext
+from os.path import getsize, join, isdir, getmtime, getctime, abspath, relpath, split, splitext, exists
 from shutil import move
 from copy import deepcopy
 from io import open
+from uuid import uuid4
 import FileSystemView
 
 class FileDescriptor(object):
@@ -122,9 +123,20 @@ class FileSystemTreeNode(object):
         self._modified_date = modified_date
         self._created_date = created_date
         self._has_children = False
+        self._rank = -1
 
     def __repr__(self):
         return self.get_original_relative_path()
+
+    @property
+    def rank(self):
+        """Give the position of the file according to the sorting criteria."""
+        return self._rank
+
+    @rank.setter
+    def rank(self, value):
+        self._rank = value
+        self.files_system_tree_node.rank = value
 
     def add_children(self, file_system_tree_node):
         self.children.append(file_system_tree_node)
@@ -132,6 +144,11 @@ class FileSystemTreeNode(object):
 
     def get_children(self):
         return self.children
+
+    def find_child_by_path(self, path):
+        for child in self.get_children():
+            if child.get_original_path() in path:
+                return child
 
     def get_parent(self):
         return self._parent
@@ -332,11 +349,20 @@ class Controller(object):
         return tree_node
 
     def rename(self, tree_node):
-        # self.reset(tree_node)
         try:
             self.has_duplicates(tree_node)
+            if exists(tree_node.get_modified_path()):
+                conflicting_tree_node = tree_node.get_parent().find_child_by_path(tree_node.get_modified_path())
+                print(tree_node.rank)
+                print(conflicting_tree_node.rank)
+                if(tree_node == conflicting_tree_node): return
+                old_conflicting_file_descriptor = conflicting_tree_node.modified_filedescriptor
+                conflicting_tree_node.modified_filedescriptor = FileDescriptor(str(uuid4()) + "."+ tree_node.original_filedescriptor.extension, tree_node.is_folder)
+                self.rename(conflicting_tree_node)
+                conflicting_tree_node.modified_filedescriptor = old_conflicting_file_descriptor
             move(tree_node.get_original_path(), tree_node.get_modified_path())
-            tree_node.original_filedescriptor = tree_node.modified_filedescriptor
+            # tree_node.original_filedescriptor = deepcopy(tree_node.modified_filedescriptor)
+            # self.reset(tree_node)
         except IOError as e:
             raise Exception(str(e))
 

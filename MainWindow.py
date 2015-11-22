@@ -297,6 +297,7 @@ class MainWindow(QMainWindow):
     @Slot()
     def rename_click(self):
         self.main_widget.rename()
+        self.reset_files_collection()
 
     @Slot()
     def undo_click(self):

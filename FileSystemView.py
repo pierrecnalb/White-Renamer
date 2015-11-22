@@ -91,6 +91,7 @@ class FileSystemTreeNodeView(object):
     @rank.setter
     def rank(self, value):
         self._rank = value
+        self.files_system_tree_node.rank = value
 
     def match_files_type(self, files_type):
         self.files_system_tree_node.match_files_type(files_type)

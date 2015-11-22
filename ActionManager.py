@@ -72,11 +72,11 @@ class Action(object):
         if (file_or_folder == "folder"):
             if (file_system_tree_node.is_folder):
                 if(self.path_type == "folder"):
-                        file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
+                    file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.foldername)
                 elif(self.path_type == "suffix"):
-                        file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
+                    file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
                 elif(self.path_type == "prefix"):
-                        file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
+                    file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
                 elif(self.path_type == "extension"):
                     return file_system_tree_node
                 else:
@@ -85,11 +85,11 @@ class Action(object):
         elif (file_or_folder == "file"):
             if (file_system_tree_node.is_folder is False):
                 if(self.path_type == "file"):
-                        file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
+                    file_system_tree_node.modified_filedescriptor.filename = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.filename)
                 elif(self.path_type == "suffix"):
-                        file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
+                    file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
                 elif(self.path_type == "prefix"):
-                        file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
+                    file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
                 elif(self.path_type == "extension"):
                     file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(file_system_tree_node, file_system_tree_node.modified_filedescriptor.extension)
                 else:
@@ -182,7 +182,7 @@ class UpperCaseAction(CaseChangeAction):
         CaseChangeAction.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-       return path_part.upper()
+        return path_part.upper()
 
 class LowerCaseAction(CaseChangeAction):
     """
@@ -300,13 +300,13 @@ class GenericImageAction(Action):
             tags = process_file(f, details=False, stop_tag=self.metadata)
             exif_tag = tags[self.metadata].values
             return exif_tag
-        
+
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, path_type, time_format):#, time_format):
-   #     self.time_format = time_format
+        #     self.time_format = time_format
         GenericImageAction.__init__(self, path_type, 'EXIF DateTimeOriginal')
         self.time_format = time_format
-        
+
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
@@ -319,7 +319,7 @@ class ImageDateTimeOriginal(GenericImageAction):
 class ImageFNumber(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF FNumber')
-        
+
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
@@ -330,7 +330,7 @@ class ImageFNumber(GenericImageAction):
 class ImageExposureTime(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF ExposureTime')
-    
+
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
@@ -352,14 +352,14 @@ class ImageISO(GenericImageAction):
 class ImageCameraModel(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'Image Model')
-    
+
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
             exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return exif_tag
         except:
             return path_part  
-            
+
 class ImageXDimension(GenericImageAction):
     def __init__(self, path_type):
         GenericImageAction.__init__(self, path_type, 'EXIF ExifImageWidth')

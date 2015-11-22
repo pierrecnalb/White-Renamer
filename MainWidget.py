@@ -280,7 +280,8 @@ class MainWidget(QWidget):
             self.controller.batch_rename()
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
-        self.populate_tree(self.model, self.files_system_view.get_file_system_tree_node(), True)
+        # self.populate_tree(self.model, self.files_system_view.get_file_system_tree_node(), True)
+        # self.apply_action()
 
     def undo(self):
         """Undo the previous renaming action."""
