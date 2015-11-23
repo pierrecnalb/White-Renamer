@@ -11,7 +11,7 @@ from PySide.QtCore import QTranslator, QLocale
 import resource_rc
 import MainWindow
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 
 def main():

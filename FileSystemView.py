@@ -19,11 +19,17 @@ class FileSystemTreeNodeView(object):
     def __repr__(self):
         return self.files_system_tree_node.__repr__()
 
+    def get_file_system_tree_node(self):
+        return self.files_system_tree_node
+
     def add_children(self, file_system_tree_node_view):
         self.children.append(file_system_tree_node_view)
 
     def get_children(self):
         return self.children
+
+    def find_child_by_path(self, path):
+        return self.files_system_tree_node.find_child_by_path(path)
 
     def get_parent(self):
         return self.files_system_tree_node.get_parent()

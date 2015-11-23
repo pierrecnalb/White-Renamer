@@ -353,15 +353,13 @@ class Controller(object):
             self.has_duplicates(tree_node)
             if exists(tree_node.get_modified_path()):
                 conflicting_tree_node = tree_node.get_parent().find_child_by_path(tree_node.get_modified_path())
-                print(tree_node.rank)
-                print(conflicting_tree_node.rank)
-                if(tree_node == conflicting_tree_node): return
-                old_conflicting_file_descriptor = conflicting_tree_node.modified_filedescriptor
-                conflicting_tree_node.modified_filedescriptor = FileDescriptor(str(uuid4()) + "."+ tree_node.original_filedescriptor.extension, tree_node.is_folder)
-                self.rename(conflicting_tree_node)
-                conflicting_tree_node.modified_filedescriptor = old_conflicting_file_descriptor
+                if(conflicting_tree_node is not None and tree_node.get_file_system_tree_node() != conflicting_tree_node): #check if it is the same file
+                    old_conflicting_file_descriptor = conflicting_tree_node.modified_filedescriptor
+                    conflicting_tree_node.modified_filedescriptor = FileDescriptor(str(uuid4()) + "."+ tree_node.original_filedescriptor.extension, tree_node.is_folder)
+                    self.rename(conflicting_tree_node)
+                    conflicting_tree_node.modified_filedescriptor = old_conflicting_file_descriptor
             move(tree_node.get_original_path(), tree_node.get_modified_path())
-            # tree_node.original_filedescriptor = deepcopy(tree_node.modified_filedescriptor)
+            tree_node.original_filedescriptor = deepcopy(tree_node.modified_filedescriptor)
             # self.reset(tree_node)
         except IOError as e:
             raise Exception(str(e))

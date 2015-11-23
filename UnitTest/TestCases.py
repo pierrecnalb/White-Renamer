@@ -329,7 +329,6 @@ class TestCases(unittest.TestCase):
         shutil.rmtree(self.directory)
 
     def apply_actions(self, action_descriptor, action_args, path_type, file_or_folder):
-        # pdb.set_trace()
         self.actions = []
         self.populate_actions(action_descriptor, action_args, path_type)
         self.controller.batch_update(self.actions, file_or_folder)
