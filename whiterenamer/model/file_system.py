@@ -6,7 +6,7 @@ from shutil import move
 from copy import deepcopy
 from io import open
 from uuid import uuid4
-import FileSystemView
+from ..ui.file_system_view import FileSystemView
 
 class FileDescriptor(object):
     """

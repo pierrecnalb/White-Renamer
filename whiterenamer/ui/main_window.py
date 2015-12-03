@@ -4,12 +4,12 @@ import sys
 import os
 from os.path import dirname, join, realpath
 from subprocess import call
-import MainWidget
+from .main_widget import MainWidget
 from PySide.QtCore import Slot, QSize
 from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
 from webbrowser import open
-import resource_rc
-import FileSystem
+from .resource_rc import resource_rc
+from ..model.file_system import FileSystem
 
 
 __version__ = '1.0.0'

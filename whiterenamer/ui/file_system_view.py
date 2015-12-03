@@ -1,7 +1,7 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 from re import split
-import FileSystem
+from ..model.file_system import FileSystem
 
 
 class FileSystemTreeNodeView(object):

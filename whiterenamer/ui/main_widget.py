@@ -1,10 +1,10 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 from PySide.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
-import ActionManager
-import ActionButtonGroup
-import FileSystem
-import resource_rc
+from ..model.action_manager import ActionManager
+from .action_button_group import ActionButtonGroup
+from ..model.file_system import FileSystem
+from .resource_rc import resource_rc
 
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance

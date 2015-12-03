@@ -2,8 +2,8 @@
 #copyright pierrecnalb
 from PySide.QtCore import Signal, QRect, Qt, QSize
 from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
-import resource_rc
-import ActionManager
+from . import resource_rc
+from ..model.action_manager import ActionManager
 
 
 

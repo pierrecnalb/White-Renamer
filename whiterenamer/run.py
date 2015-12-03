@@ -3,13 +3,11 @@
 #copyright pierrecnalb
 from os.path import dirname, realpath
 import sys
-import resource_rc
-import MainWindow
+from .ui import MainWindow
+from .ui import resource_rc
 from urllib.request import urlopen
 from PySide.QtGui import QApplication, QIcon
 from PySide.QtCore import QTranslator, QLocale
-import resource_rc
-import MainWindow
 
 __version__ = '1.0.2'
 
