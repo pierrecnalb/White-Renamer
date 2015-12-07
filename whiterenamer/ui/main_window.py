@@ -4,12 +4,11 @@ import sys
 import os
 from os.path import dirname, join, realpath
 from subprocess import call
-from .main_widget import MainWidget
 from PySide.QtCore import Slot, QSize
 from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
 from webbrowser import open
-from .resource_rc import resource_rc
-from ..model.file_system import FileSystem
+from . import MainWidget, resource_rc
+from ..model import FileSystem
 
 
 __version__ = '1.0.0'
@@ -160,7 +159,7 @@ class MainWindow(QMainWindow):
         self.main_toolbar.addAction(self.action_help)
         # create the status bar
         self.statusBar()
-        self.main_widget = MainWidget.MainWidget()
+        self.main_widget = MainWidget()
         self.setCentralWidget(self.main_widget)
 
     def get_main_widget(self):
@@ -290,7 +289,7 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def reset_files_collection(self):
-        self.files_system = FileSystem.FilesSystem(self.directory, self.use_subfolder)
+        self.files_system = FileSystem(self.directory, self.use_subfolder)
         self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
         self.main_widget.set_filtered_files(self.files_system_view)
 

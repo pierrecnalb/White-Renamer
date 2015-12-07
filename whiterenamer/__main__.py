@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 #WhiteRenamer.py
 #copyright pierrecnalb
+
 from os.path import dirname, realpath
 import sys
-from .ui import MainWindow
-from .ui import resource_rc
+from .ui import MainWindow, resource_rc
 from urllib.request import urlopen
 from PySide.QtGui import QApplication, QIcon
 from PySide.QtCore import QTranslator, QLocale
+
 
 __version__ = '1.0.2'
 
@@ -26,7 +27,7 @@ def main():
         translator.load('i18n/tr_fr', dir_)
 
     app.installTranslator(translator)
-    win = MainWindow.MainWindow()
+    win = MainWindow()
     app.setWindowIcon(QIcon(':/white_renamer48.png'))
     # MainWidget.SizeCalculator(win)
     win.show()

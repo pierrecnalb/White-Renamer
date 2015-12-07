@@ -1,10 +1,9 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 from PySide.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
-from ..model.action_manager import ActionManager
-from .action_button_group import ActionButtonGroup
-from ..model.file_system import FileSystem
-from .resource_rc import resource_rc
+from ..model import action_manager, FileSystem, Controller
+from . import ActionButtonGroup, resource_rc
+
 
 class MainWidget(QWidget):
     #QMainWindow does not allow any self.main_layout or boxes layout. Therefore we use a QWidget instance
@@ -28,34 +27,34 @@ class MainWidget(QWidget):
         original_name_inputs = []
         case_change_inputs = []
         first_letter_inputs = []
-        first_letter_inputs.append(ActionManager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
-        first_letter_inputs.append(ActionManager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
+        first_letter_inputs.append(action_manager.ActionInput('first_letter', self.tr('First Letter'), "checkable", True))
+        first_letter_inputs.append(action_manager.ActionInput('after_symbols', self.tr('And After'), str, "- _" ))
         uppercase_inputs = []
         lowercasecase_inputs = []
         character_replacement_inputs = []
-        character_replacement_inputs.append(ActionManager.ActionInput('old_char', self.tr('Replace'), str, ""))
-        character_replacement_inputs.append(ActionManager.ActionInput('new_char', self.tr('With'), str, ""))
-        character_replacement_inputs.append(ActionManager.ActionInput('regex', self.tr('Regex'), "checkable", False))
+        character_replacement_inputs.append(action_manager.ActionInput('old_char', self.tr('Replace'), str, ""))
+        character_replacement_inputs.append(action_manager.ActionInput('new_char', self.tr('With'), str, ""))
+        character_replacement_inputs.append(action_manager.ActionInput('regex', self.tr('Regex'), "checkable", False))
         character_insertion_inputs = []
-        character_insertion_inputs.append(ActionManager.ActionInput('new_char', self.tr('Insert'), str, ""))
-        character_insertion_inputs.append(ActionManager.ActionInput('index', self.tr('At Position'), int, 0))
+        character_insertion_inputs.append(action_manager.ActionInput('new_char', self.tr('Insert'), str, ""))
+        character_insertion_inputs.append(action_manager.ActionInput('index', self.tr('At Position'), int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(ActionManager.ActionInput('starting_position', self.tr('From'), int, 0))
-        character_deletion_inputs.append(ActionManager.ActionInput('ending_position', self.tr('To'), int, 1))
+        character_deletion_inputs.append(action_manager.ActionInput('starting_position', self.tr('From'), int, 0))
+        character_deletion_inputs.append(action_manager.ActionInput('ending_position', self.tr('To'), int, 1))
         custom_name_inputs = []
-        custom_name_inputs.append(ActionManager.ActionInput('new_name', self.tr('New Name'), str, ""))
+        custom_name_inputs.append(action_manager.ActionInput('new_name', self.tr('New Name'), str, ""))
         counter_inputs = []
-        counter_inputs.append(ActionManager.ActionInput('start_index', self.tr('Start At'), int, 0))
-        counter_inputs.append(ActionManager.ActionInput('increment', self.tr('Increment'), int, 1))
-        counter_inputs.append(ActionManager.ActionInput('digit_number', self.tr('Number of Digit'), int, 1))
+        counter_inputs.append(action_manager.ActionInput('start_index', self.tr('Start At'), int, 0))
+        counter_inputs.append(action_manager.ActionInput('increment', self.tr('Increment'), int, 1))
+        counter_inputs.append(action_manager.ActionInput('digit_number', self.tr('Number of Digit'), int, 1))
         date_inputs = []
-        date_inputs.append(ActionManager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
-        date_inputs.append(ActionManager.ActionInput('is_created_date', self.tr('Created'), bool, True))
-        date_inputs.append(ActionManager.ActionInput('format_display', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S (%A %B)"))
+        date_inputs.append(action_manager.ActionInput('is_modified_date', self.tr('Modified'), bool, False))
+        date_inputs.append(action_manager.ActionInput('is_created_date', self.tr('Created'), bool, True))
+        date_inputs.append(action_manager.ActionInput('format_display', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
         image_metadata_inputs = []
         image_date_time_original = []
-        image_date_time_original.append(ActionManager.ActionInput('time_format', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S"))
+        image_date_time_original.append(action_manager.ActionInput('time_format', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S"))
 
         image_f_number = []
         image_exposure_time = []
@@ -73,54 +72,54 @@ class MainWidget(QWidget):
         music_genre = []
         music_track = []
         case_action_descriptors = []
-        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, ActionManager.TitleCaseAction))
-        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, ActionManager.UpperCaseAction))
-        case_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, ActionManager.LowerCaseAction))
+        case_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Titlecase"), first_letter_inputs, action_manager.TitleCaseAction))
+        case_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Uppercase"), uppercase_inputs, action_manager.UpperCaseAction))
+        case_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Lowercase"), lowercasecase_inputs, action_manager.LowerCaseAction))
         image_action_descriptors = []
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Date"), image_date_time_original, ActionManager.ImageDateTimeOriginal))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("F Number"), image_f_number, ActionManager.ImageFNumber))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Exposure"), image_exposure_time, ActionManager.ImageExposureTime))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("ISO"), image_iso, ActionManager.ImageISO))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Camera Model"), image_camera_model, ActionManager.ImageCameraModel))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("X Dimension"), image_x_dimension, ActionManager.ImageXDimension))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Y Dimension"), image_y_dimension, ActionManager.ImageYDimension))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Focal Length"), image_focal_length, ActionManager.ImageFocalLength))
-        image_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Artist"), image_artist, ActionManager.ImageArtist))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Original Date"), image_date_time_original, action_manager.ImageDateTimeOriginal))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("F Number"), image_f_number, action_manager.ImageFNumber))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Exposure"), image_exposure_time, action_manager.ImageExposureTime))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("ISO"), image_iso, action_manager.ImageISO))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Camera Model"), image_camera_model, action_manager.ImageCameraModel))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("X Dimension"), image_x_dimension, action_manager.ImageXDimension))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Y Dimension"), image_y_dimension, action_manager.ImageYDimension))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Focal Length"), image_focal_length, action_manager.ImageFocalLength))
+        image_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Artist"), image_artist, action_manager.ImageArtist))
         music_action_descriptors = []
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Artist"), music_artist, ActionManager.MusicArtist))
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Title"), music_title, ActionManager.MusicTitle))
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Year"), music_year, ActionManager.MusicYear))
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Album"), music_album, ActionManager.MusicAlbum))
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Genre"), music_genre, ActionManager.MusicGenre))
-        music_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Track"), music_track, ActionManager.MusicTrack))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Artist"), music_artist, action_manager.MusicArtist))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Title"), music_title, action_manager.MusicTitle))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Year"), music_year, action_manager.MusicYear))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Album"), music_album, action_manager.MusicAlbum))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Genre"), music_genre, action_manager.MusicGenre))
+        music_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Track"), music_track, action_manager.MusicTrack))
 
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, ActionManager.GenericImageAction))
-        self.all_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, ActionManager.GenericMusicAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, action_manager.OriginalNameAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, action_manager.CaseChangeAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, action_manager.CustomNameAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, action_manager.FolderNameUsageAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, action_manager.CharacterReplacementAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, action_manager.CharacterInsertionAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, action_manager.CharacterDeletionAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Counter"), counter_inputs, action_manager.Counter))
+        self.all_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Date"), date_inputs, action_manager.DateAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, action_manager.GenericImageAction))
+        self.all_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, action_manager.GenericMusicAction))
         #PREFIX ACTION DESCRIPTOR
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, ActionManager.FolderNameUsageAction))
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Counter"), counter_inputs, ActionManager.Counter))
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Date"), date_inputs, ActionManager.DateAction))
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, ActionManager.GenericImageAction))
-        self.prefix_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, ActionManager.GenericMusicAction))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, action_manager.CustomNameAction))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Folder Name"), foldername_inputs, action_manager.FolderNameUsageAction))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Counter"), counter_inputs, action_manager.Counter))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Date"), date_inputs, action_manager.DateAction))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Image Metadata"), image_action_descriptors, action_manager.GenericImageAction))
+        self.prefix_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Music Metadata"), music_action_descriptors, action_manager.GenericMusicAction))
 
 
         #EXTENSION ACTION DESCRIPTOR
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, ActionManager.OriginalNameAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, ActionManager.CaseChangeAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, ActionManager.CustomNameAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, ActionManager.CharacterReplacementAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, ActionManager.CharacterInsertionAction))
-        self.extension_action_descriptors.append(ActionManager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, ActionManager.CharacterDeletionAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Original Name"), original_name_inputs, action_manager.OriginalNameAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptorGroup(self.tr("Case"), case_action_descriptors, action_manager.CaseChangeAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Custom Name"), custom_name_inputs, action_manager.CustomNameAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Find And Replace"), character_replacement_inputs, action_manager.CharacterReplacementAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Insert Characters"), character_insertion_inputs, action_manager.CharacterInsertionAction))
+        self.extension_action_descriptors.append(action_manager.ActionDescriptor(self.tr("Delete Characters"), character_deletion_inputs, action_manager.CharacterDeletionAction))
 
     def init_UI(self):
         #---LAYOUT---
@@ -140,14 +139,14 @@ class MainWidget(QWidget):
         self.treeView.setModel(self.model)
         self.treeView.setColumnWidth(0, (self.treeView.columnWidth(0)+self.treeView.columnWidth(1))/2)
         self.main_grid.addWidget(self.treeView, 3, 0)
-        self.file_box = ActionButtonGroup.ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height, "file")
+        self.file_box = ActionButtonGroup(self.tr("File"), self.all_action_descriptors, self.frame_width, self.frame_height, "file")
         self.file_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed);
         self.file_box.setFixedSize(self.frame_width, self.frame_height)
         self.file_box.changed.connect(self.apply_action)
         self.file_box.addedBefore.connect(self.add_prefix)
         self.file_box.addedAfter.connect(self.add_suffix)
             #---EXTENSION GROUP---
-        self.extension_box = ActionButtonGroup.ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height, "extension")
+        self.extension_box = ActionButtonGroup(self.tr("Extension"), self.extension_action_descriptors, self.frame_width, self.frame_height, "extension")
         self.extension_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         self.extension_box.setMinimumSize(self.frame_width, self.frame_height)
         self.extension_box.changed.connect(self.apply_action)
@@ -189,7 +188,7 @@ class MainWidget(QWidget):
         self.main_grid.addWidget(self.preview_label,2,0)
 
     def add_prefix(self, widget_caller):
-        self.prefix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Prefix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "prefix")
+        self.prefix_box = ActionButtonGroup(self.tr("Prefix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "prefix")
         self.prefix_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         self.prefix_box.setMinimumSize(self.frame_width, self.frame_height)
         self.prefix_box.addedBefore.connect(self.add_prefix)
@@ -199,7 +198,7 @@ class MainWidget(QWidget):
         self.apply_action()
 
     def add_suffix(self, widget_caller):
-        self.suffix_box = ActionButtonGroup.ActionButtonGroup(self.tr("Suffix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "suffix")
+        self.suffix_box = ActionButtonGroup(self.tr("Suffix"), self.prefix_action_descriptors, self.frame_width, self.frame_height, "suffix")
         self.suffix_box.setSizePolicy( QSizePolicy.Fixed, QSizePolicy.Fixed );
         self.suffix_box.setMinimumSize(self.frame_width, self.frame_height)
         self.suffix_box.addedAfter.connect(self.add_suffix)
@@ -232,7 +231,7 @@ class MainWidget(QWidget):
     def set_filtered_files(self, files_system_view):
         """Process the selected directory to create the tree and modify the files"""
         self.files_system_view = files_system_view
-        self.controller = FileSystem.Controller(self.files_system_view)
+        self.controller = Controller(self.files_system_view)
         self.redraw_tree()
         self.apply_action()
 

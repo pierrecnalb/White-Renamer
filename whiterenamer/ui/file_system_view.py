@@ -1,7 +1,6 @@
 #author : pierrecnalb
 #copyright pierrecnalb
 from re import split
-from ..model.file_system import FileSystem
 
 
 class FileSystemTreeNodeView(object):
@@ -114,7 +113,7 @@ class FileSystemTreeNodeView(object):
         return self.files_system_tree_node.has_children
 
 
-class FilesSystemView(object):
+class FileSystemView(object):
     """
     Represents a portion of the FilesSystem. This portion depends on the following filters:
     Parameters:

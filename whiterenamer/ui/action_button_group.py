@@ -2,9 +2,8 @@
 #copyright pierrecnalb
 from PySide.QtCore import Signal, QRect, Qt, QSize
 from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
+from ..model import action_manager
 from . import resource_rc
-from ..model.action_manager import ActionManager
-
 
 
 class ActionButton(QWidget):
@@ -45,7 +44,7 @@ class ActionButton(QWidget):
             # remove it form the gui
             widgetToRemove.setParent(None)
 
-        if isinstance(current_combo_selection, ActionManager.ActionDescriptorGroup):
+        if isinstance(current_combo_selection, action_manager.ActionDescriptorGroup):
             subframe = QFrame(self)
             subframe.setObjectName("subframe")
             subframe.setStyleSheet("QFrame#subframe{border:2px solid rgb(220, 220, 220); border-radius:3px; padding:0px; background-color: rgb(253, 253, 253)};")
@@ -136,7 +135,7 @@ class ActionButton(QWidget):
         return self.selected_action, self.action_inputs
 
     def store_inputs(self):
-        if isinstance(self.action_descriptors[self.combobox.currentIndex()], ActionManager.ActionDescriptorGroup):
+        if isinstance(self.action_descriptors[self.combobox.currentIndex()], action_manager.ActionDescriptorGroup):
             (self.selected_action, self.action_inputs) = self.sub_action_group.get_inputs()
         else:
             self.selected_action = self.action_descriptors[self.combobox.currentIndex()]

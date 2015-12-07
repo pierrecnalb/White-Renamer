@@ -6,7 +6,7 @@ from shutil import move
 from copy import deepcopy
 from io import open
 from uuid import uuid4
-from ..ui.file_system_view import FileSystemView
+from ..ui import FileSystemView
 
 class FileDescriptor(object):
     """
@@ -255,9 +255,9 @@ class FileSystemTreeNode(object):
             return True
         return False
 
-class FilesSystem(object):
+class FileSystem(object):
     """
-    Contains all the FilesSystemTreeNodes representing the files system structure with or without the subdirectories, starting from the input path.
+    Contains all the FileSystemTreeNodes representing the files system structure with or without the subdirectories, starting from the input path.
     Parameters:
         --input_path: string that represents the root directory to start the files collection from.
         --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
@@ -304,7 +304,7 @@ class FilesSystem(object):
         return join(self.root_folder, *children)
 
     def generate_files_system_view(self, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
-        files_system_view = FileSystemView.FilesSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order )
+        files_system_view = FileSystemView(self.root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order )
         return files_system_view
 
 
