@@ -10,12 +10,12 @@ import pdb
 import io
 sys.path.append('/home/pierre/Documents/Programs/White-Renamer/')
 
-import ActionManager
-import FileSystem
+from whiterenamer.model import action_manager, Controller, FileSystem
+#from whiterenamer.ui import Controller
 import TestCasesModel
 
 class TestCases(unittest.TestCase):
-    """TestCases used to verify the functions from the module 'ActionManager'."""
+    """TestCases used to verify the functions from the module 'action_manager'."""
     def setUp(self):
         self.root_folder = os.path.dirname(__file__)
 
@@ -29,16 +29,16 @@ class TestCases(unittest.TestCase):
         self.reverse_order = reverse_order
         self.files_type = files_type
         self.name_filter = name_filter
-        self.files_system = FileSystem.FilesSystem(self.directory, self.recursion)
+        self.files_system = FileSystem(self.directory, self.recursion)
         self.files_collection = self.files_system.generate_files_system_view(show_hidden_files, self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
-        self.controller = FileSystem.Controller(self.files_collection)
+        self.controller = Controller(self.files_collection)
         self.files_list = []
         self.actions = []
 
     def test_main_original(self):
         """Test to be sure that orginalnameaction is not doing anything."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.OriginalNameAction
+        action_descriptor = action_manager.OriginalNameAction
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
@@ -50,7 +50,7 @@ class TestCases(unittest.TestCase):
     def test_main_uppercase(self):
         """Make all letters uppercase"""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.UpperCaseAction
+        action_descriptor = action_manager.UpperCaseAction
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
@@ -62,7 +62,7 @@ class TestCases(unittest.TestCase):
     def test_main_lowercase(self):
         """Make all letters lowercase"""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.LowerCaseAction
+        action_descriptor = action_manager.LowerCaseAction
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
@@ -74,7 +74,7 @@ class TestCases(unittest.TestCase):
     def test_main_titlecase(self):
         """Make first letters Titlecase after space, underscore, dash and period."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.TitleCaseAction
+        action_descriptor = action_manager.TitleCaseAction
         files = self.files_collection
         action_args = {'first_letter': True, 'after_symbols': ' -_.'}
         self.apply_actions(action_descriptor, action_args, 'folder', 'folder')
@@ -85,7 +85,7 @@ class TestCases(unittest.TestCase):
     def test_main_delete(self):
         """Delete first letter for folders, second for files and third for extension."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CharacterDeletionAction
+        action_descriptor = action_manager.CharacterDeletionAction
         files = self.files_collection
         action_args_folder = {'starting_position' : 0, 'ending_position' : 1}
         action_args_file = {'starting_position' : 1, 'ending_position' : 2}
@@ -99,7 +99,7 @@ class TestCases(unittest.TestCase):
     def test_main_replace_without_regex(self):
         """Replace e with 3 and .txt with .ogg."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CharacterReplacementAction
+        action_descriptor = action_manager.CharacterReplacementAction
         files = self.files_collection
         action_args_folder = {'old_char' : 'e', 'new_char' : '3', 'regex': False}
         action_args_file = {'old_char' : 'e', 'new_char' : '3', 'regex': False}
@@ -113,7 +113,7 @@ class TestCases(unittest.TestCase):
     def test_main_replace_with_regex(self):
         """Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf"."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CharacterReplacementAction
+        action_descriptor = action_manager.CharacterReplacementAction
         files = self.files_collection
         action_args_folder = {'old_char' : '\\d', 'new_char' : '99', 'regex': True}
         action_args_file = {'old_char' : 'file', 'new_char' : 'fhis', 'regex': True}
@@ -127,7 +127,7 @@ class TestCases(unittest.TestCase):
     def test_main_insert(self):
         """Insert A at position 0 for folder, position 3 for files and position 99 for extension."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CharacterInsertionAction
+        action_descriptor = action_manager.CharacterInsertionAction
         files = self.files_collection
         action_args_folder = {'new_char' : 'A', 'index': 0}
         action_args_file = {'new_char' : 'A', 'index': 3}
@@ -141,7 +141,7 @@ class TestCases(unittest.TestCase):
     def test_main_undo(self):
         """Name all folders 'folder', files 'file' and extensions '.ext'. and undo the actions after renaming."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CustomNameAction
+        action_descriptor = action_manager.CustomNameAction
         files = self.files_collection
         action_args_folder = {'new_name' : 'folder'}
         action_args_file = {'new_name' : 'file'}
@@ -156,7 +156,7 @@ class TestCases(unittest.TestCase):
     def test_main_folder_name(self):
         """Use foldername for folders, files."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.FolderNameUsageAction
+        action_descriptor = action_manager.FolderNameUsageAction
         files = self.files_collection
         action_args_folder = {}
         action_args_file = {}
@@ -169,7 +169,7 @@ class TestCases(unittest.TestCase):
     def test_main_custom_prefix_suffix(self):
         """Add a prefix 'prefix ' and a suffix ' suffix'."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CustomNameAction
+        action_descriptor = action_manager.CustomNameAction
         files = self.files_collection
         action_args_prefix = {'new_name' : 'prefix '}
         action_args_suffix = {'new_name' : ' suffix'}
@@ -181,7 +181,7 @@ class TestCases(unittest.TestCase):
     def test_main_counter_sort_by_name(self):
         """Folder with counter from 0 and inc = 1, prefix from 2 and inc = 4. Sorted by name."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.Counter
+        action_descriptor = action_manager.Counter
         files = self.files_collection
         action_args_folder = {'start_index' : 0, 'increment': 1, 'digit_number':1}
         action_args_prefix = {'start_index' : 2, 'increment': 4, 'digit_number':2}
@@ -193,7 +193,7 @@ class TestCases(unittest.TestCase):
     def test_main_counter_sort_reverse_by_name(self):
         """Folder with counter from 0 and inc = 1, file from 0 and inc = 1. Sorted by name in reverse order."""
         self.init("TestCase1", True, False, "name", True)
-        action_descriptor = ActionManager.Counter
+        action_descriptor = action_manager.Counter
         files = self.files_collection
         action_args = {'start_index' : 0, 'increment': 1, 'digit_number':0}
         self.apply_actions(action_descriptor, action_args, 'suffix', 'folder')
@@ -204,7 +204,7 @@ class TestCases(unittest.TestCase):
     def test_main_counter_sort_by_size(self):
         """Folder with counter from 0 and inc = 1, file from 0 and inc = 1. Sorted by size."""
         self.init("TestCase1", True, False, "size", False)
-        action_descriptor = ActionManager.Counter
+        action_descriptor = action_manager.Counter
         files = self.files_collection
         action_args = {'start_index' : 0, 'increment': 1, 'digit_number':0}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'folder')
@@ -215,7 +215,7 @@ class TestCases(unittest.TestCase):
     def test_accent_encoding(self):
         """Use accent and special characters to see if the encoding is supported."""
         self.init("TestCase1", True, False, "name", False)
-        action_descriptor = ActionManager.CustomNameAction
+        action_descriptor = action_manager.CustomNameAction
         files = self.files_collection
         action_args = {'new_name' : 'éèùà€ç'}
         self.apply_actions(action_descriptor, action_args, 'suffix', 'file')
@@ -226,7 +226,7 @@ class TestCases(unittest.TestCase):
     def test_image_date(self):
         """Use image metadata to retrieve the original date."""
         self.init("images", True, False, "name", False)
-        action_descriptor = ActionManager.ImageDateTimeOriginal
+        action_descriptor = action_manager.ImageDateTimeOriginal
         files = self.files_collection
         action_args = {'time_format' : '%Y-%m-%d %H:%M:%S'}
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
@@ -235,7 +235,7 @@ class TestCases(unittest.TestCase):
     def test_image_xdimension(self):
         """Use image metadata to retrieve the width."""
         self.init("images", True, False, "name", False)
-        action_descriptor = ActionManager.ImageXDimension
+        action_descriptor = action_manager.ImageXDimension
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -244,7 +244,7 @@ class TestCases(unittest.TestCase):
     def test_image_ydimension(self):
         """Use image metadata to retrieve the length."""
         self.init("images", True, False, "name", False)
-        action_descriptor = ActionManager.ImageYDimension
+        action_descriptor = action_manager.ImageYDimension
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -253,7 +253,7 @@ class TestCases(unittest.TestCase):
     def test_image_iso(self):
         """Use image metadata to retrieve the iso."""
         self.init("images", True, False, "name", False)
-        action_descriptor = ActionManager.ImageISO
+        action_descriptor = action_manager.ImageISO
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -262,7 +262,7 @@ class TestCases(unittest.TestCase):
     def test_image_model(self):
         """Use image metadata to retrieve the camera model."""
         self.init("images", True, False, "name", False)
-        action_descriptor = ActionManager.ImageCameraModel
+        action_descriptor = action_manager.ImageCameraModel
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -272,7 +272,7 @@ class TestCases(unittest.TestCase):
     def test_music_artist(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicArtist
+        action_descriptor = action_manager.MusicArtist
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -281,7 +281,7 @@ class TestCases(unittest.TestCase):
     def test_music_album(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicAlbum
+        action_descriptor = action_manager.MusicAlbum
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -290,7 +290,7 @@ class TestCases(unittest.TestCase):
     def test_music_year(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicYear
+        action_descriptor = action_manager.MusicYear
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'prefix', 'file')
@@ -299,7 +299,7 @@ class TestCases(unittest.TestCase):
     def test_music_genre(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicGenre
+        action_descriptor = action_manager.MusicGenre
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
@@ -308,7 +308,7 @@ class TestCases(unittest.TestCase):
     def test_music_track(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicTrack
+        action_descriptor = action_manager.MusicTrack
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
@@ -317,7 +317,7 @@ class TestCases(unittest.TestCase):
     def test_music_title(self):
         """Use image metadata to retrieve the camera model."""
         self.init("music", True, False, "name", False)
-        action_descriptor = ActionManager.MusicTitle
+        action_descriptor = action_manager.MusicTitle
         files = self.files_collection
         action_args = {}
         self.apply_actions(action_descriptor, action_args, 'file', 'file')

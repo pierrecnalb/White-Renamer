@@ -4,11 +4,11 @@
 
 from os.path import dirname, realpath
 import sys
-from .ui import MainWindow, resource_rc
+from whiterenamer.ui import resource_rc
+from whiterenamer.ui import MainWindow, resource_rc
 from urllib.request import urlopen
 from PySide.QtGui import QApplication, QIcon
 from PySide.QtCore import QTranslator, QLocale
-
 
 __version__ = '1.0.2'
 
