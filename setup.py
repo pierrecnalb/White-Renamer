@@ -14,12 +14,11 @@ setup(
     author_email = "pierrecnalb@mailbox.org",
     url = 'https://github.com/pierrecnalb/White-Renamer',
     license='GNU Public General License',
-    packages = ['whiterenamer'],
+    packages = ['whiterenamer', 'whiterenamer.ui', 'whiterenamer.model'],
     zip_safe = False,
     entry_points={ 'console_scripts': [ 'whiterenamer = whiterenamer.run:main', ] },
     include_package_data = True,
     test_suite="nose.collector",
     tests_require="nose",
-    install_requires=[ 'mutagen', 'exifread', 'PySide' ],
-
+    install_requires=[ 'mutagen', 'exifread'],
 )
