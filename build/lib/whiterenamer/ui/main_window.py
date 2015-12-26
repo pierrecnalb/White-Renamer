@@ -1,5 +1,21 @@
-#author pierrecnalb
-#copyright pierrecnalb
+#!/usr/bin/python3
+
+# Copyright (C) 2015-2016 Pierre Blanc
+#
+# This file is part of WhiteRenamer.
+#
+# WhiteRenamer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# WhiteRenamer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import sys
 import os
 from os.path import dirname, join, realpath
@@ -190,7 +206,7 @@ class MainWindow(QMainWindow):
             filepath = join(dir_, "Documentation.pdf")
         else: # unfrozen
             dir_ = dirname(realpath(__file__))
-            filepath = join(dir_, "Documentation", "Documentation.pdf")
+            filepath = join(dir_, "..","doc", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
             call(('open', filepath))
