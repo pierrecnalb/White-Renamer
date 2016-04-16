@@ -25,9 +25,10 @@ from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, Q
 from webbrowser import open
 from . import MainWidget, resource_rc
 from ..model import FileSystem
+from urllib.request import urlopen
+import whiterenamer
 
 
-__version__ = '1.0.0'
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         QMainWindow.__init__(self)
@@ -54,6 +55,11 @@ class MainWindow(QMainWindow):
         self.action_help = self.edit_action(self.action_help, self.help_click, None, 'ctrl+h', 'help_icon.png', self.tr('Show help page.'))
         self.action_about = QAction(self.tr('&About'), self)
         self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('About Box.'))
+
+
+        self.action_check_update = QAction(self.tr('&Check update'), self)
+        self.action_check_update = self.edit_action(self.action_check_update, self.check_update_click, None, None, None,self.tr('Check update'))
+
         self.action_recursion = QAction(self.tr('Show Subdirectories'), self)
         self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.png",self.tr('Rename subdirectories recursively.'))
         self.action_recursion.setCheckable(True)
@@ -150,6 +156,7 @@ class MainWindow(QMainWindow):
         menu_help = menubar.addMenu(self.tr('&Help'))
         menu_help.addAction(self.action_help)
         menu_help.addAction(self.action_about)
+        menu_help.addAction(self.action_check_update)
 
         self.main_toolbar = self.addToolBar('main_toolbar')
         self.main_toolbar.addAction(self.action_open)
@@ -255,6 +262,16 @@ class MainWindow(QMainWindow):
 
 <p>White Renamer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; See the GNU General Public License for more details.</p>
                  """ )
+    @Slot()
+    def check_update_click(self):
+        try:
+            code_online = urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/whiterenamer/version.txt").read().splitlines()
+            version_online = code_online[0].decode().split('.')
+            version_online = str(whiterenamer.Version(version_online[0], version_online[1], version_online[2]))
+            print(version_online)
+            self.update_message(str(whiterenamer.__version__), version_online)
+        except:
+            raise Exception("Unable to retrieve the new software version from the server. Please try later.")
 
     @Slot()
     def recursion_click(self, value):
@@ -319,19 +336,25 @@ class MainWindow(QMainWindow):
         self.main_widget.undo()
 
     def update_message(self, version, new_version):
-        msg_box = QMessageBox.information(self, "Update available", 
-                """
+        if(version == new_version):
+            msg_box = QMessageBox.information(self, "Version", 
+                """<p>Your version of whiterenamer is up to date.</p>
+                """.format(version, new_version), QMessageBox.Ok)
+
+        else:
+            msg_box = QMessageBox.information(self, "Update available", 
+                                              """
                 <b>New version available</b> 
                 <p>You are running an old version of White Renamer (v{0}).</p>
                 <p>A newer version is available (v{1}). Do you want to download it ?</p>
                 """.format(version, new_version), QMessageBox.No, QMessageBox.Yes)
-        if msg_box == QMessageBox.No:
-            pass
-        if msg_box == QMessageBox.Yes:
-            new = 2 # open in a new tab, if possible
-            # open a public URL, in this case, the webbrowser docs
-            url = "https://github.com/pierrecnalb/WhiteRenamer-builds"
-            webbrowser.open(url,new=new)
-            # Save was clicked
-        # elif ret == QMessageBox.Discard:
-            # Don't save was clicked
+            if msg_box == QMessageBox.No:
+                pass
+            if msg_box == QMessageBox.Yes:
+                new = 2 # open in a new tab, if possible
+                # open a public URL, in this case, the webbrowser docs
+                url = "https://github.com/pierrecnalb/WhiteRenamer-builds"
+                open(url,new=new)
+                # Save was clicked
+                # elif ret == QMessageBox.Discard:
+                # Don't save was clicked

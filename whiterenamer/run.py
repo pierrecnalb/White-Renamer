@@ -33,25 +33,11 @@ def main():
     else:
         # unfrozen
         dir_ = dirname(realpath(__file__))
-    if locale == "fr":
-        translator.load('i18n/tr_fr', dir_)
-
-    app.installTranslator(translator)
-    win = MainWindow()
-    app.setWindowIcon(QIcon(':/white_renamer48.png'))
-    # MainWidget.SizeCalculator(win)
-    win.show()
-
-    # try:
-        # code_online = urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/whiterenamer/version.txt").read().splitlines()
-        # version_online = code_online[0].decode().split('.')
-# 
-        # if(version_online != __version__):
-            # win.update_message(__version__, version_online)
-    # except:
-        # pass
-    app.exec_()
-
-
-if __name__ == '__main__':
-    main()
+        if locale == "fr":
+            translator.load('i18n/tr_fr', dir_)
+        app.installTranslator(translator)
+        win = MainWindow()
+        app.setWindowIcon(QIcon(':/white_renamer48.png'))
+        # MainWidget.SizeCalculator(win)
+        win.show()
+        app.exec_()

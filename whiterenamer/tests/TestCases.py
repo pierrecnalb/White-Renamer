@@ -2,14 +2,10 @@
 #copyright pierrecnalb
 import unittest
 import re
-import random
 import os
 import sys
 import shutil
-import pdb
-import io
-sys.path.append('/home/pierre/Documents/Programs/White-Renamer/')
-
+sys.path.append('/home/pierre/Documents/Programs/white-renamer/whiterenamer')
 from whiterenamer.model import action_manager, Controller, FileSystem
 #from whiterenamer.ui import Controller
 import TestCasesModel

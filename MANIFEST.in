@@ -1,2 +1,6 @@
 include README.md
 include whiterenamer/doc/Documentation.pdf
+include share/applications/whiterenamer.desktop
+include share/pixmaps/whiterenamer.png
+include share/pixmaps/whiterenamer.xpm
+include share/menu/whiterenamer
