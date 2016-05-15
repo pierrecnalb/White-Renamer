@@ -18,17 +18,8 @@ setup(
     zip_safe = False,
     entry_points={ 'console_scripts': [ 'whiterenamer = whiterenamer:start', ] },
     include_package_data = True,
-    #data_file = [('usr/share/applications/', ['whiterenamer.desktop']),
-    #             ('usr/share/menu/', ['whiterenamer']),
-    #             ('usr/share/pixmaps/', ['whiterenamer.png']),
-    #             ('usr/share/pixmaps/', ['whiterenamer.xpm'])],
-<<<<<<< HEAD
     test_suite="tests.whiterenamer_suite",
     tests_require="nose",
-=======
-    #test_suite="nose.collector",
-    #tests_require="nose",
->>>>>>> 25063ac... finalizing product
     keywords='batch renamer gui simple exif photo music metadata',
     install_requires=['mutagen', 'exifread'],
 )
