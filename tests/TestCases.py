@@ -1,14 +1,17 @@
 #author : pierrecnalb
 #copyright pierrecnalb
-import unittest
 import re
 import os
 import sys
 import shutil
-sys.path.append('/home/pierre/Documents/Programs/white-renamer/whiterenamer')
+import unittest
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# print(path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
+# sys.path.append('/home/pierre/Documents/Programs/white-renamer/whiterenamer')
+import whiterenamer
 from whiterenamer.model import action_manager, Controller, FileSystem
 #from whiterenamer.ui import Controller
-import TestCasesModel
+from . import TestCasesModel
 
 class TestCases(unittest.TestCase):
     """TestCases used to verify the functions from the module 'action_manager'."""
