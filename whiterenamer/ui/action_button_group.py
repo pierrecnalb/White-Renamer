@@ -16,14 +16,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
-from PySide.QtCore import Signal, QRect, Qt, QSize
-from PySide.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
+from PyQt5.QtCore import pyqtSignal, QRect, Qt, QSize
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import * 
+# from PyQt5.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
 from ..model import action_manager
 from . import resource_rc
 
 
 class ActionButton(QWidget):
-    action_changed = Signal(object, object) # get changes in order to refresh the preview.
+    action_changed = pyqtSignal(object, object) # get changes in order to refresh the preview.
 
     def __init__(self, action_descriptors, are_sub_buttons):
         QWidget.__init__(self)
@@ -158,11 +160,11 @@ class ActionButton(QWidget):
             self.action_inputs = self.button_inputs_dict
 
 class ActionButtonGroup(QWidget):
-    changed = Signal() # get changes in order to refresh the preview.
+    changed = pyqtSignal() # get changes in order to refresh the preview.
     """Group the combobox with the textboxes containing the subactions"""
-    removed = Signal(QWidget) # emit a signal when the widget is removed.
-    addedBefore = Signal(QWidget) 
-    addedAfter = Signal(QWidget)
+    removed = pyqtSignal(QWidget) # emit a signal when the widget is removed.
+    addedBefore = pyqtSignal(QWidget) 
+    addedAfter = pyqtSignal(QWidget)
 
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height, frame_type):
         QWidget.__init__(self)

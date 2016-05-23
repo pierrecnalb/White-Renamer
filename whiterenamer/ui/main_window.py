@@ -20,8 +20,9 @@ import sys
 import os
 from os.path import dirname, join, realpath
 from subprocess import call
-from PySide.QtCore import Slot, QSize
-from PySide.QtGui import QMainWindow, QAction, QIcon, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
+from PyQt5.QtCore import pyqtSlot, QSize
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from webbrowser import open
 from . import MainWidget, resource_rc
 from ..model import FileSystem
@@ -192,9 +193,9 @@ class MainWindow(QMainWindow):
         self.name_filter = value
         self.reset_files_collection()
 
-    def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
+    def edit_action(self, action, pyqtSlot=None, type=None, shortcut=None, icon=None, tip=None):
         '''This method adds to action: icon, shortcut, ToolTip,\
-        StatusTip and can connect triggered action to slot '''
+        StatusTip and can connect triggered action to pyqtSlot '''
         if icon is not None:
             action.setIcon(QIcon(":/{0}".format(icon)))
         if shortcut is not None:
@@ -202,8 +203,9 @@ class MainWindow(QMainWindow):
         if tip is not None:
             action.setToolTip(tip)
             action.setStatusTip(tip)
-        if slot is not None:
-            action.triggered[type].connect(slot)
+        if pyqtSlot is not None:
+            pass
+            # action.triggered[type].connect(pyqtSlot)
         return action
 
     def help_click(self):
@@ -262,7 +264,7 @@ class MainWindow(QMainWindow):
 
 <p>White Renamer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; See the GNU General Public License for more details.</p>
                  """ )
-    @Slot()
+    @pyqtSlot()
     def check_update_click(self):
         try:
             code_online = urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/whiterenamer/version.txt").read().splitlines()
@@ -273,14 +275,14 @@ class MainWindow(QMainWindow):
         except:
             raise Exception("Unable to retrieve the new software version from the server. Please try later.")
 
-    @Slot()
+    @pyqtSlot()
     def recursion_click(self, value):
         self.use_subfolder = value
         if self.directory is None:
             return
         self.reset_files_collection()
 
-    @Slot()
+    @pyqtSlot()
     def hide_files_click(self, value):
         self.show_hidden_files = value
         self.reset_files_collection()
@@ -288,7 +290,7 @@ class MainWindow(QMainWindow):
     def are_hidden_files_shown(self):
         return self.action_hide.isChecked()
 
-    @Slot()
+    @pyqtSlot()
     def open_directory_dialog_click(self):
         """Opens a dialog to allow user to choose a directory """
         flags = QFileDialog.DontResolveSymlinks | QFileDialog.ShowDirsOnly
@@ -299,24 +301,24 @@ class MainWindow(QMainWindow):
             print(str(e))
             msg_box = QMessageBox.warning(self, "Invalid directory", "Please select a valid directory." )
 
-    @Slot()
+    @pyqtSlot()
     def reverse_sorting_click(self, value):
         self.reverse_order = value
         self.reset_files_collection()
 
-    @Slot()
+    @pyqtSlot()
     def name_sorting_click(self):
         self.sorting_criteria = "name"
         self.reset_files_collection()
-    @Slot()
+    @pyqtSlot()
     def size_sorting_click(self):
         self.sorting_criteria = "size"
         self.reset_files_collection()
-    @Slot()
+    @pyqtSlot()
     def creation_date_sorting_click(self):
         self.sorting_criteria = "creation_date"
         self.reset_files_collection()
-    @Slot()
+    @pyqtSlot()
     def modified_date_sorting_click(self):
         self.sorting_criteria = "modified_date"
         self.reset_files_collection()
@@ -326,12 +328,12 @@ class MainWindow(QMainWindow):
         self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
         self.main_widget.set_filtered_files(self.files_system_view)
 
-    @Slot()
+    @pyqtSlot()
     def rename_click(self):
         self.main_widget.rename()
         self.reset_files_collection()
 
-    @Slot()
+    @pyqtSlot()
     def undo_click(self):
         self.main_widget.undo()
 

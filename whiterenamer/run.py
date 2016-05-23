@@ -20,8 +20,10 @@ from os.path import dirname, realpath
 import sys
 from .ui import MainWindow, resource_rc
 from urllib.request import urlopen
-from PySide.QtGui import QApplication, QIcon
-from PySide.QtCore import QTranslator, QLocale
+# from PyQt5.QtGui import QApplication, QIcon
+from PyQt5.QtCore import QTranslator, QLocale
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
 def main():
     app = QApplication(sys.argv)
