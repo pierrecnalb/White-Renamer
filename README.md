@@ -43,7 +43,7 @@ The builds can be found at this address :
 ## Dependencies
 * python3
 * exifread
-* pyside
+* pyqt5
 * mutagen
 
 ## License

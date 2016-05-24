@@ -16,10 +16,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
+
 from PyQt5.QtCore import pyqtSignal, QRect, Qt, QSize
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import * 
-# from PyQt5.QtGui  import QWidget, QFrame, QGridLayout, QLabel, QFont, QToolButton, QIcon, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
+from PyQt5.QtWidgets import QWidget, QFrame, QGridLayout, QLabel, QToolButton, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
+from PyQt5.QtGui import QFont, QIcon 
 from ..model import action_manager
 from . import resource_rc
 

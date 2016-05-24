@@ -36,7 +36,7 @@ def main():
         # unfrozen
         dir_ = dirname(realpath(__file__))
         if locale == "fr":
-            translator.load('i18n/tr_fr', dir_)
+            translator.load('ui/i18n/tr_fr', dir_)
         app.installTranslator(translator)
         win = MainWindow()
         app.setWindowIcon(QIcon(':/white_renamer48.png'))

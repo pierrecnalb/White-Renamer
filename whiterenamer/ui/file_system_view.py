@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
-from re import split
+import re 
 
 
 class FileSystemTreeNodeView(object):
@@ -183,7 +183,7 @@ class FileSystemView(object):
         """
         filename = tree_node.original_filedescriptor.basename
         convert = lambda text: int(text) if text.isdigit() else text
-        alphanum_key = [convert(c) for c in split('([0-9]+)', filename)]
+        alphanum_key = [convert(c) for c in re.split('([0-9]+)', filename)]
         return alphanum_key
 
     def get_sorting_key(self, tree_node):

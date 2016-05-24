@@ -18,16 +18,18 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import sys
 import os
-from os.path import dirname, join, realpath
-from subprocess import call
+import os.path
+import subprocess
+import webbrowser
+import urllib.request
+import whiterenamer
+
 from PyQt5.QtCore import pyqtSlot, QSize
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from webbrowser import open
+from PyQt5.QtWidgets import QMainWindow, QAction, QActionGroup, QLineEdit, QWidget, QSizePolicy, QFileDialog, QMessageBox
+from PyQt5.QtGui import QIcon
+
 from . import MainWidget, resource_rc
 from ..model import FileSystem
-from urllib.request import urlopen
-import whiterenamer
 
 
 class MainWindow(QMainWindow):
@@ -189,11 +191,8 @@ class MainWindow(QMainWindow):
     def get_main_widget(self):
         return self.main_widget
 
-    def get_name_filter(self, value):
-        self.name_filter = value
-        self.reset_files_collection()
 
-    def edit_action(self, action, pyqtSlot=None, type=None, shortcut=None, icon=None, tip=None):
+    def edit_action(self, action, slot=None, type=None, shortcut=None, icon=None, tip=None):
         '''This method adds to action: icon, shortcut, ToolTip,\
         StatusTip and can connect triggered action to pyqtSlot '''
         if icon is not None:
@@ -203,38 +202,52 @@ class MainWindow(QMainWindow):
         if tip is not None:
             action.setToolTip(tip)
             action.setStatusTip(tip)
-        if pyqtSlot is not None:
-            pass
-            # action.triggered[type].connect(pyqtSlot)
+        if slot is not None:
+            if type is not None:
+                action.triggered[type].connect(slot)
+            else:
+                action.triggered.connect(slot)
+
         return action
 
+    @pyqtSlot()
+    def get_name_filter(self, value):
+        self.name_filter = value
+        self.reset_files_collection()
+
+    @pyqtSlot()
     def help_click(self):
         '''Read and display a help file- currently the README.txt.'''
         if getattr(sys, 'frozen', False): # frozen
-            dir_ = dirname(sys.executable)
-            filepath = join(dir_, "Documentation.pdf")
+            dir_ = os.path.dirname(sys.executable)
+            filepath = os.path.join(dir_, "Documentation.pdf")
         else: # unfrozen
-            dir_ = dirname(realpath(__file__))
-            filepath = join(dir_, "..","doc", "Documentation.pdf")
+            dir_ = os.path.dirname(os.path.realpath(__file__))
+            filepath = os.path.join(dir_, "..","doc", "Documentation.pdf")
 
         if sys.platform.startswith('darwin'):
-            call(('open', filepath))
+            subprocess.call(('open', filepath))
         elif os.name == 'nt':
             os.startfile(filepath)
         elif os.name == 'posix':
-            call(('xdg-open', filepath))
+            subprocess.call(('xdg-open', filepath))
 
+    @pyqtSlot()
     def music_files_click(self):
         self.files_type = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
         self.reset_files_collection()
+
+    @pyqtSlot()
     def image_files_click(self):
         self.files_type = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
         self.reset_files_collection()
 
+    @pyqtSlot()
     def all_files_click(self):
         self.files_type = ['*.*']
         self.reset_files_collection()
 
+    @pyqtSlot()
     def files_only_click(self):
         self.files_type = ['*.*']
         self.action_all_files.setChecked(True)
@@ -244,6 +257,7 @@ class MainWindow(QMainWindow):
         self.main_widget.is_file(True)
         self.reset_files_collection()
 
+    @pyqtSlot()
     def folders_only_click(self):
         self.files_type = ["folders"]
         self.action_all_files.setChecked(True)
@@ -254,6 +268,7 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
 
+    @pyqtSlot()
     def about_box_click(self):
         '''Popup a box with about message.'''
         QMessageBox.about(self, "About WhiteRenamer",
@@ -267,7 +282,7 @@ class MainWindow(QMainWindow):
     @pyqtSlot()
     def check_update_click(self):
         try:
-            code_online = urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/whiterenamer/version.txt").read().splitlines()
+            code_online = urllib.request.urlopen("https://raw.githubusercontent.com/pierrecnalb/White-Renamer/master/whiterenamer/version.txt").read().splitlines()
             version_online = code_online[0].decode().split('.')
             version_online = str(whiterenamer.Version(version_online[0], version_online[1], version_online[2]))
             print(version_online)
@@ -275,14 +290,14 @@ class MainWindow(QMainWindow):
         except:
             raise Exception("Unable to retrieve the new software version from the server. Please try later.")
 
-    @pyqtSlot()
+    @pyqtSlot(bool)
     def recursion_click(self, value):
         self.use_subfolder = value
         if self.directory is None:
             return
         self.reset_files_collection()
 
-    @pyqtSlot()
+    @pyqtSlot(bool)
     def hide_files_click(self, value):
         self.show_hidden_files = value
         self.reset_files_collection()
@@ -301,7 +316,7 @@ class MainWindow(QMainWindow):
             print(str(e))
             msg_box = QMessageBox.warning(self, "Invalid directory", "Please select a valid directory." )
 
-    @pyqtSlot()
+    @pyqtSlot(bool)
     def reverse_sorting_click(self, value):
         self.reverse_order = value
         self.reset_files_collection()
@@ -356,7 +371,7 @@ class MainWindow(QMainWindow):
                 new = 2 # open in a new tab, if possible
                 # open a public URL, in this case, the webbrowser docs
                 url = "https://github.com/pierrecnalb/WhiteRenamer-builds"
-                open(url,new=new)
+                webbrowser.open(url,new=new)
                 # Save was clicked
                 # elif ret == QMessageBox.Discard:
                 # Don't save was clicked

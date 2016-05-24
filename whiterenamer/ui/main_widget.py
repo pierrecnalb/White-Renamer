@@ -16,9 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-# from PyQt5.QtGui import QWidget, QGridLayout, QTreeView, QStandardItemModel, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QFont, QAbstractItemView, QLabel, QIcon, QStandardItem, QMessageBox
+
+from PyQt5.QtWidgets import QWidget, QGridLayout, QTreeView, QSizePolicy, QScrollArea, QHBoxLayout, QFrame, QLabel, QMessageBox, QAbstractItemView
+from PyQt5.QtGui import QStandardItemModel, QIcon, QFont, QStandardItem
 from ..model import action_manager, FileSystem, Controller
 from . import ActionButtonGroup, resource_rc
 
