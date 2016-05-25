@@ -35,7 +35,7 @@ def main():
     palette.setColor(QPalette.WindowText, Qt.black)
     palette.setColor(QPalette.Base, QColor(233, 233, 233))
     palette.setColor(QPalette.AlternateBase, QColor(220, 220, 220))
-    palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipBase, Qt.white)
     palette.setColor(QPalette.ToolTipText, Qt.black)
     palette.setColor(QPalette.Text, Qt.black)
     palette.setColor(QPalette.Button, QColor(220, 220, 220))
