@@ -18,7 +18,7 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5.QtCore import pyqtSignal, QRect, Qt, QSize
-from PyQt5.QtWidgets import QWidget, QFrame, QGridLayout, QLabel, QToolButton, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
+from PyQt5.QtWidgets import QWidget, QFrame, QGridLayout, QLabel, QPushButton, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
 from PyQt5.QtGui import QFont, QIcon 
 from ..model import action_manager
 from . import resource_rc
@@ -165,6 +165,19 @@ class ActionButtonGroup(QWidget):
     removed = pyqtSignal(QWidget) # emit a signal when the widget is removed.
     addedBefore = pyqtSignal(QWidget) 
     addedAfter = pyqtSignal(QWidget)
+    button_stylesheet = """
+    QPushButton {
+         border: none;
+         border-radius: 6px;
+         min-width: 25px;
+     }
+
+    QPushButton:hover {
+        border: 1px solid rgb(180,180,180);
+        background-color: rgb(210, 210, 210);
+        border-radius: 6px;
+    }
+    """
 
     def __init__(self, frame_name, action_descriptors, frame_width, frame_height, frame_type):
         QWidget.__init__(self)
@@ -187,23 +200,26 @@ class ActionButtonGroup(QWidget):
         font.setWeight(75)
         font.setBold(True)
         self.label.setFont(font)
-        remove_widget = QToolButton()
+        remove_widget = QPushButton()
         remove_widget.setFixedSize(25,25)
         remove_widget.setIcon(QIcon(":/delete_icon.png"))
         remove_widget.setIconSize(QSize(16,16))
-        remove_widget.setAutoRaise(True)
+        remove_widget.setFlat(True)
+        remove_widget.setStyleSheet(self.button_stylesheet)
         remove_widget.pressed.connect(self.on_remove_widget)
-        add_prefix = QToolButton()
+        add_prefix = QPushButton()
         add_prefix.setFixedSize(25,25)
         add_prefix.setIcon(QIcon(":/add_icon.png"))
+        add_prefix.setFlat(True)
+        add_prefix.setStyleSheet(self.button_stylesheet)
         add_prefix.setIconSize(QSize(16,16))
-        add_prefix.setAutoRaise(True)
         add_prefix.pressed.connect(self.on_add_prefix)
-        add_suffix = QToolButton()
+        add_suffix = QPushButton()
         add_suffix.setFixedSize(25,25)
         add_suffix.setIcon(QIcon(":/add_icon.png"))
         add_suffix.setIconSize(QSize(16,16))
-        add_suffix.setAutoRaise(True)
+        add_suffix.setFlat(True)
+        add_suffix.setStyleSheet(self.button_stylesheet)
         add_suffix.pressed.connect(self.on_add_suffix)
         self.grid = QGridLayout()
         self.grid.setObjectName("grid")

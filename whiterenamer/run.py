@@ -21,12 +21,31 @@ import sys
 from .ui import MainWindow, resource_rc
 from urllib.request import urlopen
 # from PyQt5.QtGui import QApplication, QIcon
-from PyQt5.QtCore import QTranslator, QLocale
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 def main():
     app = QApplication(sys.argv)
+
+    #UI Design style
+    app.setStyle("Fusion")
+    palette = QPalette()
+    palette.setColor(QPalette.Window, QColor(250, 250, 250))
+    palette.setColor(QPalette.WindowText, Qt.black)
+    palette.setColor(QPalette.Base, QColor(233, 233, 233))
+    palette.setColor(QPalette.AlternateBase, QColor(220, 220, 220))
+    palette.setColor(QPalette.ToolTipBase, Qt.black)
+    palette.setColor(QPalette.ToolTipText, Qt.black)
+    palette.setColor(QPalette.Text, Qt.black)
+    palette.setColor(QPalette.Button, QColor(220, 220, 220))
+    palette.setColor(QPalette.ButtonText, Qt.black)
+    palette.setColor(QPalette.BrightText, Qt.red)
+    palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    palette.setColor(QPalette.Highlight, QColor(52, 140, 228))
+    palette.setColor(QPalette.HighlightedText, Qt.black)
+    app.setPalette(palette)
+
     translator = QTranslator()
     locale = QLocale.system().name()[:2]
     if getattr(sys, 'frozen', False):

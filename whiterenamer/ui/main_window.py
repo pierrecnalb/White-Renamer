@@ -60,8 +60,8 @@ class MainWindow(QMainWindow):
         self.action_about = self.edit_action(self.action_about, self.about_box_click, None, None, None,self.tr('About Box.'))
 
 
-        self.action_check_update = QAction(self.tr('&Check update'), self)
-        self.action_check_update = self.edit_action(self.action_check_update, self.check_update_click, None, None, None,self.tr('Check update'))
+        self.action_check_update = QAction(self.tr('&Check Updates'), self)
+        self.action_check_update = self.edit_action(self.action_check_update, self.check_update_click, None, None, None,self.tr('Check for updates.'))
 
         self.action_recursion = QAction(self.tr('Show Subdirectories'), self)
         self.action_recursion = self.edit_action(self.action_recursion, self.recursion_click, bool, None, "subdirectory_icon.png",self.tr('Rename subdirectories recursively.'))
@@ -99,11 +99,11 @@ class MainWindow(QMainWindow):
         filterInput.setPlaceholderText(self.tr("Filter Files..."))
         filterInput.setMaximumWidth(150)
         filterInput.textChanged[str].connect(self.get_name_filter)
-        self.action_files_only = QAction(self.tr('Files only'), self)
+        self.action_files_only = QAction(self.tr('Files Only'), self)
         self.action_files_only.setCheckable(True)
         self.action_files_only.setChecked(True)
         self.action_files_only = self.edit_action(self.action_files_only, self.files_only_click, None, None, "file_icon.png",self.tr('Rename only files.'))
-        self.action_folders_only = QAction(self.tr('Folders only'), self)
+        self.action_folders_only = QAction(self.tr('Folders Only'), self)
         self.action_folders_only.setCheckable(True)
         self.action_folders_only = self.edit_action(self.action_folders_only, self.folders_only_click, None, None, "folder_icon.png",self.tr('Rename only folders.'))
 
@@ -339,6 +339,8 @@ class MainWindow(QMainWindow):
         self.reset_files_collection()
 
     def reset_files_collection(self):
+        if(self.directory is None):
+            return
         self.files_system = FileSystem(self.directory, self.use_subfolder)
         self.files_system_view = self.files_system.generate_files_system_view(self.are_hidden_files_shown(), self.files_type, self.name_filter, self.sorting_criteria, self.reverse_order)
         self.main_widget.set_filtered_files(self.files_system_view)

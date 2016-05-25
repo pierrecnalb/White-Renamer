@@ -423,7 +423,7 @@
     <message>
         <location filename="../main_window.py" line="103"/>
         <source>Files only</source>
-        <translation>Fichiers seulement</translation>
+        <translation type="obsolete">Fichiers seulement</translation>
     </message>
     <message>
         <location filename="../main_window.py" line="106"/>
@@ -433,7 +433,7 @@
     <message>
         <location filename="../main_window.py" line="107"/>
         <source>Folders only</source>
-        <translation>Dossiers seulement</translation>
+        <translation type="obsolete">Dossiers seulement</translation>
     </message>
     <message>
         <location filename="../main_window.py" line="109"/>
@@ -476,19 +476,29 @@
         <translation>&amp;Filtres</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="64"/>
-        <source>&amp;Check update</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../main_window.py" line="65"/>
-        <source>Check update</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../main_window.py" line="314"/>
         <source>Select Directory</source>
         <translation>Sélectionner un répertoire</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="64"/>
+        <source>&amp;Check Updates</source>
+        <translation>Vérifier version</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="65"/>
+        <source>Check for updates.</source>
+        <translation>Vérifier les mises à jour.</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="103"/>
+        <source>Files Only</source>
+        <translation>Fichiers uniquement</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="107"/>
+        <source>Folders Only</source>
+        <translation>Dossiers uniquement</translation>
     </message>
 </context>
 </TS>
