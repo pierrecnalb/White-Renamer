@@ -18,14 +18,14 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5.QtCore import pyqtSignal, QRect, Qt, QSize
-from PyQt5.QtWidgets import QWidget, QFrame, QGridLayout, QLabel, QPushButton, QComboBox, QCheckBox, QLineEdit, QSpinBox, QSpacerItem, QRadioButton
-from PyQt5.QtGui import QFont, QIcon 
+from PyQt5.QtWidgets import QWidget, QFrame, QGridLayout, QLabel, QPushButton, QComboBox, QCheckBox, QLineEdit, QSpinBox, QRadioButton
+from PyQt5.QtGui import QFont, QIcon
 from ..model import action_manager
 from . import resource_rc
 
 
 class ActionButton(QWidget):
-    action_changed = pyqtSignal(object, object) # get changes in order to refresh the preview.
+    action_changed = pyqtSignal(object, object)  # get changes in order to refresh the preview.
 
     def __init__(self, action_descriptors, are_sub_buttons):
         QWidget.__init__(self)

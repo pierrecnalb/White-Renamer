@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+
+# Copyright (C) 2015-2016 Pierre Blanc
+#
+# This file is part of WhiteRenamer.
+#
+# WhiteRenamer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# WhiteRenamer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
+import os.path
+import Name
+
+
+class FileName(Name):
+    """Describes the name of a file."""
+    def __init__(self, basename):
+        Name.__init__(basename)
+        (self._filename, self._extension) = os.path.splitext(basename)
+        # remove dot
+        self._extension = self._extension[1:]
+
+    def name(self):
+        """Gets the full name of the file."""
+        Name.name + "." + self._extension

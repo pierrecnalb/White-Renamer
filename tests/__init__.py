@@ -1,6 +1,5 @@
 import unittest
 import os, sys
-sys.path.append('/home/pierre/Documents/Programs/white-renamer/whiterenamer')
 from . import TestCases
 from . import TestCasesModel
 
