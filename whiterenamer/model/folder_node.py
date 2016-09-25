@@ -18,22 +18,23 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import os
 import FileSystemTreeNode
-import Name
+import FolderName
 
 
 class FolderNode(FileSystemTreeNode):
-
-    def __init__(self, path):
+    def __init__(self, unique_id, path, parent_node=None):
         """
         A directory in the file system tree node.
         Parameters:
             --path: the full path of the folder.
         """
-        (parent_path, basename) = os.path.split(path)
-        self._name = Name.__init__(basename)
-        FileSystemTreeNode.__init__(parent_path, self._name)
+        (self._parent_path, basename) = os.path.split(path)
+        folder_name_composer = FolderName.__init__(basename)
+        FileSystemTreeNode.__init__(unique_id, folder_name_composer,
+                                    parent_node)
         self._children = []
-
+        if parent_node is not None:
+            parent_node.add_children(self)
 
     @property
     def has_children(self):
@@ -47,9 +48,23 @@ class FolderNode(FileSystemTreeNode):
     def children(self):
         return self._children
 
+    @property
+    def parent_path(self):
+        return self._parent_path
+
+    def has_conflicting_children_name(self):
+        """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
+        unique_names = []
+        for child_node in self.children:
+            if (child_node.modified_name not in unique_names):
+                unique_names.append(child_node.modified_name)
+            else:
+                return True
+        return False
+
     def find_child_by_path(self, path):
-        for child in self.get_children():
-            if child.get_original_path() in path:
+        for child in self.children:
+            if child.original_path in path:
                 return child
 
     def match_files_type(self, files_type):

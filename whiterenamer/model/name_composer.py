@@ -18,18 +18,18 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 
 
-class Name(object):
+class NameComposer(object):
     """Describes a name based on a prefix, a basename and a suffix."""
 
     def __init__(self, basename):
-        self._name = basename
+        self._full_name = basename
         self._basename = basename
         self._prefix = ""
         self._suffix = ""
 
     def __repr__(self):
         """override string representation of the class"""
-        return self.name
+        return self.full_name
 
     @property
     def basename(self):
@@ -56,6 +56,6 @@ class Name(object):
         self._suffix = value
 
     @property
-    def name(self):
+    def full_name(self):
         """Gets the full name."""
-        self._name = self._prefix + self._basename + self._suffix
+        self._full_name = self._prefix + self._basename + self._suffix

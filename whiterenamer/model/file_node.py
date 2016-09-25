@@ -22,37 +22,33 @@ import FileName
 
 
 class FileNode(FileSystemTreeNode):
-
-    def __init__(self, path, file_type = FileType.normal):
-        (parent_path, basename) = os.path.split(path)
-        (name, extension) = os.path.splitext(basename)
-        # remove dot
-        self._extension = extension[1:]
-
-        self._name = Name.__init__(name)
-        self._file_type = file_type
-        FileSystemTreeNode.__init__(parent_path, self._name)
+    def __init__(self, unique_id, path, parent_node=None):
+        (self._parent_path, name) = os.path.split(path)
+        self._file_name_composer = FileName.__init__(name)
+        FileSystemTreeNode.__init__(unique_id, self._file_name_composer,
+                                    parent_node)
         self._set_file_type()
 
-
-    def name(self):
-        """Gets the full name of the file."""
-        return FileSystemTreeNode.name + "." + self._extension
+    @property
+    def parent_path(self):
+        return self._parent_path
 
     @property
     def file_type(self):
         return self._file_type
 
     def _set_file_type(self):
-        music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
-        image_extensions = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
-        if(self._extension in music_extension):
+        music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a',
+                            '.mp4']
+        image_extensions = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp',
+                            '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx',
+                            '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
+        if (self._file_name_composer.extension in music_extension):
             self._file_type = FileType.music
-        if(self._extension in image_extension):
+        if (self._file_name_composer.extension in image_extension):
             self._file_type = FileType.image
         else:
             self._file_type = FileType.normal
-
 
     def match_files_type(self, files_type):
         if (files_type == ['*.*']):

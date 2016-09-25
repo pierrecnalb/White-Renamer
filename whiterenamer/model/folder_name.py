@@ -16,11 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
-import Name
+import NameComposer
 
 
-class FolderName(Name):
+class FolderName(NameComposer):
     """Describes the name of a folder."""
 
     def __init__(self, basename):
-        Name.__init__(basename)
+        NameComposer.__init__(basename)

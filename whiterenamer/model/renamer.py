@@ -19,11 +19,15 @@
 import FileSystemTreeNodeCollection
 
 class Renamer(object):
-    def __init__(self, files_system_view):
-        self.files_system_view = files_system_view
-        self.root_tree_node_view = self.files_system_view.get_file_system_tree_node(
-        )
+    def __init__(self, files_system_tree_model):
+        self.files_system_tree_model = files_system_tree_model
         self.actions = []
+
+    def add_action(where, what):
+        #append action to suffix and prepend action to prefix.
+
+    def add_prefix(prefix_action):
+        pass
 
 
     def execute_method_on_nodes(self, tree_node, method, *optional_argument):
@@ -53,28 +57,6 @@ class Renamer(object):
             tree_node.original_filedescriptor)
         return tree_node
 
-    def rename(self, tree_node):
-        try:
-            self.has_duplicates(tree_node)
-            if exists(tree_node.get_modified_path()):
-                conflicting_tree_node = tree_node.get_parent(
-                ).find_child_by_path(tree_node.get_modified_path())
-                if (conflicting_tree_node is not None and
-                        tree_node.get_file_system_tree_node() !=
-                        conflicting_tree_node):  #check if it is the same file
-                    old_conflicting_file_descriptor = conflicting_tree_node.modified_filedescriptor
-                    conflicting_tree_node.modified_filedescriptor = FileDescriptor(
-                        str(uuid4()) + "." +
-                        tree_node.original_filedescriptor.extension,
-                        tree_node.is_folder)
-                    self.rename(conflicting_tree_node)
-                    conflicting_tree_node.modified_filedescriptor = old_conflicting_file_descriptor
-            move(tree_node.get_original_path(), tree_node.get_modified_path())
-            tree_node.original_filedescriptor = deepcopy(
-                tree_node.modified_filedescriptor)
-            # self.reset(tree_node)
-        except IOError as e:
-            raise Exception(str(e))
 
     def undo(self, tree_node):
         move(tree_node.get_original_path(), tree_node.get_backup_path())

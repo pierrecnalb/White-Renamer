@@ -17,17 +17,22 @@
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import os.path
-import Name
+import NameComposer
 
 
-class FileName(Name):
+class FileName(NameComposer):
     """Describes the name of a file."""
     def __init__(self, basename):
-        Name.__init__(basename)
+        NameComposer.__init__(basename)
         (self._filename, self._extension) = os.path.splitext(basename)
         # remove dot
         self._extension = self._extension[1:]
 
-    def name(self):
+    @property
+    def full_name(self):
         """Gets the full name of the file."""
-        Name.name + "." + self._extension
+        NameComposer.full_name + "." + self._extension
+
+    @property
+    def extension(self):
+        self._extension
