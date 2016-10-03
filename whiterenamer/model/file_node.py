@@ -38,8 +38,7 @@ class FileNode(FileSystemTreeNode):
         return self._file_type
 
     def _set_file_type(self):
-        music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a',
-                            '.mp4']
+        music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
         image_extensions = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp',
                             '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx',
                             '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']

@@ -23,6 +23,7 @@ import os.path
 import shutil
 import copy
 import abc
+import time
 
 
 class FileSystemTreeNode(object):
@@ -38,9 +39,9 @@ class FileSystemTreeNode(object):
         self._original_name = name_composer.full_name
         self._backup_name = self._original_name
         self._modified_name = name_composer
-        self._size = getsize(self._full_path)  #return 0 when folders.
-        self._modified_date = getmtime(self._full_path)
-        self._created_date = getctime(self._full_path)
+        self._size = os.path.getsize(self._full_path)  #return 0 when folders.
+        self._modified_date = os.path.getmtime(self._full_path)
+        self._created_date = os.path.getctime(self._full_path)
         self._is_hidden = name.startswith('.')
         self._is_filtered = False
 

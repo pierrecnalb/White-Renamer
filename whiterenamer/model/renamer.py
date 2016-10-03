@@ -23,6 +23,17 @@ class Renamer(object):
         self.files_system_tree_model = files_system_tree_model
         self.actions = []
 
+    def find_and_replace(self, old_char, new_char, is_regex):
+        action = CharacterReplacement(old_char, new_char, is_regex)
+        self.actions.append(action)
+
+    def title_case(self, is_first_letter_uppercase, after_symbols):
+        action = TitleCaseAction(is_first_letter_uppercase, after_symbols)
+        self.actions.append(action)
+
+    def upper_case(self):
+        pass
+
     def add_action(where, what):
         #append action to suffix and prepend action to prefix.
 
