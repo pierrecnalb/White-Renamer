@@ -18,13 +18,32 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 
 
-class Range(object):
-    def __init__(self, start, end=None):
-        """
-        """
-        self._start = start
-        self._end = end
+#!/usr/bin/python
 
+class Range(object):
+
+    class SpecialIndices(object):
+        @staticmethod
+        def begin(string):
+            return len(string)
+
+    BEGIN = 0
+    END = SpecialIndices.begin
+
+    def __init__(self, start, end=None):
+        # Make sure start and end can be used as callables in the rest of this
+        # class.
+        self.start = start if callable(start) else lambda string: start
+        if end is None:
+                end = start
+        self.end = end if callable(end) else lambda string: end
+
+    def getStartIndex(self, string):
+        return self.start(string)
+
+    def getEndIndex(self, string):
+        return self.end(string)
+    
     @property
     def start(self):
         return self._start
@@ -40,3 +59,12 @@ class Range(object):
     @end.setter
     def end(self, value):
         self._end = value
+
+def test():
+    ranges = {}
+    ranges['pushFrontRange'] = Range(Range.BEGIN)
+    ranges['pushBackRange'] = Range(Range.END)
+    ranges['insertSomewhereRange'] = Range(3)
+    ranges['replaceFromSomewhereToEnd'] = Range(3, Range.END)
+
+  
