@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 from time import strftime, strptime, localtime
-from re import sub
+import re
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
-import abs
+import abc
+import ActionRange
+
 
 class RenamingAction(object):
     """
@@ -31,52 +33,54 @@ class RenamingAction(object):
     name can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
         --file_or_folder: specifies where to apply the actions : to the files or the folders.
     """
-    __metaclass__ = abs.ABCMeta
-
-    def __init__(self):
-        self._location = location.Over
+    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def _get_new_name(self, file_system_tree_node):
-        return
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        """Gets the modified portion of the file/folder name.
+        The portion is defined by the action_range."""
+        raise Exception()
 
-    @property
-    def location(self):
-        return self._location
+    def _get_unmodified_name(self, file_system_tree_node):
+        return file_system_tree_node.modified_name
 
-    @location.setter
-    def location(self, value):
-        self._location = value
+    def _get_unmodified_sliced_name(self, file_system_tree_node, action_range):
+        """Gets the portion of the name defined by the action_range."""
+        # modified_name is used, so that several actions can be piped.
+        unmodified_name = self._get_unmodified_name(file_system_tree_node)
+        return self._get_unmodified_name[action_range.get_start_index(unmodified_name):action_range.get_end_index(
+            unmodified_name)]
 
-    def action_type(self):
-        self._action_type
+    def _get_new_name(self, file_system_tree_node, action_range):
+        name = file_system_tree_node.modified_name
+        name[0:action_range.start] + self._get_modified_sliced_name(file_system_tree_node,
+                                                                    action_range) + name[action_range.end:]
+        return name
 
-    def execute(self, file_system_tree_node, location):
-        new_name = _get_new_name(file_system_tree_node)
+    def execute(self, file_system_tree_node, action_range):
+        """Executes the defined action on the specified file/folder with the specified range."""
+        new_name = self._get_new_name(file_system_tree_node, action_range)
         file_system_tree_node.modified_name = new_name
-
-    def _get_old_name(self):
-        return file_system_tree_node.original_name
-
 
 
 class CharacterReplacementAction(RenamingAction):
     """
     Replace old_char by new_char in the section of the path.
-    location can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
+    action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
 
     def __init__(self, old_char, new_char, regex):
         RenamingAction.__init__(self)
-        self.old_char = old_char
-        self.new_char = new_char
-        self.regex = regex
+        self._old_char = old_char
+        self._new_char = new_char
+        self._regex = regex
 
-    def _get_new_name(self, file_system_tree_node):
-        if not self.regex:
-            return file_system_tree_node.modified_name.replace(self.old_char, self.new_char)
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range=ActionRange()):
+        unmodified_sliced_name = self._get_unmodified_sliced_name(file_system_tree_node, action_range)
+        if not self._regex:
+            return unmodified_sliced_name.replace(self._old_char, self._new_char)
         else:
-            return re.sub(self.old_char, self.new_char, location)
+            return re.sub(self._old_char, self._new_char, unmodified_sliced_name)
 
 
 class OriginalNameAction(RenamingAction):
@@ -85,7 +89,7 @@ class OriginalNameAction(RenamingAction):
     def __init__(self):
         RenamingAction.__init__(self)
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         return RenamingAction._get_old_name()
 
 
@@ -95,46 +99,51 @@ class CaseChangeAction(RenamingAction):
     Parameters:
         --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --after_symbols: list of symbols after which the letters are capitalized.
+        --special_characters: list of symbols after which the letters are capitalized.
     """
 
     def __init__(self):
         RenamingAction.__init__(self)
 
-    def _get_new_name(self, file_system_tree_node, location):
-        return 
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        return
 
 
-class TitleCaseAction(CaseChangeAction):
+class TitleCaseAction(RenamingAction):
     """
     Return the original name with a chosen casing option.
     Parameters:
         --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --after_symbols: list of symbols after which the letters are capitalized.
+        --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, is_first_letter_uppercase=True, after_symbols=""):
-        CaseChangeAction.__init__(self)
+    def __init__(self, is_first_letter_uppercase=True, special_characters=""):
+        RenamingAction.__init__(self)
         self._is_first_letter_uppercase = is_first_letter_uppercase
-        self._after_symbols = after_symbols
+        self._special_characters = special_characters
 
-    def make_upper_first_letters(self, string):
+    def _get_decomposed_name(self, file_system_tree_node, action_range):
+        unmodified_sliced_name = self._get_unmodified_sliced_name(file_system_tree_node, action_range)
+        decomposed_name = list(unmodified_sliced_name)
+        return decomposed_name
 
-    def _get_new_name(self, file_system_tree_node, location):
-        special_char_position = []
-        stringlist = list(RenamingAction.original_name)
-        for i, char in enumerate(stringlist):
-            if char in self.after_symbols:
-                special_char_position.append(i + 1)
-        for position in special_char_position:
-            if position < len(stringlist):
-                stringlist[position] = stringlist[position].upper()
-        return ''.join(stringlist)
-        preview_name = self.make_upper_first_letters(file_system_tree_node.modified_name)
-        if self.is_first_letter_uppercase:
-            location = location[0].upper() + location[1:]
-        return location
+    def _get_special_character_indices(self, file_system_tree_node, action_range):
+        decomposed_name = self._get_decomposed_name
+        special_character_indices = []
+        for index, character in enumerate(decomposed_name):
+            if character in self._special_characters:
+                special_character_indices.append(index)
+        return special_character_indices
+
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        decomposed_name = self._get_decomposed_name
+        for special_character_index in self._get_special_character_indices:
+            if special_character_index < len(decomposed_name):
+                decomposed_name[special_character_index + 1] = decomposed_name[special_character_index + 1].upper()
+        if self._is_first_letter_uppercase:
+            decomposed_name[0] = decomposed_name[0].upper()
+        return ''.join(decomposed_name)
 
 
 class UpperCaseAction(CaseChangeAction):
@@ -143,14 +152,15 @@ class UpperCaseAction(CaseChangeAction):
     Parameters:
         --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --after_symbols: list of symbols after which the letters are capitalized.
+        --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, name):
-        CaseChangeAction.__init__(self, name)
+    def __init__(self):
+        RenamingAction.__init__(self)
 
-    def _get_new_name(self, file_system_tree_node, location):
-        return location.upper()
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        unmodified_sliced_name = self._get_unmodified_sliced_name(file_system_tree_node, action_range)
+        return unmodified_sliced_name.upper()
 
 
 class LowerCaseAction(CaseChangeAction):
@@ -159,14 +169,15 @@ class LowerCaseAction(CaseChangeAction):
     Parameters:
         --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --after_symbols: list of symbols after which the letters are capitalized.
+        --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, name):
-        CaseChangeAction.__init__(self, name)
+    def __init__(self):
+        RenamingAction.__init__(self)
 
-    def _get_new_name(self, file_system_tree_node, location):
-        return location.lower()
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        unmodified_sliced_name = self._get_unmodified_sliced_name(file_system_tree_node, action_range)
+        return unmodified_sliced_name.lower()
 
 
 class CharacterInsertionAction(RenamingAction):
@@ -177,8 +188,8 @@ class CharacterInsertionAction(RenamingAction):
         self.new_char = new_char
         self.index = index
 
-    def _get_new_name(self, file_system_tree_node, location):
-        return location[:self.index] + self.new_char + location[self.index:]
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        return action_range[:self.index] + self.new_char + action_range[self.index:]
 
 
 class CharacterDeletionAction(RenamingAction):
@@ -189,22 +200,20 @@ class CharacterDeletionAction(RenamingAction):
         self.starting_position = starting_position
         self.ending_position = ending_position
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         if self.starting_position > self.ending_position:
-            raise Exception(
-                "Starting position cannot be higher than ending position.")
-        return location[:self.starting_position] + location[
-            self.ending_position:]
+            raise Exception("Starting position cannot be higher than ending position.")
+        return action_range[:self.starting_position] + action_range[self.ending_position:]
 
 
 class CustomNameAction(RenamingAction):
     """Use a custom name in the filename."""
 
-    def __init__(self, name, new_name):
-        RenamingAction.__init__(self, name)
+    def __init__(self, new_name):
+        RenamingAction.__init__(self)
         self.new_name = new_name
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         return self.new_name
 
 
@@ -214,9 +223,8 @@ class FolderNameUsageAction(RenamingAction):
     def __init__(self, name):
         RenamingAction.__init__(self, name)
 
-    def _get_new_name(self, file_system_tree_node, location):
-        folder = file_system_tree_node.get_parent(
-        ).original_filedescriptor.basename
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        folder = file_system_tree_node.get_parent().original_filedescriptor.basename
         return folder
 
 
@@ -241,17 +249,13 @@ class DateAction(RenamingAction):
     %p  locale's equivalent of either am or pm.
     """
 
-    def __init__(self,
-                 name,
-                 is_modified_date=False,
-                 is_created_date=True,
-                 format_display='%Y'):
+    def __init__(self, name, is_modified_date=False, is_created_date=True, format_display='%Y'):
         RenamingAction.__init__(self, name)
         self.is_modified_date = is_modified_date
         self.is_created_date = is_created_date
         self.format_display = format_display
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         if self.is_modified_date:
             file_date = file_system_tree_node.modified_date
         elif self.is_created_date:
@@ -268,7 +272,7 @@ class Counter(RenamingAction):
         self.increment = increment
         self.digit_number = digit_number
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         counter = file_system_tree_node.rank
         counter *= self.increment
         counter += self.start_index
@@ -298,118 +302,109 @@ class ImageDateTimeOriginal(GenericImageAction):
         GenericImageAction.__init__(self, name, 'EXIF DateTimeOriginal')
         self.time_format = time_format
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             localtime = strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
             return strftime(self.time_format, localtime)
         except:
-            return location
+            return action_range
 
 
 class ImageFNumber(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF FNumber')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return location
+            return action_range
 
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF ExposureTime')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return location
+            return action_range
 
 
 class ImageISO(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF ISOSpeedRatings')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
-            return location
+            return action_range
 
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'Image Model')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return exif_tag
         except:
-            return location
+            return action_range
 
 
 class ImageXDimension(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF ExifImageWidth')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
-            return location
+            return action_range
 
 
 class ImageYDimension(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF ExifImageLength')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
-            return location
+            return action_range
 
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'EXIF FocalLength')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return location
+            return action_range
 
 
 class ImageArtist(GenericImageAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'Image Artist')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return exif_tag
         except:
-            return location
+            return action_range
 
 
 class GenericMusicAction(RenamingAction):
@@ -426,75 +421,69 @@ class MusicArtist(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'artist')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
 
 
 class MusicTitle(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'title')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
 
 
 class MusicYear(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'date')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
 
 
 class MusicAlbum(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'album')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
 
 
 class MusicTrack(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'tracknumber')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
 
 
 class MusicGenre(GenericMusicAction):
     def __init__(self, name):
         GenericImageAction.__init__(self, name, 'genre')
 
-    def _get_new_name(self, file_system_tree_node, location):
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
-            return location
+            return action_range
