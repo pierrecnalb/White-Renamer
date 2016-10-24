@@ -52,13 +52,11 @@ class ActionInput(object):
                  arg_name,
                  arg_caption,
                  arg_type,
-                 default_value,
-                 optional_argument=None):
+                 default_value):
         self._name = arg_name
         self._caption = arg_caption
         self._type = arg_type
         self.default_value = default_value
-        self.optional_argument = optional_argument
 
     @property
     def name(self):
@@ -100,55 +98,59 @@ class FindAndReplaceActionDescriptor(ActionDescriptor):
     """
 
     def __init__(self):
-        super().__init__(self, )
-        self._old_char = old_char
-        self._new_char = new_char
-        self._is_regex = is_regex
-
-    def _get_modified_sliced_name(self, file_system_tree_node, action_range=ActionRange()):
-        unmodified_sliced_name = self._get_unmodified_sliced_name(file_system_tree_node, action_range)
-        if not self._is_regex:
-            return unmodified_sliced_name.replace(self._old_char, self._new_char)
-        else:
-            return re.sub(self._old_char, self._new_char, unmodified_sliced_name)
-
-# class CharacterInsertionAction(RenamingAction):
-#     """Insert new_char at index position."""
-
-#     def __init__(self, name, new_char, index):
-#         RenamingAction.__init__(self, name)
-#         self.new_char = new_char
-#         self.index = index
-
-#     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-#         return action_range[:self.index] + self.new_char + action_range[self.index:]
+        name = "Find And Replace"
+        inputs = []
+        old_char_input = ActionInput("old_char", "Replace", str, "")
+        new_char_input = ActionInput("new_char", "With", str, "")
+        is_regex_input = ActionInput("is_regex", "Regex", "checkable", False)
+        inputs.append(old_char_input)
+        inputs.append(new_char_input)
+        inputs.append(is_regex_input)
+        cls = FindAndReplaceAction
+        super().__init__(self, name, inputs, cls)
 
 
-# class CharacterDeletionAction(RenamingAction):
-#     """Delete n-character from starting_position to ending_position."""
+class CharacterInsertionActionDescriptor(ActionDescriptor):
+    """Insert new_char at index position."""
 
-#     def __init__(self, name, starting_position, ending_position):
-#         RenamingAction.__init__(self, name)
-#         self.starting_position = starting_position
-#         self.ending_position = ending_position
-
-#     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-#         if self.starting_position > self.ending_position:
-#             raise Exception("Starting position cannot be higher than ending position.")
-#         return action_range[:self.starting_position] + action_range[self.ending_position:]
-
-
-# class OriginalNameAction(RenamingAction):
-#     """Gets the original name."""
-
-#     def __init__(self, file_system_tree_node, action_range):
-#         RenamingAction.__init__(self, file_system_tree_node, action_range)
-
-#     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-#         return RenamingAction.file_system_tree_node.modified_name
+    def __init__(self):
+        name = "Insert Characters"
+        inputs = []
+        new_char_input = ActionInput("custom_char", "Insert", str, "")
+        index_input = ActionInput("start_and_end_range", "At", int, 0)
+        inputs.append(new_char_input)
+        inputs.append(index_input)
+        cls = CustomNameAction
+        super().__init__(self, name, inputs, cls)
 
 
-class CaseChangeAction(RenamingAction):
+class CharacterDeletionActionDescriptor(ActionDescriptor):
+    """Delete n-character from starting_position to ending_position."""
+
+    def __init__(self):
+        name = "Delete Characters"
+        inputs = []
+        start_index_input = ActionInput("start_range", "From", int, 0)
+        end_index_input = ActionInput("end_range", "To", int, 1)
+        inputs.append(start_index_input)
+        inputs.append(end_index_input)
+        cls = CustomNameAction
+        super().__init__(self, name, inputs, cls)
+
+
+
+class OriginalNameActionDescriptor(ActionDescriptor):
+    """Gets the original name."""
+
+    def __init__(self):
+        name = "Original Name"
+        inputs = []
+        cls = OriginalNameAction
+        super().__init__(self, name, inputs, cls)
+
+
+
+class TitleCaseActionDescriptor(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -157,14 +159,18 @@ class CaseChangeAction(RenamingAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, file_system_tree_node, action_range):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
+    def __init__(self):
+        name = "Titlecase"
+        inputs = []
+        is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", "First Letter", "checkable", True)
+        special_characters_input = ActionInput("special_characters", "And After", str, "- _")
+        inputs.append(is_first_letter_uppercase_input)
+        inputs.append(special_characters_input)
+        cls = TitleCaseAction
+        super().__init__(self, name, inputs, cls)
 
-    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-        return
 
-
-class TitleCaseAction(RenamingAction):
+class UpperCaseActionDescriptor(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -173,36 +179,15 @@ class TitleCaseAction(RenamingAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, file_system_tree_node, action_range, is_first_letter_uppercase=True, special_characters=""):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-        self._is_first_letter_uppercase = is_first_letter_uppercase
-        self._special_characters = special_characters
-
-    def _get_decomposed_name(self):
-        unmodified_sliced_name = self._get_unmodified_sliced_name()
-        decomposed_name = list(unmodified_sliced_name)
-        return decomposed_name
-
-    def _get_special_character_indices(self):
-        decomposed_name = self._get_decomposed_name
-        special_character_indices = []
-        for index, character in enumerate(decomposed_name):
-            if character in self._special_characters:
-                special_character_indices.append(index)
-        return special_character_indices
-
-    def _get_modified_sliced_name(self):
-        decomposed_name = self._get_decomposed_name
-        for special_character_index in self._get_special_character_indices:
-            if special_character_index < len(decomposed_name):
-                decomposed_name[special_character_index + 1] = decomposed_name[special_character_index + 1].upper()
-        if self._is_first_letter_uppercase:
-            decomposed_name[0] = decomposed_name[0].upper()
-        modified_sliced_name = ''.join(decomposed_name)
-        return modified_sliced_name
+    def __init__(self):
+        name = "Uppercase"
+        inputs = []
+        cls = UpperCaseAction
+        super().__init__(self, name, inputs, cls)
 
 
-class UpperCaseAction(CaseChangeAction):
+
+class LowerCaseActionDescriptor(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -211,222 +196,133 @@ class UpperCaseAction(CaseChangeAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, file_system_tree_node, action_range):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-
-    def _get_modified_sliced_name(self):
-        unmodified_sliced_name = self._get_unmodified_sliced_name()
-        modified_sliced_name = unmodified_sliced_name.upper()
-        return modified_sliced_name
+    def __init__(self):
+        name = "Lowercase"
+        inputs = []
+        cls = LowerCaseAction
+        super().__init__(self, name, inputs, cls)
 
 
-class LowerCaseAction(CaseChangeAction):
-    """
-    Return the original name with a chosen casing option.
-    Parameters:
-        --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
-        --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --special_characters: list of symbols after which the letters are capitalized.
-    """
-
-    def __init__(self, file_system_tree_node, action_range):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-
-    def _get_modified_sliced_name(self):
-        unmodified_sliced_name = self._get_unmodified_sliced_name()
-        modified_sliced_name = unmodified_sliced_name.upper()
-        return modified_sliced_name
-
-
-
-class CustomNameAction(RenamingAction):
+class CustomNameActionDescriptor(ActionDescriptor):
     """Use a custom name in the filename.
     Can be also used to remove character if en empty string is given.
     """
 
-    def __init__(self, file_system_tree_node, action_range, custom_name):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-        self._custom_name = custom_name
+    def __init__(self):
+        name = "Custom Name"
+        inputs = []
+        action_input = ActionInput("custom_name", "New Name", str, "")
+        inputs.append(action_input)
+        cls = CustomNameAction
+        super().__init__(self, name, inputs, cls)
 
-    def _get_modified_sliced_name(self):
-        return self._custom_name
 
-
-class FolderNameUsageAction(RenamingAction):
+class FolderNameActionDescriptor(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
-    def __init__(self, file_system_tree_node, action_range):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-
-    def _get_modified_sliced_name(self):
-        folder_name = self.file_system_tree_node.parent.modified_name
-        return folder_name
-
-
-class DateAction(RenamingAction):
-    """
-    Use the created or modified date metadata as the filename.
-    If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date.
-    Commonly used format_display are :
-    %y  year with century as a decimal number.
-    %m  month as a decimal number [01,12].
-    %d  day of the month as a decimal number [01,31].
-    %h  hour (24-hour clock) as a decimal number [00,23].
-    %m  minute as a decimal number [00,59].
-    %s  second as a decimal number [00,61].
-    %z  time zone offset from utc.
-    %a  locale's abbreviated weekday name.
-    %a  locale's full weekday name.
-    %b  locale's abbreviated month name.
-    %b  locale's full month name.
-    %c  locale's appropriate date and time representation.
-    %i  hour (12-hour clock) as a decimal number [01,12].
-    %p  locale's equivalent of either am or pm.
-    """
-
-    def __init__(self, file_system_tree_node, action_range, is_modified_date=True, time_format='%Y'):
-        self._is_modified_date = is_modified_date
-        self._display_format = time_format
-
-    def _get_modified_sliced_name(self):
-        if self.is_modified_date:
-            file_date = self.file_system_tree_node.modified_date
-        else:
-            # created date
-            file_date = self.file_system_tree_node.created_date
-        return time.strftime(self.format_display, time.localtime(file_date))
+    def __init__(self):
+        name = "Folder Name"
+        inputs = []
+        cls = FolderNameAction
+        super().__init__(self, name, inputs, cls)
 
 
-class Counter(RenamingAction):
+class DateActionDescriptor(ActionDescriptor):
+
+    def __init__(self):
+        name = "Date"
+        inputs = []
+        is_modified_date_input = ActionInput("is_modified_date", "Modified", bool, True)
+        is_created_date_input = ActionInput("is_modified_date", "Created", bool, False)
+        time_format_input_ = ActionInput("time_format", "Format", str, "%Y-%m-%d %H:%M:%S (%A %B)")
+        inputs.append(is_modified_date_input)
+        inputs.append(is_created_date_input)
+        inputs.append(time_format_input_)
+        cls = DateAction
+        super().__init__(self, name, inputs, cls)
+
+
+class CounterActionDescriptor(ActionDescriptor):
     """Count the number of files starting from start_index with the given increment."""
-
-    def __init__(self, file_system_tree_node, action_range, start_index, increment, digit_number):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-        self._start_index = start_index
-        self._increment = increment
-        self._digit_number = digit_number
-
-    def _get_modified_sliced_name(self):
-        counter = self.file_system_tree_node.rank
-        counter *= self.increment
-        counter += self.start_index
-        counter = str(counter)
-        number_length = len(str(counter))
-        if (number_length < self.digit_number):
-            for i in range(self.digit_number - number_length):
-                counter = "0" + counter
-        return counter
+    def __init__(self):
+        name = "Counter"
+        inputs = []
+        start_index_input = ActionInput("start_index", "Start At", int, 0)
+        increment_input = ActionInput("increment", "Increment", int, 1)
+        digit_number_input = ActionInput("digit_number", "Number of Digit", int, 1)
+        inputs.append(start_index_input)
+        inputs.append(increment_input)
+        inputs.append(digit_number_input)
+        cls = CounterAction
+        super().__init__(self, name, inputs, cls)
 
 
-class GenericImageAction(RenamingAction):
-    def __init__(self, file_system_tree_node, action_range, metadata):
-        RenamingAction.__init__(self, file_system_tree_node, action_range)
-        self._metadata = metadata
 
-    def _get_exif_tag(self):
-        file_path = self._file_system_tree_node.original_path
-        with open(file_path, 'rb') as f:
-            tags = process_file(f, details=False, stop_tag=self.metadata)
-            exif_tag = tags[self.metadata].values
-            return exif_tag
+class ImageDateTimeOriginalDescriptor(ActionDescriptor):
 
-
-class ImageDateTimeOriginal(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range, time_format):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF DateTimeOriginal')
-        self._time_format = time_format
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            localtime = time.strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
-            return time.strftime(self._time_format, localtime)
-        except:
-            return self._get_unmodified_sliced_name()
+    def __init__(self):
+        name = "Original Date"
+        inputs = []
+        time_format_input = ActionInput("time_format", "Format", str, "%Y-%m-%d %H:%M:%S")
+        inputs.append(time_format_input)
+        cls = ImageDateTimeOriginal
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageFNumber(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF FNumber')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0].num / exif_tag[0].den)
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageFNumberDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "F Number"
+        inputs = []
+        cls = ImageFNumber
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageExposureTime(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF ExposureTime')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0].num / exif_tag[0].den)
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageExposureTimeDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "Exposure"
+        inputs = []
+        cls = ImageExposureTime
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageISO(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF ISOSpeedRatings')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0])
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageISODescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "ISO"
+        inputs = []
+        cls = ImageISO
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageCameraModel(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'Image Model')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return exif_tag
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageCameraModelDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "Camera Model"
+        inputs = []
+        cls = ImageCameraModel
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageXDimension(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF ExifImageWidth')
-
-    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0])
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageXDimensionDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "X Dimension"
+        inputs = []
+        cls = ImageXDimension
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageYDimension(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF ExifImageLength')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0])
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageYDimensionDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "Y Dimension"
+        inputs = []
+        cls = ImageYDimension
+        super().__init__(self, name, inputs, cls)
 
 
-class ImageFocalLength(GenericImageAction):
-    def __init__(self, file_system_tree_node, action_range):
-        GenericImageAction.__init__(self, file_system_tree_node, action_range, 'EXIF FocalLength')
-
-    def _get_modified_sliced_name(self):
-        try:
-            exif_tag = self._get_exif_tag()
-            return str(exif_tag[0].num / exif_tag[0].den)
-        except:
-            return self._get_unmodified_sliced_name()
+class ImageFocalLengthDescriptor(ActionDescriptor):
+    def __init__(self):
+        name = "Focal Length"
+        inputs = []
+        cls = ImageFocalLength
+        super().__init__(self, name, inputs, cls)
 
 
 class ImageArtist(GenericImageAction):
