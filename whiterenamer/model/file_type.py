@@ -19,6 +19,7 @@
 
 from enum import Enum
 
+
 class FileType(Enum):
     normal = 0
     music = 1

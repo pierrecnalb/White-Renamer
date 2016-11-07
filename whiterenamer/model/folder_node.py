@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import os
-import FileSystemTreeNode
-import FolderName
+from file_system_tree_node import FileSystemTreeNode
 
 
 class FolderNode(FileSystemTreeNode):
@@ -28,19 +27,19 @@ class FolderNode(FileSystemTreeNode):
         Parameters:
             --path: the full path of the folder.
         """
-        (self._parent_path, basename) = os.path.split(path)
-        folder_name_composer = FolderName.__init__(basename)
-        FileSystemTreeNode.__init__(unique_id, folder_name_composer,
-                                    parent_node)
+        (self._parent_path, self._basename) = os.path.split(path)
+        super().__init__(unique_id, self._basename, parent_node)
         self._children = []
-        if parent_node is not None:
-            parent_node.add_children(self)
+
+    @property
+    def basename(self):
+        return self._basename
 
     @property
     def has_children(self):
         return self._children.length > 0
 
-    def add_children(self, file_system_tree_node):
+    def add_child(self, file_system_tree_node):
         self._children.append(file_system_tree_node)
         return file_system_tree_node
 

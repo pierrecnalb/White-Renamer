@@ -16,7 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
-import FileSystemTreeNode
+from folder_node import FolderNode
+from file_node import FileNode
+import os
 
 
 class FileSystemTreeModel(object):
@@ -36,9 +38,9 @@ class FileSystemTreeModel(object):
     def __init__(self, root_path, is_recursive):
         self._current_id = 0
         self._nodes_by_id = dict()
-        self._root_node = FolderNode(root_path)
+        self._root_node = FolderNode(self._current_id, root_path, None)
         self._is_recursive = is_recursive
-        self._filtered_tree
+        # self._filtered_tree
         self.build_tree_model()
 
     @property
@@ -67,19 +69,19 @@ class FileSystemTreeModel(object):
     def _scan_file_system(self, tree_node):
         """Creates the files system hierarchy without any filters, except recursion."""
         path = tree_node.full_path
-        children = listdir(path)
+        children = os.listdir(path)
         for child in children:
             child_path = os.path.join(path, child)
-            if isdir(os.path.join(path, child)):
-                #add folder
+            if os.path.isdir(child_path):
+                # add folder
                 folder_node = FolderNode(self.new_id(), child_path, tree_node)
                 folder_node.is_filtered = self.is_node_filtered(folder_node)
                 if (not self.is_recursive):
                     continue
                 else:
-                    self.scan_file_system(node)
+                    self._scan_file_system(folder_node)
             else:
-                #add file
+                # add file
                 file_node = FileNode(self.new_id(), child_path, tree_node)
                 file_node.is_filtered = self.is_node_filtered(file_node)
 
@@ -89,12 +91,12 @@ class FileSystemTreeModel(object):
 
     def is_node_filtered(self, tree_node):
         """Specifies whether tree_node is filtered or not (i.e. not seen in the model)."""
-        if (not self.filter.show_hidden_files and tree_node.is_hidden):
-            return True
-        if (self.filter.files_only and type(tree_node) == FolderNode):
-            return True
-        if (not self.filter.music_files_only and tree_node.file_type.music):
-            return True
+        # if (not self.filter.show_hidden_files and tree_node.is_hidden):
+        #     return True
+        # if (self.filter.files_only and type(tree_node) == FolderNode):
+        #     return True
+        # if (not self.filter.music_files_only and tree_node.file_type.music):
+        #     return True
         # if (tree_node.has_children is False and tree_node.is_folder is True and
         #         self.files_type != ["folders"]):
         #     return True

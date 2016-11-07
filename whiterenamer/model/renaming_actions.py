@@ -21,7 +21,7 @@ import re
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
 import abc
-import ActionRange
+from action_range import ActionRange
 
 
 class RenamingAction(object):
@@ -66,7 +66,7 @@ class RenamingAction(object):
                                       self._range.get_end_index(unmodified_name)]
         return sliced_name
 
-    def _get_new_name(self, action_range):
+    def _get_new_name(self):
         unmodifed_name = self._file_system_tree_node.modified_name
         new_name = unmodifed_name[0:self._range.start] + self._get_modified_sliced_name() + unmodifed_name[self._range.end:]
         return new_name
@@ -75,6 +75,7 @@ class RenamingAction(object):
         """Executes the defined action on the specified file/folder with the specified range."""
         new_name = self._get_new_name()
         self._file_system_tree_node.modified_name = new_name
+        self._file_system_tree_node.rename()
 
 
 class FindAndReplaceAction(RenamingAction):
@@ -84,7 +85,7 @@ class FindAndReplaceAction(RenamingAction):
     """
 
     def __init__(self, file_system_tree_node, action_range, old_char, new_char, is_regex):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self._old_char = old_char
         self._new_char = new_char
         self._is_regex = is_regex
@@ -122,14 +123,14 @@ class FindAndReplaceAction(RenamingAction):
 #         return action_range[:self.starting_position] + action_range[self.ending_position:]
 
 
-# class OriginalNameAction(RenamingAction):
-#     """Gets the original name."""
+class OriginalNameAction(RenamingAction):
+    """Gets the original name."""
 
-#     def __init__(self, file_system_tree_node, action_range):
-#         super().__init__(self, file_system_tree_node, action_range)
+    def __init__(self, file_system_tree_node, action_range):
+        super().__init__(file_system_tree_node, action_range)
 
-#     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
-#         return RenamingAction.file_system_tree_node.modified_name
+    def _get_modified_sliced_name(self, file_system_tree_node, action_range):
+        return RenamingAction.file_system_tree_node.modified_name
 
 
 class CaseChangeAction(RenamingAction):
@@ -142,7 +143,7 @@ class CaseChangeAction(RenamingAction):
     """
 
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
 
     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         return
@@ -158,7 +159,7 @@ class TitleCaseAction(RenamingAction):
     """
 
     def __init__(self, file_system_tree_node, action_range, is_first_letter_uppercase=True, special_characters=""):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self._is_first_letter_uppercase = is_first_letter_uppercase
         self._special_characters = special_characters
 
@@ -196,7 +197,7 @@ class UpperCaseAction(CaseChangeAction):
     """
 
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
 
     def _get_modified_sliced_name(self):
         unmodified_sliced_name = self._get_unmodified_sliced_name()
@@ -214,13 +215,12 @@ class LowerCaseAction(CaseChangeAction):
     """
 
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
 
     def _get_modified_sliced_name(self):
         unmodified_sliced_name = self._get_unmodified_sliced_name()
         modified_sliced_name = unmodified_sliced_name.upper()
         return modified_sliced_name
-
 
 
 class CustomNameAction(RenamingAction):
@@ -229,7 +229,7 @@ class CustomNameAction(RenamingAction):
     """
 
     def __init__(self, file_system_tree_node, action_range, custom_name):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self._custom_name = custom_name
 
     def _get_modified_sliced_name(self):
@@ -240,7 +240,7 @@ class FolderNameUsageAction(RenamingAction):
     """Use the parent foldername as the filename."""
 
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
 
     def _get_modified_sliced_name(self):
         folder_name = self.file_system_tree_node.parent.modified_name
@@ -285,7 +285,7 @@ class Counter(RenamingAction):
     """Count the number of files starting from start_index with the given increment."""
 
     def __init__(self, file_system_tree_node, action_range, start_index, increment, digit_number):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self._start_index = start_index
         self._increment = increment
         self._digit_number = digit_number
@@ -304,7 +304,7 @@ class Counter(RenamingAction):
 
 class GenericImageAction(RenamingAction):
     def __init__(self, file_system_tree_node, action_range, metadata):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self._metadata = metadata
 
     def _get_exif_tag(self):
@@ -317,7 +317,7 @@ class GenericImageAction(RenamingAction):
 
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range, time_format):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF DateTimeOriginal')
+        super().__init__(file_system_tree_node, action_range, 'EXIF DateTimeOriginal')
         self._time_format = time_format
 
     def _get_modified_sliced_name(self):
@@ -331,7 +331,7 @@ class ImageDateTimeOriginal(GenericImageAction):
 
 class ImageFNumber(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF FNumber')
+        super().__init__(file_system_tree_node, action_range, 'EXIF FNumber')
 
     def _get_modified_sliced_name(self):
         try:
@@ -343,7 +343,7 @@ class ImageFNumber(GenericImageAction):
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF ExposureTime')
+        super().__init__(file_system_tree_node, action_range, 'EXIF ExposureTime')
 
     def _get_modified_sliced_name(self):
         try:
@@ -355,7 +355,7 @@ class ImageExposureTime(GenericImageAction):
 
 class ImageISO(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF ISOSpeedRatings')
+        super().__init__(file_system_tree_node, action_range, 'EXIF ISOSpeedRatings')
 
     def _get_modified_sliced_name(self):
         try:
@@ -367,7 +367,7 @@ class ImageISO(GenericImageAction):
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'Image Model')
+        super().__init__(file_system_tree_node, action_range, 'Image Model')
 
     def _get_modified_sliced_name(self):
         try:
@@ -379,7 +379,7 @@ class ImageCameraModel(GenericImageAction):
 
 class ImageXDimension(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF ExifImageWidth')
+        super().__init__(file_system_tree_node, action_range, 'EXIF ExifImageWidth')
 
     def _get_modified_sliced_name(self, file_system_tree_node, action_range):
         try:
@@ -391,7 +391,7 @@ class ImageXDimension(GenericImageAction):
 
 class ImageYDimension(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF ExifImageLength')
+        super().__init__(file_system_tree_node, action_range, 'EXIF ExifImageLength')
 
     def _get_modified_sliced_name(self):
         try:
@@ -403,7 +403,7 @@ class ImageYDimension(GenericImageAction):
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'EXIF FocalLength')
+        super().__init__(file_system_tree_node, action_range, 'EXIF FocalLength')
 
     def _get_modified_sliced_name(self):
         try:
@@ -415,7 +415,7 @@ class ImageFocalLength(GenericImageAction):
 
 class ImageArtist(GenericImageAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'Image Artist')
+        super().__init__(file_system_tree_node, action_range, 'Image Artist')
 
     def _get_modified_sliced_name(self):
         try:
@@ -427,7 +427,7 @@ class ImageArtist(GenericImageAction):
 
 class GenericMusicAction(RenamingAction):
     def __init__(self, file_system_tree_node, action_range, metadata):
-        super().__init__(self, file_system_tree_node, action_range)
+        super().__init__(file_system_tree_node, action_range)
         self.metadata = metadata
 
     def _get_metadata_tag(self):
@@ -450,7 +450,7 @@ class MusicArtist(GenericMusicAction):
 
 class MusicTitle(GenericMusicAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'title')
+        super().__init__(file_system_tree_node, action_range, 'title')
 
     def _get_modified_sliced_name(self):
         try:
@@ -474,7 +474,7 @@ class MusicYear(GenericMusicAction):
 
 class MusicAlbum(GenericMusicAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'album')
+        super().__init__(file_system_tree_node, action_range, 'album')
 
     def _get_modified_sliced_name(self):
         try:
@@ -486,7 +486,7 @@ class MusicAlbum(GenericMusicAction):
 
 class MusicTrack(GenericMusicAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'tracknumber')
+        super().__init__(file_system_tree_node, action_range, 'tracknumber')
 
     def _get_modified_sliced_name(self):
         try:
@@ -498,7 +498,7 @@ class MusicTrack(GenericMusicAction):
 
 class MusicGenre(GenericMusicAction):
     def __init__(self, file_system_tree_node, action_range):
-        super().__init__(self, file_system_tree_node, action_range, 'genre')
+        super().__init__(file_system_tree_node, action_range, 'genre')
 
     def _get_modified_sliced_name(self):
         try:

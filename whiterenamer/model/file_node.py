@@ -17,16 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import os
-import FileSystemTreeNode
-import FileName
+from file_type import FileType
+from file_system_tree_node import FileSystemTreeNode
 
 
 class FileNode(FileSystemTreeNode):
     def __init__(self, unique_id, path, parent_node=None):
         (self._parent_path, name) = os.path.split(path)
-        self._file_name_composer = FileName.__init__(name)
-        FileSystemTreeNode.__init__(unique_id, self._file_name_composer,
-                                    parent_node)
+        (self._basename, extension) = os.path.splitext(name)
+        # remove dot
+        self._extension = extension[1:]
+        super().__init__(unique_id, name, parent_node)
         self._set_file_type()
 
     @property
@@ -37,14 +38,22 @@ class FileNode(FileSystemTreeNode):
     def file_type(self):
         return self._file_type
 
+    @property
+    def basename(self):
+        return self._basename
+
+    @property
+    def extension(self):
+        self._extension
+
     def _set_file_type(self):
         music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
         image_extensions = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp',
                             '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx',
                             '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
-        if (self._file_name_composer.extension in music_extension):
+        if (self._extension in music_extensions):
             self._file_type = FileType.music
-        if (self._file_name_composer.extension in image_extension):
+        if (self._extension in image_extensions):
             self._file_type = FileType.image
         else:
             self._file_type = FileType.normal

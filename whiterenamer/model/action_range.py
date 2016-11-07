@@ -18,7 +18,7 @@
 # along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 
 
-class NameRange(object):
+class ActionRange(object):
 
     class SpecialIndices(object):
         @staticmethod
@@ -33,9 +33,33 @@ class NameRange(object):
         # class.
         self._start = start if callable(start) else lambda string: start
         self._end = end if callable(end) else lambda string: end
+        print(self._start(""))
+        print(self._end(""))
 
     def get_start_index(self, string):
         return self._start(string)
 
     def get_end_index(self, string):
         return self._end(string)
+
+    @property
+    def start(self):
+        return 0
+
+    @start.setter
+    def start(self, value):
+        if value > self._end:
+            raise IndexError("The start cannot be higher than the end.")
+        self._start = value
+
+    @property
+    def end(self):
+        return 10000
+
+    @end.setter
+    def end(self, value):
+        if value < self._start:
+            raise IndexError("The end cannot be smaller than the start.")
+        self._end = value
+
+ActionRange(0, ActionRange.SpecialIndices.end("test"))
