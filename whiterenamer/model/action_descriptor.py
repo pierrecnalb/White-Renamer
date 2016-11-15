@@ -37,6 +37,7 @@ class ActionDescriptor(object):
         self._action_class = action_class
         self._caption_value_map = {action_input.name: action_input.value for action_input in self._action_inputs}
         self._action_range = ActionRange()
+        self._modify_extension = False
 
     def __repr__(self):
         """override string representation of the class"""
@@ -50,9 +51,19 @@ class ActionDescriptor(object):
     def action_range(self, value):
         self.action_range = value
 
+    @property
+    def modify_extension(self):
+        return self._modify_extension
+
+    @modify_extension.setter
+    def modify_extension(self, value):
+        self._modify_extension = value
+
     def invoke_action(self, tree_node_model):
+        """Executes the action."""
         for tree_node in tree_node_model.root_node.children:
             action_instance = self._action_class(tree_node, self._action_range, **self._caption_value_map)
+            action_instance.modify_extension = self._modify_extension
             action_instance.execute()
 
 
@@ -71,12 +82,12 @@ class FindAndReplaceActionDescriptor(ActionDescriptor):
     action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
 
-    def __init__(self):
+    def __init__(self, old_char, new_char, is_regex):
         name = "Find And Replace"
         inputs = []
-        old_char_input = ActionInput("old_char", "Replace", str, "")
-        new_char_input = ActionInput("new_char", "With", str, "")
-        is_regex_input = ActionInput("is_regex", "Regex", "checkable", False)
+        old_char_input = ActionInput("old_char", "Replace", str, old_char)
+        new_char_input = ActionInput("new_char", "With", str, new_char)
+        is_regex_input = ActionInput("is_regex", "Regex", "checkable", is_regex)
         inputs.append(old_char_input)
         inputs.append(new_char_input)
         inputs.append(is_regex_input)
@@ -168,10 +179,10 @@ class CustomNameActionDescriptor(ActionDescriptor):
     Can be also used to remove character if en empty string is given.
     """
 
-    def __init__(self):
+    def __init__(self, new_name):
         name = "Custom Name"
         inputs = []
-        action_input = ActionInput("custom_name", "New Name", str, "AAA")
+        action_input = ActionInput("custom_name", "New Name", str, new_name)
         inputs.append(action_input)
         cls = CustomNameAction
         super().__init__(name, inputs, cls)

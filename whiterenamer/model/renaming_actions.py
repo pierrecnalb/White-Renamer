@@ -22,6 +22,7 @@ from exifread import process_file
 from mutagen.easyid3 import EasyID3
 import abc
 from action_range import ActionRange
+from file_node import FileNode
 
 
 class RenamingAction(object):
@@ -35,9 +36,10 @@ class RenamingAction(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, file_system_tree_node, action_range):
+    def __init__(self, file_system_tree_node, action_range, modify_extension=False):
         self._file_system_tree_node = file_system_tree_node
         self._range = action_range
+        self._modify_extension = modify_extension
 
     @property
     def file_system_tree_node(self):
@@ -52,30 +54,46 @@ class RenamingAction(object):
         """Specifies the type of the action (add, remove or modification)"""
         pass
 
+    @property
+    def modify_extension(self):
+        return self._modify_extension
+
     @abc.abstractmethod
     def _get_modified_sliced_name(self):
         """Gets the modified portion of the file/folder name.
         The portion is defined by the action_range."""
         raise Exception()
 
+    def _get_original_name(self):
+        if(self._modify_extension is False):
+            return self._file_system_tree_node.original_basename
+        else:
+            if(isinstance(self._file_system_tree_node, FileNode)):
+                return self._file_system_tree_node.original_extension
+            else:
+                return ""
+
     def _get_unmodified_sliced_name(self):
         """Gets the portion of the name defined by the action_range."""
         # modified_name is used, so that several actions can be piped.
-        unmodified_name = self._file_system_tree_node.modified_name
+        unmodified_name = self._get_original_name()
         sliced_name = unmodified_name[self._range.get_start_index(unmodified_name):
                                       self._range.get_end_index(unmodified_name)]
         return sliced_name
 
     def _get_new_name(self):
-        unmodifed_name = self._file_system_tree_node.modified_name
-        new_name = unmodifed_name[0:self._range.start] + self._get_modified_sliced_name() + unmodifed_name[self._range.end:]
+        unmodified_name = self._get_original_name()
+        new_name = unmodified_name[0:self._range.start] + self._get_modified_sliced_name() + unmodified_name[self._range.end:]
         return new_name
 
     def execute(self):
-        """Executes the defined action on the specified file/folder with the specified range."""
-        new_name = self._get_new_name()
-        self._file_system_tree_node.modified_name = new_name
-        self._file_system_tree_node.rename()
+        """Executes the defined action on the specified file/folder with the specified range.
+        Several actions can be chained, resulting in a concatenation of all the different modified names."""
+        new_string = self._get_new_name()
+        if(self._modify_extension and isinstance(self._file_system_tree_node, FileNode)):
+            self._file_system_tree_node.modified_extension = new_string
+        else:
+            self._file_system_tree_node.modified_name += new_string
 
 
 class FindAndReplaceAction(RenamingAction):
@@ -83,7 +101,6 @@ class FindAndReplaceAction(RenamingAction):
     Replace old_char by new_char in the section of the path.
     action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
-
     def __init__(self, file_system_tree_node, action_range, old_char, new_char, is_regex):
         super().__init__(file_system_tree_node, action_range)
         self._old_char = old_char

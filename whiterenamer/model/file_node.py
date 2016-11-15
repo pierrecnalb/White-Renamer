@@ -23,28 +23,44 @@ from file_system_tree_node import FileSystemTreeNode
 
 class FileNode(FileSystemTreeNode):
     def __init__(self, unique_id, path, parent_node=None):
-        (self._parent_path, name) = os.path.split(path)
-        (self._basename, extension) = os.path.splitext(name)
-        # remove dot
-        self._extension = extension[1:]
-        super().__init__(unique_id, name, parent_node)
+        super().__init__(unique_id, path, parent_node)
+        self._set_extension(path)
         self._set_file_type()
-
-    @property
-    def parent_path(self):
-        return self._parent_path
 
     @property
     def file_type(self):
         return self._file_type
 
     @property
-    def basename(self):
-        return self._basename
+    def original_extension(self):
+        return self._original_extension
 
     @property
-    def extension(self):
-        self._extension
+    def modified_extension(self):
+        if self._modified_extension is None:
+            return self.original_extension
+        return self._modified_extension
+
+    @modified_extension.setter
+    def modified_extension(self, value):
+        self._modified_extension = value
+
+    def _get_modified_path(self):
+        """Since a parent folder may have been renamed during the renaming process,
+        the original path to the current node may not be correct anymore.
+        We need to get back to the parent path that should have been reset if renamed."""
+        modified_fullname = self.modified_basename + "." + self.modified_extension
+        return os.path.join(self.parent.path, modified_fullname)
+
+    def _set_path(self, path):
+        super()._set_path(path)  # Change path and basename.
+        self._set_extension(path)
+        self._set_file_type()
+
+    def _set_extension(self, path):
+        (_, extension) = os.path.splitext(path)
+        self._original_extension = extension[1:]  # remove dot
+        self._modified_extension = None
 
     def _set_file_type(self):
         music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
@@ -58,28 +74,28 @@ class FileNode(FileSystemTreeNode):
         else:
             self._file_type = FileType.normal
 
-    def match_files_type(self, files_type):
-        if (files_type == ['*.*']):
-            return True
-        if (files_type == ["folders"]):
-            if (self.is_folder is True):
-                return True
-            else:
-                return False
-        elif (self.is_folder is False):
-            name = self.original_filedescriptor.extension.lower()
-            for ext in files_type:
-                if (name in ext):
-                    return True
-        return False
+    # def match_files_type(self, files_type):
+    #     if (files_type == ['*.*']):
+    #         return True
+    #     if (files_type == ["folders"]):
+    #         if (self.is_folder is True):
+    #             return True
+    #         else:
+    #             return False
+    #     elif (self.is_folder is False):
+    #         name = self.original_filedescriptor.extension.lower()
+    #         for ext in files_type:
+    #             if (name in ext):
+    #                 return True
+    #     return False
 
-    def match_name_filter(self, name_filter):
-        if (name_filter == ""):
-            return True
-        if (self.is_folder is False):
-            name = str(self.original_filedescriptor.filename).lower()
-        else:
-            name = str(self.original_filedescriptor.foldername).lower()
-        if (name_filter in name):
-            return True
-        return False
+    # def match_name_filter(self, name_filter):
+    #     if (name_filter == ""):
+    #         return True
+    #     if (self.is_folder is False):
+    #         name = str(self.original_filedescriptor.filename).lower()
+    #     else:
+    #         name = str(self.original_filedescriptor.foldername).lower()
+    #     if (name_filter in name):
+    #         return True
+    #     return False

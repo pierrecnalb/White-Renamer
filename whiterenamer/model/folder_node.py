@@ -27,13 +27,9 @@ class FolderNode(FileSystemTreeNode):
         Parameters:
             --path: the full path of the folder.
         """
-        (self._parent_path, self._basename) = os.path.split(path)
-        super().__init__(unique_id, self._basename, parent_node)
+        super().__init__(unique_id, path, parent_node)
         self._children = []
 
-    @property
-    def basename(self):
-        return self._basename
 
     @property
     def has_children(self):
@@ -46,10 +42,6 @@ class FolderNode(FileSystemTreeNode):
     @property
     def children(self):
         return self._children
-
-    @property
-    def parent_path(self):
-        return self._parent_path
 
     def has_conflicting_children_name(self):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""

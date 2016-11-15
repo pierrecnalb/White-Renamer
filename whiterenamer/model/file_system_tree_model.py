@@ -39,6 +39,7 @@ class FileSystemTreeModel(object):
         self._current_id = 0
         self._nodes_by_id = dict()
         self._root_node = FolderNode(self._current_id, root_path, None)
+        self._nodes_by_id[self._current_id] = self._root_node
         self._is_recursive = is_recursive
         # self._filtered_tree
         self.build_tree_model()
@@ -55,6 +56,12 @@ class FileSystemTreeModel(object):
     def is_recursive(self, value):
         self._is_recursive = value
         self.build_tree_model()
+
+    def list_all_nodes(self):
+        nodelist = list()
+        for node_id_map in self._nodes_by_id:
+            nodelist.append(node_id_map.value)
+        return nodelist
 
     @property
     def root_node(self):
@@ -76,6 +83,7 @@ class FileSystemTreeModel(object):
                 # add folder
                 folder_node = FolderNode(self.new_id(), child_path, tree_node)
                 folder_node.is_filtered = self.is_node_filtered(folder_node)
+                self._nodes_by_id[self._current_id] = folder_node
                 if (not self.is_recursive):
                     continue
                 else:
@@ -84,6 +92,7 @@ class FileSystemTreeModel(object):
                 # add file
                 file_node = FileNode(self.new_id(), child_path, tree_node)
                 file_node.is_filtered = self.is_node_filtered(file_node)
+                self._nodes_by_id[self._current_id] = file_node
 
     def update_filtering(self, tree_node):
         for tree_node in self._nodes_by_id:
