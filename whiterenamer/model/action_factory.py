@@ -1,57 +1,12 @@
 #!/usr/bin/python3
 
-
-from action_input import ActionInput
-from renaming_actions import RenamingAction, CustomNameAction
-from action_range import ActionRange
+import action_descriptor
 
 
-class ActionDescriptor(object):
-    """
-    Describes the actions by names, inputs and classes.
-    Parameters:
-        --action_name: string that represents the name of the action.
-        --action_inputs: list of ActionInput that represents the inputs properties of the acion.
-        --action_class: string that represents the name of the class used for the action.
-    """
+class ActionFactory(object):
 
-    def __init__(self, action_name, action_inputs, action_class):
-        self._action_name = action_name
-        self._action_inputs = action_inputs
-        self._action_class = action_class
-        self._caption_value_map = {action_input.name: action_input.value for action_input in self._action_inputs}
-        self._action_range = ActionRange()
-        self._modify_extension = False
-
-    def __repr__(self):
-        """override string representation of the class"""
-        return self._action_name
-
-    @property
-    def action_range(self):
-        return self._action_range
-
-    @action_range.setter
-    def action_range(self, value):
-        self.action_range = value
-
-    @property
-    def modify_extension(self):
-        return self._modify_extension
-
-    @modify_extension.setter
-    def modify_extension(self, value):
-        self._modify_extension = value
-
-    def invoke_action(self, tree_node_model):
-        """Executes the action."""
-        for tree_node in tree_node_model.root_node.children:
-            action_instance = self._action_class(tree_node, self._action_range, **self._caption_value_map)
-            action_instance.modify_extension = self._modify_extension
-            action_instance.execute()
-
-
-class OriginalNameActionDescriptor(ActionDescriptor):
+    def CreateAction(name):
+        action_descriptor.OriginalNameActionDescriptor()
 
     def __init__(self):
         name = "Original Name"

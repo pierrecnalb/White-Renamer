@@ -1,14 +1,15 @@
-from file_system_tree_model import FileSystemTreeModel
-from action_descriptor import CustomNameActionDescriptor
-from action_descriptor_stack import ActionDescriptorStack
+from renaming_actions import CustomNameAction
+from renamer import Renamer
+from string_range import StringRange
 
 
 path = r"/home/pierre/Documents/Programs/whiterenamer-1.0.0/whiterenamer/model/testcases.t"
-model = FileSystemTreeModel(path, False)
-action_descriptor_stack = ActionDescriptorStack()
-action1 = CustomNameActionDescriptor("foo")
-action2 = CustomNameActionDescriptor("bar")
-action_descriptor_stack.append_action(action1)
-action_descriptor_stack.append_action(action2)
-action_descriptor_stack.execute_all_actions(model)
-action_descriptor_stack.rename_all(model)
+# model = FileSystemTreeModel(path, False)
+renamer = Renamer(path, False)
+string_range = StringRange(-1, 0)
+action1 = CustomNameAction("test", string_range, "FOO")
+# action2 = CustomNameAction("bar")
+renamer.append_action(action1)
+# renamer.append_action(action2)
+renamer.invoke_actions()
+renamer.batch_rename()

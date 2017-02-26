@@ -1,21 +1,5 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2015-2016 Pierre Blanc
-#
-# This file is part of WhiteRenamer.
-#
-# WhiteRenamer is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# WhiteRenamer is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 from file_system_tree_model import FileSystemTreeModel
 
 
@@ -24,17 +8,18 @@ class Renamer(object):
     def __init__(self, root_path, is_recursive):
         self._file_system_tree_model = FileSystemTreeModel(root_path, is_recursive)
         self._action_stack = list()
-        self._all_nodes = self._file_system_tree_model.list_all_nodes
+        self._all_nodes = self._file_system_tree_model.list_all_nodes()
 
-    def append_action(self, action_descriptor):
-        self._action_stack.append(action_descriptor)
+    def append_action(self, action):
+        self._action_stack.append(action)
 
-    def add_extension_action(self, action_descriptor):
-        self._action_stack.append(action_descriptor)
+    def add_extension_action(self, action):
+        self._action_stack.append(action)
 
     def invoke_actions(self):
         for action in self._action_stack:
-            action.invoke_action(self._file_system_tree_model)
+            for node in self._all_nodes:
+                node.modified_basename += action.new_name
 
     # def preview(self):
     #     modified_names = list()

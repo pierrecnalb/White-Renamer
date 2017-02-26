@@ -47,8 +47,8 @@ class FolderNode(FileSystemTreeNode):
         """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
         unique_names = []
         for child_node in self.children:
-            if (child_node.modified_name not in unique_names):
-                unique_names.append(child_node.modified_name)
+            if (child_node.modified_basename not in unique_names):
+                unique_names.append(child_node.modified_basename)
             else:
                 return True
         return False

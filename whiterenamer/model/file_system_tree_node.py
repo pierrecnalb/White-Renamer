@@ -1,21 +1,5 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2015-2016 Pierre Blanc
-#
-# This file is part of WhiteRenamer.
-#
-# WhiteRenamer is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# WhiteRenamer is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 import os.path
 import shutil
 import abc
@@ -40,6 +24,7 @@ class FileSystemTreeNode(object):
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
         self._is_filtered = False
+        self._modified_basename = ""
 
     def __repr__(self):
         """override string representation of the class"""
@@ -53,16 +38,16 @@ class FileSystemTreeNode(object):
     def path(self):
         return self._path
 
-    def _set_basename(self, path):
-        (_, basename) = os.path.split(self._path)
-        self._original_basenme = basename
-        self._modified_basename = ""
-        self._is_hidden = basename.startswith('.')
-
     def _set_path(self, path):
         """Sets the path. This will reset the changes made to the name."""
         self._path = path
         self._set_basename(path)
+
+    def _set_basename(self, path):
+        (_, basename) = os.path.split(self._path)
+        self._original_basename = basename
+        self._modified_basename = ""
+        self._is_hidden = basename.startswith('.')
 
     @property
     def original_basename(self):
@@ -119,9 +104,9 @@ class FileSystemTreeNode(object):
             # verify if the chosen parameters do not lead to naming conflicts.
             if self.parent.has_conflicting_children_name():
                 raise Exception("Naming conflict error. Several items in the same folder have the same name. This may cause data loss. Please choose new options to avoid duplicates.")
-            new_path = self.modified_path
+            new_path = self._get_modified_path()
             # find if new name is already taken by another file.
-            if os.path.exists(self.modified_path):
+            if os.path.exists(new_path):
                 # get tree node with the same name.
                 conflicting_tree_node = self.parent.find_child_by_path(new_path)
                 # verify if the conflicting tree node is not in fact the same tree node. (i.e. no changes)
@@ -134,14 +119,16 @@ class FileSystemTreeNode(object):
                         # get the conflicting tree node back to its original settings.
                         conflicting_tree_node.modified_name = conflicting_name_backup
             # rename current node.
+            print("orig=" + original_path)
+            print("dest=" + modified_path)
             shutil.move(original_path, modified_path)
             # apply new path to the tree nodes, so that child nodes will stil have a valid path.
-            self.path = self._get_modified_path
+            self._path = self._set_path(new_path)
         except IOError as e:
             raise Exception(str(e))
 
     def rename(self):
-        self._move(self.path, self._get_modified_path)
+        self._move(self.path, self._get_modified_path())
 
     def reset(self):
         self._move(self.path, self._backup_path)

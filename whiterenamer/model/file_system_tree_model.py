@@ -1,21 +1,5 @@
 #!/usr/bin/python3
 
-# Copyright (C) 2015-2016 Pierre Blanc
-#
-# This file is part of WhiteRenamer.
-#
-# WhiteRenamer is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# WhiteRenamer is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with WhiteRenamer. If not, see <http://www.gnu.org/licenses/>.
 from folder_node import FolderNode
 from file_node import FileNode
 import os
@@ -60,7 +44,7 @@ class FileSystemTreeModel(object):
     def list_all_nodes(self):
         nodelist = list()
         for node_id_map in self._nodes_by_id:
-            nodelist.append(node_id_map.value)
+            nodelist.append(self._nodes_by_id[node_id_map])
         return nodelist
 
     @property
@@ -75,7 +59,7 @@ class FileSystemTreeModel(object):
 
     def _scan_file_system(self, tree_node):
         """Creates the files system hierarchy without any filters, except recursion."""
-        path = tree_node.full_path
+        path = tree_node.path
         children = os.listdir(path)
         for child in children:
             child_path = os.path.join(path, child)
