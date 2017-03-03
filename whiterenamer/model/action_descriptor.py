@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-from action_input import ActionInput
+from _input import ActionInput
 from renaming_actions import RenamingAction, CustomNameAction
 from action_range import ActionRange
 
@@ -10,48 +10,35 @@ class ActionDescriptor(object):
     """
     Describes the actions by names, inputs and classes.
     Parameters:
-        --action_name: string that represents the name of the action.
-        --action_inputs: list of ActionInput that represents the inputs properties of the acion.
+        --name: string that represents the name of the action.
+        --inputs: list of ActionInput that represents the inputs properties of the acion.
         --action_class: string that represents the name of the class used for the action.
     """
 
-    def __init__(self, action_name, action_inputs, action_class):
-        self._action_name = action_name
-        self._action_inputs = action_inputs
-        self._action_class = action_class
-        self._caption_value_map = {action_input.name: action_input.value for action_input in self._action_inputs}
-        self._action_range = ActionRange()
-        self._modify_extension = False
+    def __init__(self, name, inputs, action_class):
+        self._name = name
+        self._inputs = inputs
+        self._class = action_class
+        self._input_value_by_name = {_input.name: _input.value for _input in self._inputs}
+        self._range = ActionRange()
 
     def __repr__(self):
         """override string representation of the class"""
-        return self._action_name
+        return self._name
 
     @property
     def action_range(self):
-        return self._action_range
+        return self._range
 
     @action_range.setter
     def action_range(self, value):
         self.action_range = value
 
-    @property
-    def modify_extension(self):
-        return self._modify_extension
-
-    @modify_extension.setter
-    def modify_extension(self, value):
-        self._modify_extension = value
-
-    def invoke_action(self, tree_node_model):
-        """Executes the action."""
-        for tree_node in tree_node_model.root_node.children:
-            action_instance = self._action_class(tree_node, self._action_range, **self._caption_value_map)
-            action_instance.modify_extension = self._modify_extension
-            action_instance.execute()
+    def create_action(self):
+        return self._class(self._range, **self._input_value_by_name)
 
 
-class OriginalNameActionDescriptor(ActionDescriptor):
+class OriginalName(ActionDescriptor):
 
     def __init__(self):
         name = "Original Name"
@@ -60,7 +47,7 @@ class OriginalNameActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class FindAndReplaceActionDescriptor(ActionDescriptor):
+class FindAndReplace(ActionDescriptor):
     """
     Replace old_char by new_char in the section of the path.
     action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
@@ -79,7 +66,7 @@ class FindAndReplaceActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class CharacterInsertionActionDescriptor(ActionDescriptor):
+class CharacterInsertion(ActionDescriptor):
     """Insert new_char at index position."""
 
     def __init__(self):
@@ -92,7 +79,7 @@ class CharacterInsertionActionDescriptor(ActionDescriptor):
         super().action_range.start = "index_input"
 
 
-class CharacterDeletionActionDescriptor(ActionDescriptor):
+class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
 
     def __init__(self):
@@ -106,7 +93,7 @@ class CharacterDeletionActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class TitleCaseActionDescriptor(ActionDescriptor):
+class TitleCase(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -126,7 +113,7 @@ class TitleCaseActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class UpperCaseActionDescriptor(ActionDescriptor):
+class UpperCase(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -142,7 +129,7 @@ class UpperCaseActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class LowerCaseActionDescriptor(ActionDescriptor):
+class LowerCase(ActionDescriptor):
     """
     Return the original name with a chosen casing option.
     Parameters:
@@ -158,7 +145,7 @@ class LowerCaseActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class CustomNameActionDescriptor(ActionDescriptor):
+class CustomName(ActionDescriptor):
     """Use a custom name in the filename.
     Can be also used to remove character if en empty string is given.
     """
@@ -166,13 +153,13 @@ class CustomNameActionDescriptor(ActionDescriptor):
     def __init__(self, new_name):
         name = "Custom Name"
         inputs = []
-        action_input = ActionInput("custom_name", "New Name", str, new_name)
-        inputs.append(action_input)
+        _input = ActionInput("custom_name", "New Name", str, new_name)
+        inputs.append(_input)
         cls = CustomNameAction
         super().__init__(name, inputs, cls)
 
 
-class FolderNameActionDescriptor(ActionDescriptor):
+class FolderName(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
     def __init__(self):
@@ -182,7 +169,7 @@ class FolderNameActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class DateActionDescriptor(ActionDescriptor):
+class FileDate(ActionDescriptor):
 
     def __init__(self):
         name = "Date"
@@ -197,7 +184,7 @@ class DateActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class CounterActionDescriptor(ActionDescriptor):
+class Counter(ActionDescriptor):
     """Count the number of files starting from start_index with the given increment."""
     def __init__(self):
         name = "Counter"
@@ -212,7 +199,7 @@ class CounterActionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageDateTimeOriginalDescriptor(ActionDescriptor):
+class ImageOriginalDate(ActionDescriptor):
 
     def __init__(self):
         name = "Original Date"
@@ -223,7 +210,7 @@ class ImageDateTimeOriginalDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageFNumberDescriptor(ActionDescriptor):
+class ImageFNumber(ActionDescriptor):
     def __init__(self):
         name = "F Number"
         inputs = []
@@ -231,7 +218,7 @@ class ImageFNumberDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageExposureTimeDescriptor(ActionDescriptor):
+class ImageExposure(ActionDescriptor):
     def __init__(self):
         name = "Exposure"
         inputs = []
@@ -239,7 +226,7 @@ class ImageExposureTimeDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageISODescriptor(ActionDescriptor):
+class ImageISO(ActionDescriptor):
     def __init__(self):
         name = "ISO"
         inputs = []
@@ -247,7 +234,7 @@ class ImageISODescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageCameraModelDescriptor(ActionDescriptor):
+class ImageCameraModel(ActionDescriptor):
     def __init__(self):
         name = "Camera Model"
         inputs = []
@@ -255,7 +242,7 @@ class ImageCameraModelDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageXDimensionDescriptor(ActionDescriptor):
+class ImageXDimension(ActionDescriptor):
     def __init__(self):
         name = "X Dimension"
         inputs = []
@@ -263,7 +250,7 @@ class ImageXDimensionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageYDimensionDescriptor(ActionDescriptor):
+class ImageYDimension(ActionDescriptor):
     def __init__(self):
         name = "Y Dimension"
         inputs = []
@@ -271,7 +258,7 @@ class ImageYDimensionDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageFocalLengthDescriptor(ActionDescriptor):
+class ImageFocalLength(ActionDescriptor):
     def __init__(self):
         name = "Focal Length"
         inputs = []
@@ -279,7 +266,7 @@ class ImageFocalLengthDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class ImageArtistDescriptor(ActionDescriptor):
+class ImageArtist(ActionDescriptor):
     def __init__(self):
         name = "Artist"
         inputs = []
@@ -287,7 +274,7 @@ class ImageArtistDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicArtistDescriptor(ActionDescriptor):
+class MusicArtist(ActionDescriptor):
     def __init__(self):
         name = "Artist"
         inputs = []
@@ -295,7 +282,7 @@ class MusicArtistDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicTitleDescriptor(ActionDescriptor):
+class MusicTitle(ActionDescriptor):
     def __init__(self):
         name = "Title"
         inputs = []
@@ -303,7 +290,7 @@ class MusicTitleDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicYearDescriptor(ActionDescriptor):
+class MusicYear(ActionDescriptor):
     def __init__(self):
         name = "Year"
         inputs = []
@@ -311,7 +298,7 @@ class MusicYearDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicAlbumDescriptor(ActionDescriptor):
+class MusicAlbum(ActionDescriptor):
     def __init__(self):
         name = "Album"
         inputs = []
@@ -319,7 +306,7 @@ class MusicAlbumDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicTrackDescriptor(ActionDescriptor):
+class MusicTrack(ActionDescriptor):
     def __init__(self):
         name = "Track Number"
         inputs = []
@@ -327,7 +314,7 @@ class MusicTrackDescriptor(ActionDescriptor):
         super().__init__(name, inputs, cls)
 
 
-class MusicGenreDescriptor(ActionDescriptor):
+class MusicGenre(ActionDescriptor):
     def __init__(self):
         name = "Genre"
         inputs = []
