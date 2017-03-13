@@ -6,7 +6,7 @@ from exifread import process_file
 from mutagen.easyid3 import EasyID3
 import abc
 from string_slicer import StringSlicer
-import StringRange
+from string_range import StringRange
 
 
 class RenamingAction(object):
@@ -22,15 +22,13 @@ is inherited by all the specific actions.
 
     def __init__(self, string_range=StringRange(0, None)):
         self._string_range = string_range
-        self._string_slicer = None
 
     @property
     def string_range(self):
         return self._string_range
 
     def _get_substring(self, original_string):
-        self._string_slicer = StringSlicer(original_string, self._string_range)
-        return self._string_slicer.sliced_portion
+        return StringSlicer(original_string, self._string_range).sliced_portion
 
     @abc.abstractmethod
     def _get_modified_substring(self, original_string):
@@ -38,9 +36,9 @@ is inherited by all the specific actions.
         The portion is defined by the string_range."""
         raise Exception()
 
-    @property
     def modify(self, original_string):
-        new_name = self._string_slicer.first_portion + self._get_modified_substring(original_string) + self._string_slicer.last_portion
+        string_slicer = StringSlicer(original_string, self._string_range)
+        new_name = string_slicer.first_portion + self._get_modified_substring(original_string) + string_slicer.last_portion
         return new_name
 
 
@@ -92,8 +90,8 @@ class TitleCaseAction(RenamingAction):
         decomposed_name = list(original_substring)
         return decomposed_name
 
-    def _get_special_character_indices(self):
-        decomposed_name = self._get_decomposed_name()
+    def _get_special_character_indices(self, original_string):
+        decomposed_name = self._get_decomposed_name(original_string)
         special_character_indices = []
         for index, character in enumerate(decomposed_name):
             if character in self._special_characters:
@@ -101,8 +99,9 @@ class TitleCaseAction(RenamingAction):
         return special_character_indices
 
     def _get_modified_substring(self, original_string):
+        print("AAAA" +original_string)
         decomposed_name = self._get_decomposed_name(original_string)
-        for special_character_index in self._get_special_character_indices:
+        for special_character_index in self._get_special_character_indices(original_string):
             if special_character_index < len(decomposed_name):
                 decomposed_name[special_character_index + 1] = decomposed_name[special_character_index + 1].upper()
         if self._is_first_letter_uppercase:
@@ -149,10 +148,12 @@ class CustomNameAction(RenamingAction):
     """
 
     def __init__(self, custom_name, string_range=None):
+        print(custom_name)
         super().__init__(string_range)
         self._custom_name = custom_name
 
     def _get_modified_substring(self, original_string):
+        print(self._custom_name)
         return self._custom_name
 
 

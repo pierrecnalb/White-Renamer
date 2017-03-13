@@ -16,7 +16,6 @@ class StringSlicer(object):
         self._first_portion = ""
         self._sliced_portion = ""
         self._last_portion = ""
-
         if start is None:
             self._first_portion = self._string
         else:

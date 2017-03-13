@@ -56,28 +56,11 @@ class FileNode(FileSystemTreeNode):
         else:
             self._file_type = FileType.normal
 
-    # def match_files_type(self, files_type):
-    #     if (files_type == ['*.*']):
-    #         return True
-    #     if (files_type == ["folders"]):
-    #         if (self.is_folder is True):
-    #             return True
-    #         else:
-    #             return False
-    #     elif (self.is_folder is False):
-    #         name = self.original_filedescriptor.extension.lower()
-    #         for ext in files_type:
-    #             if (name in ext):
-    #                 return True
-    #     return False
-
-    # def match_name_filter(self, name_filter):
-    #     if (name_filter == ""):
-    #         return True
-    #     if (self.is_folder is False):
-    #         name = str(self.original_filedescriptor.filename).lower()
-    #     else:
-    #         name = str(self.original_filedescriptor.foldername).lower()
-    #     if (name_filter in name):
-    #         return True
-    #     return False
+    def is_filtered(self, file_filter):
+        if super().is_filtered(file_filter):
+            return True
+        if file_filter.folders_only:
+            return True
+        if file_filter.file_type is not self._file_type:
+            return True
+        return False

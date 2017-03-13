@@ -4,6 +4,7 @@ import os.path
 import shutil
 import abc
 import uuid
+import re
 
 
 class FileSystemTreeNode(object):
@@ -85,13 +86,12 @@ class FileSystemTreeNode(object):
     def is_folder(self):
         return self._is_folder
 
-    @property
-    def is_filtered(self):
-        return self._is_filtered
-
-    @is_filtered.setter
-    def is_filtered(self, value):
-        self._is_filtered = value
+    def is_filtered(self, file_filter):
+        if file_filter.show_hidden_files is not self._is_hidden:
+            return True
+        if re.match(file_filter.search_pattern, self._original_basename):
+            return True
+        return False
 
     def _get_modified_path(self):
         """Since a parent folder may have been renamed during the renaming process,
