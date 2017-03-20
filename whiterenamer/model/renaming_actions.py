@@ -36,7 +36,7 @@ is inherited by all the specific actions.
         The portion is defined by the string_range."""
         raise Exception()
 
-    def modify(self, original_string):
+    def execute(self, original_string):
         string_slicer = StringSlicer(original_string, self._string_range)
         new_name = string_slicer.first_portion + self._get_modified_substring(original_string) + string_slicer.last_portion
         return new_name

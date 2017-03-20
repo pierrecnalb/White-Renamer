@@ -25,7 +25,7 @@ class FileSystemTreeNode(object):
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
         self._is_filtered = False
-        self._modified_basename = ""
+        self._modified_basename = None
 
     def __repr__(self):
         """override string representation of the class"""
@@ -55,11 +55,11 @@ class FileSystemTreeNode(object):
         return self._original_basename
 
     @property
-    def modified_basename(self):
-        return self._modified_basename
+    def basename(self):
+        return self._original_basename
 
-    @modified_basename.setter
-    def modified_basename(self, value):
+    @basename.setter
+    def basename(self, value):
         self._modified_basename = value
 
     @property
@@ -132,3 +132,6 @@ class FileSystemTreeNode(object):
 
     def reset(self):
         self._move(self.path, self._backup_path)
+
+    def accept(self, visitor):
+        visitor.visit(self)

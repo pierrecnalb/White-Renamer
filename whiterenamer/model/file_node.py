@@ -15,17 +15,11 @@ class FileNode(FileSystemTreeNode):
         return self._file_type
 
     @property
-    def original_extension(self):
+    def extension(self):
         return self._original_extension
 
-    @property
-    def modified_extension(self):
-        if self._modified_extension is None:
-            return self.original_extension
-        return self._modified_extension
-
-    @modified_extension.setter
-    def modified_extension(self, value):
+    @extension.setter
+    def extension(self, value):
         self._modified_extension = value
 
     def _get_modified_path(self):
@@ -36,7 +30,7 @@ class FileNode(FileSystemTreeNode):
 
     @property
     def path(self):
-        return super().path + "." + self.original_extension
+        return super().path + "." + self._original_extension
 
     def _set_path(self, path):
         (pathname, extension) = os.path.splitext(path)

@@ -19,7 +19,6 @@ class FileFilter(object):
         self._files_type = FileType.all
         self._search_pattern = ""
 
-
     @property
     def show_hidden_files(self):
         return self._show_hidden_files
