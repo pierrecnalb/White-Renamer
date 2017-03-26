@@ -21,7 +21,7 @@ class Renamer(object):
         self._file_system_tree_mode.is_recursive = value
 
     @property
-    def file_system_action_collection(self):
+    def action_collection(self):
         return self._file_system_action_collection
 
     def invoke_actions(self):

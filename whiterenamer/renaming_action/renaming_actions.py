@@ -42,6 +42,12 @@ is inherited by all the specific actions.
         return new_name
 
 
+class FileInfoRenamingAction(RenamingAction):
+
+    def __init__(self, string_range):
+        super(string_range)
+
+
 class FindAndReplaceAction(RenamingAction):
     """
     Replace old_char by new_char in the section of the path.
@@ -157,7 +163,7 @@ class CustomNameAction(RenamingAction):
         return self._custom_name
 
 
-class FolderNameUsageAction(RenamingAction):
+class FolderNameAction(RenamingAction):
     """Use the parent foldername as the filename."""
 
     def __init__(self, file_system_tree_node, string_range=None):

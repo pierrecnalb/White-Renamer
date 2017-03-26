@@ -4,7 +4,7 @@
 # import re
 import os
 import sys
-# import shutil
+import shutil
 import unittest
 from . import TestCasesModel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # sys.path.append('/home/pierre/Documents/Programs/white-renamer/whiterenamer')
 import whiterenamer
 import FileTestCreator
+import RenamingType
 
 # import whiterenamer
 # from whiterenamer.model import action_manager, Controller, FileSystem
@@ -41,117 +42,77 @@ class TestCases(unittest.TestCase):
         renamer.invoke_actions()
         renamer.batch_rename()
         renamed_filenames = self._get_filenames()
-        self.assertCountEqual(candidate_filenames, test_case_model)
-        shutil.rmtree(self.directory)
+        self.assertCountEqual(renamed_filenames, test_case_model)
+        shutil.rmtree(self.root_folder)
 
     def test_original_name(self):
         """Makes sure that orginal name keeps the original name."""
         renamer = whiterenamer.whiterenamer(self.root_folder)
-        renamer.filename_action_collection.append_action("OriginalName")
+        renamer.action_collection.append_action(RenamingType.foldername, "OriginalName")
         self._rename_and_verify(renamer, TestCasesModel.Main_OriginalName)
 
     def test_main_uppercase(self):
         """Make all letters uppercase"""
         renamer = whiterenamer.whiterenamer(self.root_folder)
-        renamer.foldername_action_collection.append_action("UpperCase")
-        renamer.filename_action_collection.append_action("UpperCase")
-        renamer.extension_action_collection.append_action("UpperCase")
+        renamer.action_collection.append_action(RenamingType.foldername, "UpperCase")
+        renamer.action_collection.append_action(RenamingType.filename, "UpperCase")
+        renamer.action_collection.append_action(RenamingType.extension, "UpperCase")
         self._rename_and_verify(renamer, TestCasesModel.Main_Uppercase)
 
     def test_main_lowercase(self):
         """Make all letters lowercase"""
         renamer = whiterenamer.whiterenamer(self.root_folder)
-        renamer.foldername_action_collection.append_action("LowerCase")
-        renamer.filename_action_collection.append_action("LowerCase")
-        renamer.extension_action_collection.append_action("LowerCase")
+        renamer.action_collection.append_action(RenamingType.foldername, "LowerCase")
+        renamer.action_collection.append_action(RenamingType.filename, "LowerCase")
+        renamer.action_collection.append_action(RenamingType.extension, "LowerCase")
         self._rename_and_verify(renamer, TestCasesModel.Main_Lowercase)
 
     def test_main_titlecase(self):
         """Make first letters Titlecase after space, underscore, dash and period."""
         renamer = whiterenamer.whiterenamer(self.root_folder)
-        renamer.foldername_action_collection.append_action("TitleCase")
-        renamer.filename_action_collection.append_action("TitleCase")
-        renamer.extension_action_collection.append_action("TitleCase")
+        renamer.action_collection.append_action(RenamingType.foldername, "TitleCase")
+        renamer.action_collection.append_action(RenamingType.filename, "TitleCase")
+        renamer.action_collection.append_action(RenamingType.extension, "TitleCase")
         self._rename_and_verify(renamer, TestCasesModel.Main_Titlecase)
 
     def test_main_delete(self):
         """Delete first letter for folders, second for files and third for extension."""
-        self.init("TestCase1", True, False, "name", False)
-        action_descriptor = action_manager.CharacterDeletionAction
-        files = self.files_collection
-        action_args_folder = {'starting_position': 0, 'ending_position': 1}
-        action_args_file = {'starting_position': 1, 'ending_position': 2}
-        action_args_extension = {'starting_position': 2, 'ending_position': 3}
-        self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args_file, 'file', 'file')
-        self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Delete)
-# # # #
+        renamer = whiterenamer.whiterenamer(self.root_folder)
+        renamer.action_collection.append_action(RenamingType.foldername, "CharacterDeletion", StringRange(0, 1))
+        renamer.action_collection.append_action(RenamingType.filename, "CharacterDeletion", StringRange(1, 2))
+        renamer.action_collection.append_action(RenamingType.extension, "CharacterDeletion", StringRange(2, 3))
+        self._rename_and_verify(renamer, TestCasesModel.Main_Delete)
 
     def test_main_replace_without_regex(self):
         """Replace e with 3 and .txt with .ogg."""
-        self.init("TestCase1", True, False, "name", False)
-        action_descriptor = action_manager.CharacterReplacementAction
-        files = self.files_collection
-        action_args_folder = {'old_char': 'e', 'new_char': '3', 'regex': False}
-        action_args_file = {'old_char': 'e', 'new_char': '3', 'regex': False}
-        action_args_extension = {'old_char': 'txt', 'new_char': 'ogg', 'regex': False}
-        self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args_file, 'file', 'file')
-        self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Replace_without_regex)
-# # # #
+        renamer = whiterenamer.whiterenamer(self.root_folder)
+        renamer.action_collection.append_action(RenamingType.foldername, "FindAndReplace", "e", "3", False)
+        renamer.action_collection.append_action(RenamingType.filename, "FindAndReplace", "e", "3", False)
+        renamer.action_collection.append_action(RenamingType.extension, "FindAndReplace", "txt", "ogg", False)
+        self._rename_and_verify(renamer, TestCasesModel.Main_Replace_without_regex)
 
     def test_main_replace_with_regex(self):
         """Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf"."""
-        self.init("TestCase1", True, False, "name", False)
-        action_descriptor = action_manager.CharacterReplacementAction
-        files = self.files_collection
-        action_args_folder = {'old_char': '\\d', 'new_char': '99', 'regex': True}
-        action_args_file = {'old_char': 'file', 'new_char': 'fhis', 'regex': True}
-        action_args_extension = {'old_char': '\\w.*', 'new_char': 'pdf', 'regex': True}
-        self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args_file, 'file', 'file')
-        self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Replace_with_regex)
-# # # #
+        renamer = whiterenamer.whiterenamer(self.root_folder)
+        renamer.action_collection.append_action(RenamingType.foldername, "FindAndReplace", "\\d", "99", True)
+        renamer.action_collection.append_action(RenamingType.filename, "FindAndReplace", "file", "fhis", True)
+        renamer.action_collection.append_action(RenamingType.extension, "FindAndReplace", "\\w.*", "pdf", True)
+        self._rename_and_verify(renamer, TestCasesModel.Main_Replace_with_regex)
 
     def test_main_insert(self):
         """Insert A at position 0 for folder, position 3 for files and position 99 for extension."""
-        self.init("TestCase1", True, False, "name", False)
-        action_descriptor = action_manager.CharacterInsertionAction
-        files = self.files_collection
-        action_args_folder = {'new_char': 'A', 'index': 0}
-        action_args_file = {'new_char': 'A', 'index': 3}
-        action_args_extension = {'new_char': 'A', 'index': 99}
-        self.apply_actions(action_descriptor, action_args_folder, 'folder', 'folder')
-        self.apply_actions(action_descriptor, action_args_file, 'file', 'file')
-        self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_Insert)
-# #
-
-    def test_main_undo(self):
-        """Name all folders 'folder', files 'file' and extensions '.ext'. and undo the actions after renaming."""
-        self.init("TestCase1", True, False, "name", False)
-        action_descriptor = action_manager.CustomNameAction
-        files = self.files_collection
-        action_args_folder = {'new_name': 'folder'}
-        action_args_file = {'new_name': 'file'}
-        action_args_extension = {'new_name': '.ext'}
-        self.apply_actions(action_descriptor, action_args_folder, 'prefix', 'folder')
-        self.apply_actions(action_descriptor, action_args_file, 'prefix', 'file')
-        self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-        self.controller.batch_undo()
-        self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        self.compare_with_model_file(TestCasesModel.Main_OriginalName)
-# # #
+        renamer = whiterenamer.whiterenamer(self.root_folder)
+        renamer.action_collection.append_action(RenamingType.foldername, "CharacterInsertion", "A", 0)
+        renamer.action_collection.append_action(RenamingType.filename, "CharacterInsertion", "A", 3)
+        renamer.action_collection.append_action(RenamingType.extension, "CharacterInsertion", "A", None)
+        self._rename_and_verify(renamer, TestCasesModel.Main_Insert)
 
     def test_main_folder_name(self):
         """Use foldername for folders, files."""
+        renamer = whiterenamer.whiterenamer(self.root_folder)
+        renamer.action_collection.append_action(RenamingType.foldername, "CharacterInsertion", "A", 0)
+        renamer.action_collection.append_action(RenamingType.filename, "CharacterInsertion", "A", 3)
+        self._rename_and_verify(renamer, TestCasesModel.Main_FolderName)
         self.init("TestCase1", True, False, "name", False)
         action_descriptor = action_manager.FolderNameUsageAction
         files = self.files_collection
@@ -336,6 +297,21 @@ class TestCases(unittest.TestCase):
         self.apply_actions(action_descriptor, action_args, 'file', 'file')
         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
         self.compare_with_model_file(TestCasesModel.Music_Title)
+
+    # def test_main_undo(self):
+    #     """Name all folders 'folder', files 'file' and extensions '.ext'. and undo the actions after renaming."""
+    #     self.init("TestCase1", True, False, "name", False)
+    #     action_descriptor = action_manager.CustomNameAction
+    #     files = self.files_collection
+    #     action_args_folder = {'new_name': 'folder'}
+    #     action_args_file = {'new_name': 'file'}
+    #     action_args_extension = {'new_name': '.ext'}
+    #     self.apply_actions(action_descriptor, action_args_folder, 'prefix', 'folder')
+    #     self.apply_actions(action_descriptor, action_args_file, 'prefix', 'file')
+    #     self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
+    #     self.controller.batch_undo()
+    #     self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+        # self.compare_with_model_file(TestCasesModel.Main_OriginalName)
 
 if __name__ == '__main__':
     unittest.main()

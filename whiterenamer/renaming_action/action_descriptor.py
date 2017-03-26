@@ -86,7 +86,7 @@ class CharacterInsertion(ActionDescriptor):
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
 
-    def __init__(self):
+    def __init__(self, string_range):
         name = "Delete Characters"
         inputs = []
         start_index_input = ActionInput("start_range", "From", int, 0)
@@ -167,9 +167,11 @@ class CustomName(ActionDescriptor):
 class FolderName(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
-    def __init__(self, string_range=None):
+    def __init__(self, file_system_tree_node, string_range=None):
         name = "Folder Name"
         inputs = []
+        _input = ActionInput("custom_name", "New Name", str, new_name)
+        inputs.append(_input)
         cls = FolderNameAction
         super().__init__(name, inputs, cls, string_range)
 
