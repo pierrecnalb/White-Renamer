@@ -8,13 +8,13 @@ import os
 
 class FileSystemTreeModel(object):
     """
-    Represents a portion of the FileSystemTreeNode depending on filters chosen by the users.
+    Represents a portion of the FilesystemNode depending on filters chosen by the users.
     Parameters:
         --file_system_tree_node: original filesystemtreenode
-        --rank: integer that represents the position of the current file/folder in the list of FileSystemTreeNode children.
+        --rank: integer that represents the position of the current file/folder in the list of FilesystemNode children.
     """
     """
-    Contains all the FileSystemTreeNodes representing the files system structure with or without the subdirectories, starting from the input path.
+    Contains all the FilesystemNodes representing the files system structure with or without the subdirectories, starting from the input path.
     Parameters:
         --input_path: string that represents the root directory to start the files collection from.
         --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.

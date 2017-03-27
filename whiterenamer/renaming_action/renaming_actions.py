@@ -7,11 +7,14 @@ from mutagen.easyid3 import EasyID3
 import abc
 from string_slicer import StringSlicer
 from string_range import StringRange
+import Scope
+from file_node import FileNode
+from folder_node import FolderNode
 
 
 class RenamingAction(object):
     """
-Describes how the action is applied on the FileSystemTreeNodes. This class
+Describes how the action is applied on the FilesystemNodes. This class
 is inherited by all the specific actions.
     Parameters:
         --name: string that represents where the action will be applied.
@@ -20,32 +23,45 @@ is inherited by all the specific actions.
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, string_range=StringRange(0, None)):
+    def __init__(self, scope, string_range=StringRange(0, None)):
+        self._scope = scope
         self._string_range = string_range
 
     @property
     def string_range(self):
         return self._string_range
 
-    def _get_substring(self, original_string):
-        return StringSlicer(original_string, self._string_range).sliced_portion
+    def _slice_name(self, filesystem_node):
+        original_name = ""
+        if(self._scope is Scope.filename or self._scope is Scope.foldername):
+            original_name = filesystem_node.basename
+        elif(self._scope is Scope.extension):
+            original_name = filesystem_node.extension
+        return StringSlicer(original_name, self._string_range)
 
     @abc.abstractmethod
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         """Gets the modified portion of the file/folder name.
         The portion is defined by the string_range."""
         raise Exception()
 
-    def execute(self, original_string):
-        string_slicer = StringSlicer(original_string, self._string_range)
-        new_name = string_slicer.first_portion + self._get_modified_substring(original_string) + string_slicer.last_portion
+    def _is_scope_valid(self, filesystem_node):
+        if(isinstance(filesystem_node, FileNode)):
+            if(self._scope is Scope.filename or self._scope is Scope.extension):
+                return True
+        if(self._scope is Scope.foldername and not isinstance(filesystem_node, FolderNode)):
+            return True
+        return False
+
+    def execute(self, filesystem_node):
+        if (not self._is_scope_valid(filesystem_node)):
+            return
+
+        sliced_name = self._slice_name(filesystem_node)
+        original_substring = sliced_name.sliced_portion
+        modified_substring = self._get_modified_substring(filesystem_node, original_substring)
+        new_name = sliced_name.first_portion + modified_substring + sliced_name.last_portion
         return new_name
-
-
-class FileInfoRenamingAction(RenamingAction):
-
-    def __init__(self, string_range):
-        super(string_range)
 
 
 class FindAndReplaceAction(RenamingAction):
@@ -53,14 +69,14 @@ class FindAndReplaceAction(RenamingAction):
     Replace old_char by new_char in the section of the path.
     string_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
-    def __init__(self, old_char, new_char, is_regex, string_range=None):
-        super().__init__(string_range)
+    def __init__(self, old_char, new_char, is_regex, scope, string_range=None):
+        super().__init__(scope, scope, string_range)
         self._old_char = old_char
         self._new_char = new_char
         self._is_regex = is_regex
 
-    def _get_modified_substring(self, original_string):
-        original_substring = self._get_substring(original_string)
+    def _get_modified_substring(self, filesystem_node, original_substring):
+        original_substring = self._get_original_substring(filesystem_node)
         if not self._is_regex:
             return original_substring.replace(self._old_char, self._new_char)
         else:
@@ -70,11 +86,11 @@ class FindAndReplaceAction(RenamingAction):
 class OriginalNameAction(RenamingAction):
     """Gets the original name."""
 
-    def __init__(self, string_range=None):
-        super().__init__(string_range)
+    def __init__(self, scope, string_range=None):
+        super().__init__(scope, string_range)
 
-    def _get_modified_substring(self, original_string):
-        return super()._get_substring(original_string)
+    def _get_modified_substring(self, filesystem_node, original_substring):
+        return super()._get_original_substring(original_substring)
 
 
 class TitleCaseAction(RenamingAction):
@@ -87,12 +103,12 @@ class TitleCaseAction(RenamingAction):
     """
 
     def __init__(self, is_first_letter_uppercase=True, special_characters="", string_range=None):
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
         self._is_first_letter_uppercase = is_first_letter_uppercase
         self._special_characters = special_characters
 
     def _get_decomposed_name(self, original_string):
-        original_substring = self._get_substring(original_string)
+        original_substring = self._get_original_substring(original_string)
         decomposed_name = list(original_substring)
         return decomposed_name
 
@@ -104,7 +120,7 @@ class TitleCaseAction(RenamingAction):
                 special_character_indices.append(index)
         return special_character_indices
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         print("AAAA" +original_string)
         decomposed_name = self._get_decomposed_name(original_string)
         for special_character_index in self._get_special_character_indices(original_string):
@@ -126,10 +142,10 @@ class UpperCaseAction(RenamingAction):
     """
 
     def __init__(self, string_range=None):
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
 
-    def _get_modified_substring(self, original_string):
-        return self._get_substring(original_string).upper()
+    def _get_modified_substring(self, filesystem_node, original_substring):
+        return self._get_original_substring(original_string).upper()
 
 
 class LowerCaseAction(RenamingAction):
@@ -142,10 +158,10 @@ class LowerCaseAction(RenamingAction):
     """
 
     def __init__(self, string_range=None):
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
 
-    def _get_modified_substring(self, original_string):
-        return self._get_substring(original_string).lower()
+    def _get_modified_substring(self, filesystem_node, original_substring):
+        return self._get_original_substring(original_string).lower()
 
 
 class CustomNameAction(RenamingAction):
@@ -155,10 +171,10 @@ class CustomNameAction(RenamingAction):
 
     def __init__(self, custom_name, string_range=None):
         print(custom_name)
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
         self._custom_name = custom_name
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         print(self._custom_name)
         return self._custom_name
 
@@ -167,10 +183,10 @@ class FolderNameAction(RenamingAction):
     """Use the parent foldername as the filename."""
 
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
         self._file_system_tree_node = file_system_tree_node
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         folder_name = self._file_system_tree_node.parent.modified_basename
         return folder_name
 
@@ -201,7 +217,7 @@ class DateAction(RenamingAction):
         self._is_modified_date = is_modified_date
         self._display_format = time_format
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         if self.is_modified_date:
             file_date = self._file_system_tree_node.modified_date
         else:
@@ -214,12 +230,12 @@ class DateAction(RenamingAction):
 #     """Count the number of files starting from start_index with the given increment."""
 
 #     def __init__(self, string, string_range, start_index, increment, digit_number):
-#         super().__init__(string, string_range)
+#         super().__init__(scope, string, string_range)
 #         self._start_index = start_index
 #         self._increment = increment
 #         self._digit_number = digit_number
 
-#     def _get_modified_substring(self, original_string):
+#     def _get_modified_substring(self, filesystem_node, original_substring):
 #         counter = self.string.rank
 #         counter *= self.increment
 #         counter += self.start_index
@@ -233,7 +249,7 @@ class DateAction(RenamingAction):
 
 class GenericImageAction(RenamingAction):
     def __init__(self, file_systme_tree_node, metadata, string_range=None):
-        super().__init__(string_range)
+        super().__init__(scope, string_range)
         self._file_system_tree_node = file_systme_tree_node
         self._metadata = metadata
 
@@ -247,117 +263,117 @@ class GenericImageAction(RenamingAction):
 
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, file_system_tree_node, time_format, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF DateTimeOriginal')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF DateTimeOriginal')
         self._time_format = time_format
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             localtime = time.strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
             return time.strftime(self._time_format, localtime)
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageFNumber(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF FNumber')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF FNumber')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF ExposureTime')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF ExposureTime')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageISO(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF ISOSpeedRatings')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF ISOSpeedRatings')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0])
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'Image Model')
+        super().__init__(scope, string_range, file_system_tree_node, 'Image Model')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return exif_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageXDimension(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF ExifImageWidth')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF ExifImageWidth')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0])
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageYDimension(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF ExifImageLength')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF ExifImageLength')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0])
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'EXIF FocalLength')
+        super().__init__(scope, string_range, file_system_tree_node, 'EXIF FocalLength')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class ImageArtist(GenericImageAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'Image Artist')
+        super().__init__(scope, string_range, file_system_tree_node, 'Image Artist')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             exif_tag = self._get_exif_tag()
             return exif_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class GenericMusicAction(RenamingAction):
     def __init__(self, file_system_tree_node, metadata, string_range=None):
-        super().__init__(string_range, file_system_tree_node)
+        super().__init__(scope, string_range, file_system_tree_node)
         self.metadata = metadata
 
     def _get_metadata_tag(self):
@@ -368,71 +384,71 @@ class GenericMusicAction(RenamingAction):
 
 class MusicArtist(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(self, string_range, file_system_tree_node, 'artist')
+        super().__init__(scope, self, string_range, file_system_tree_node, 'artist')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class MusicTitle(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'title')
+        super().__init__(scope, string_range, file_system_tree_node, 'title')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class MusicYear(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(self, string_range, file_system_tree_node, 'date')
+        super().__init__(scope, self, string_range, file_system_tree_node, 'date')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class MusicAlbum(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'album')
+        super().__init__(scope, string_range, file_system_tree_node, 'album')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class MusicTrack(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'tracknumber')
+        super().__init__(scope, string_range, file_system_tree_node, 'tracknumber')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)
 
 
 class MusicGenre(GenericMusicAction):
     def __init__(self, file_system_tree_node, string_range=None):
-        super().__init__(string_range, file_system_tree_node, 'genre')
+        super().__init__(scope, string_range, file_system_tree_node, 'genre')
 
-    def _get_modified_substring(self, original_string):
+    def _get_modified_substring(self, filesystem_node, original_substring):
         try:
             metadata_tag = self._get_metadata_tag()
             return metadata_tag
         except:
-            return self._get_substring(original_string)
+            return self._get_original_substring(original_string)

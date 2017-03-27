@@ -5,7 +5,7 @@ from file_type import FileType
 
 class FileFilter(object):
     """
-    Contains all the FileSystemTreeNodes representing the files system structure with or without the subdirectories, starting from the input path.
+    Contains all the FilesystemNodes representing the files system structure with or without the subdirectories, starting from the input path.
     Parameters:
         --input_path: string that represents the root directory to start the files collection from.
         --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.

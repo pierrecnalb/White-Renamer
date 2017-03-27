@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-from file_system_tree_node import FileSystemTreeNode
+from file_system_tree_node import FilesystemNode
 
 
-class FolderNode(FileSystemTreeNode):
+class FolderNode(FilesystemNode):
     def __init__(self, unique_id, path, parent_node=None):
         """
         A directory in the file system tree node.

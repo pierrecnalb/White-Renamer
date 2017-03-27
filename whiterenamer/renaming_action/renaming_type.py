@@ -2,6 +2,7 @@
 from enum import Enum
 
 
-class RenamingType(Enum):
-    basename = 0
-    extension = 1
+class Scope(Enum):
+    foldername = 0
+    filename = 1
+    extension = 2

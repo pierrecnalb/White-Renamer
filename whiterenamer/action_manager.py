@@ -84,7 +84,7 @@ class ActionInput(object):
 
 class Action(object):
     """
-    Describes how the action is applied on the FileSystemTreeNodes. This class
+    Describes how the action is applied on the FilesystemNodes. This class
     is inherited by all the specific actions.
     Parameters:
         --path_type: string that represents where the action will be applied.

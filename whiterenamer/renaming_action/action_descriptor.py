@@ -15,11 +15,12 @@ class ActionDescriptor(object):
         --action_class: string that represents the name of the class used for the action.
     """
 
-    def __init__(self, name, inputs, action_class, string_range=None):
+    def __init__(self, name, inputs, action_class, scope, string_range=None):
         self._name = name
         self._inputs = inputs
         self._class = action_class
         self._input_value_by_name = {_input.name: _input.value for _input in self._inputs}
+        self._scope = scope
         if string_range is None:
             self._range = StringRange(0, None)
         else:

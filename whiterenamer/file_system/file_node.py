@@ -2,10 +2,10 @@
 
 import os
 from file_type import FileType
-from file_system_tree_node import FileSystemTreeNode
+from file_system_tree_node import FilesystemNode
 
 
-class FileNode(FileSystemTreeNode):
+class FileNode(FilesystemNode):
     def __init__(self, unique_id, path, parent_node=None):
         super().__init__(unique_id, path, parent_node)
         self._set_file_type()
