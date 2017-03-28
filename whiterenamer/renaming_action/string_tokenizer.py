@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-class StringSlicer(object):
+class StringTokenizer(object):
     def __init__(self, string, string_range):
         """
         Extracts a portion of the given name.
@@ -13,32 +13,32 @@ class StringSlicer(object):
         self._string = string
         start = string_range.start
         end = string_range.end
-        self._first_portion = ""
-        self._sliced_portion = ""
-        self._last_portion = ""
+        self._first_token = ""
+        self._selected_token = ""
+        self._last_token = ""
         if start is None:
-            self._first_portion = self._string
+            self._first_token = self._string
         else:
             if end is None:
-                self._first_portion = self._string[:start]
-                self._sliced_portion = self._string[start:]
+                self._first_token = self._string[:start]
+                self._selected_token = self._string[start:]
             else:
-                self._first_portion = self._string[:start]
-                self._sliced_portion = self._string[start:end]
-                self._last_portion = self._string[end:]
+                self._first_token = self._string[:start]
+                self._selected_token = self._string[start:end]
+                self._last_token = self._string[end:]
 
     @property
     def string(self):
         return self._string
 
     @property
-    def first_portion(self):
-        return self._first_portion
+    def first_token(self):
+        return self._first_token
 
     @property
-    def sliced_portion(self):
-        return self._sliced_portion
+    def selected_token(self):
+        return self._selected_token
 
     @property
-    def last_portion(self):
+    def last_token(self):
         return self._last_portion
