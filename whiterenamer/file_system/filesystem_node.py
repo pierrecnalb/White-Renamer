@@ -25,11 +25,11 @@ class FileSystemTreeNode(object):
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
         self._is_filtered = False
-        self._modified_basename = None
+        self._new_name = ""
 
     def __repr__(self):
         """override string representation of the class"""
-        return self._original_basename
+        return self._name
 
     @property
     def unique_id(self):
@@ -42,25 +42,25 @@ class FileSystemTreeNode(object):
     def _set_path(self, path):
         """Sets the path. This will reset the changes made to the name."""
         self._path = path
-        self._set_basename(path)
+        self._set_name(path)
 
-    def _set_basename(self, path):
+    def _set_name(self, path):
         (_, basename) = os.path.split(self._path)
-        self._original_basename = basename
-        self._modified_basename = ""
+        self._name = basename
+        self._new_name = ""
         self._is_hidden = basename.startswith('.')
 
     @property
-    def original_basename(self):
-        return self._original_basename
+    def name(self):
+        return self._original_name
 
     @property
-    def basename(self):
-        return self._original_basename
+    def new_name(self):
+        return self._new_name
 
-    @basename.setter
-    def basename(self, value):
-        self._modified_basename = value
+    @new_name.setter
+    def new_name(self, value):
+        self._new_name = value
 
     @property
     def parent(self):
@@ -89,22 +89,24 @@ class FileSystemTreeNode(object):
     def is_filtered(self, file_filter):
         if file_filter.show_hidden_files is not self._is_hidden:
             return True
-        if re.match(file_filter.search_pattern, self._original_basename):
+        if re.match(file_filter.search_pattern, self._name):
             return True
         return False
 
-    def _get_modified_path(self):
+    def _get_new_path(self):
         """Since a parent folder may have been renamed during the renaming process,
         the original path to the current node may not be correct anymore.
         We need to get back to the parent path that should have been reset if renamed."""
-        return os.path.join(self.parent.path, self.modified_basename)
+        return os.path.join(self.parent.path, self.new_name)
 
     def _move(self, original_path, modified_path):
         try:
             # verify if the chosen parameters do not lead to naming conflicts.
             if self.parent.has_conflicting_children_name():
-                raise Exception("Naming conflict error. Several items in the same folder have the same name. This may cause data loss. Please choose new options to avoid duplicates.")
-            new_path = self._get_modified_path()
+                raise Exception("""Naming conflict error.
+                Several items in the same folder have the same name.
+                This may cause data loss. Please choose new options to avoid duplicates.""")
+            new_path = self._get_new_path()
             # find if new name is already taken by another file.
             if os.path.exists(new_path):
                 # get tree node with the same name.
@@ -113,14 +115,12 @@ class FileSystemTreeNode(object):
                 if conflicting_tree_node is not None:
                     if self.unique_id != conflicting_tree_node.unique_id:
                         # rename conflicting tree node with a unique temporary name.
-                        conflicting_name_backup = conflicting_tree_node.modified_name
+                        conflicting_name_backup = conflicting_tree_node.new_name
                         conflicting_tree_node.modified_name = str(uuid.uuid4())
                         conflicting_tree_node.rename()
                         # get the conflicting tree node back to its original settings.
                         conflicting_tree_node.modified_name = conflicting_name_backup
             # rename current node.
-            print("orig=" + original_path)
-            print("dest=" + modified_path)
             shutil.move(original_path, modified_path)
             # apply new path to the tree nodes, so that child nodes will stil have a valid path.
             self._path = self._set_path(new_path)
@@ -128,10 +128,7 @@ class FileSystemTreeNode(object):
             raise Exception(str(e))
 
     def rename(self):
-        self._move(self.path, self._get_modified_path())
+        self._move(self.path, self._get_new_path())
 
     def reset(self):
         self._move(self.path, self._backup_path)
-
-    def accept(self, visitor):
-        visitor.visit(self)

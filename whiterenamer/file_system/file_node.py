@@ -16,36 +16,41 @@ class FileNode(FilesystemNode):
 
     @property
     def extension(self):
-        return self._original_extension
+        return self._extension
 
-    @extension.setter
-    def extension(self, value):
-        self._modified_extension = value
+    @property
+    def new_extension(self):
+        return self._new_extension
 
-    def _get_modified_path(self):
+    @new_extension.setter
+    def new_extension(self, value):
+        self._new_extension = value
+
+    def _get_new_path(self):
         """Since a parent folder may have been renamed during the renaming process,
         the original path to the current node may not be correct anymore.
         We need to get back to the parent path that should have been reset if renamed."""
-        return super()._get_modified_path() + "." + self.modified_extension
+        return super()._get_new_path() + "." + self.new_extension
 
     @property
     def path(self):
-        return super().path + "." + self._original_extension
+        return super().path + "." + self._extension
 
     def _set_path(self, path):
         (pathname, extension) = os.path.splitext(path)
         super()._set_path(pathname)  # Change path and basename.
-        self._original_extension = extension[1:]  # remove dot
-        self._modified_extension = None
+        self._extension = extension[1:]  # remove dot
+        self._new_extension = ""
 
     def _set_file_type(self):
         music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
-        image_extensions = ['.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp',
-                            '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx',
-                            '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef']
-        if (self._original_extension in music_extensions):
+        image_extensions = [
+            '.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx', '.pcx', '.ico',
+            '.icns', '.psd', '.nef', 'cr2', 'pef'
+        ]
+        if (self._extension in music_extensions):
             self._file_type = FileType.music
-        if (self._original_extension in image_extensions):
+        if (self._extension in image_extensions):
             self._file_type = FileType.image
         else:
             self._file_type = FileType.normal

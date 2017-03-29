@@ -60,7 +60,10 @@ is inherited by all the specific actions.
         original_substring = tokenizer.selected_token
         modified_substring = self._get_modified_substring(filesystem_node, original_substring)
         new_name = tokenizer.first_token + modified_substring + tokenizer.last_token
-        return new_name
+        if (self._scope is Scope.extension):
+            filesystem_node.new_extension += new_name
+        else:
+            filesystem_node.new_name += new_name
 
 
 class FindAndReplaceAction(RenamingAction):

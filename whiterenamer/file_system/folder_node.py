@@ -33,7 +33,8 @@ class FolderNode(FilesystemNode):
         return False
 
     def has_conflicting_children_name(self):
-        """Finds if there are duplicate files/folders. If there are some duplicates, appends a counter to differenciate them."""
+        """Finds if there are duplicate files/folders.
+        If there are some duplicates, appends a counter to differenciate them."""
         unique_names = []
         for child_node in self.children:
             if (child_node.modified_basename not in unique_names):

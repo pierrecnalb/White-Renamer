@@ -6,7 +6,7 @@ import file_system_tree_model
 class Renamer(object):
     def __init__(self, root_path, is_recursive=False, file_filter=None):
         self._file_system_tree_model = FileSystemTreeModel(root_path, is_recursive)
-        self._action_collection = FileSystemActionCollection()
+        self._action_collection = ActionCollection()
 
     @property
     def file_filter(self):
