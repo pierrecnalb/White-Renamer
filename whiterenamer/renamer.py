@@ -25,10 +25,9 @@ class Renamer(object):
         return self._file_system_action_collection
 
     def invoke_actions(self):
-        for node in self._file_system_tree_model.filtered_nodes:
-            node.accept(self.file_system_action_collection.file_action_visitor)
-            node.accept(self.file_system_action_collection.folder_action_visitor)
-            node.accept(self.file_system_action_collection.extension_action_visitor)
+        for filesystem_node in self._file_system_tree_model.filtered_nodes:
+            for action in self.action_collection:
+                action.execute(filesystem_node)
 
     def batch_rename(self):
         for node in self._all_nodes:

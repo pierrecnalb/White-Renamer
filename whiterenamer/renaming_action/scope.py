@@ -3,6 +3,6 @@ from enum import Enum
 
 
 class Scope(Enum):
-    foldername = 0
-    filename = 1
-    extension = 2
+    foldername = 1
+    filename = 2
+    extension = 4

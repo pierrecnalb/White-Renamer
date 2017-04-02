@@ -23,13 +23,25 @@ is inherited by all the specific actions.
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, scope=Scope.filename, string_range=StringRange(0, None)):
-        self._scope = scope
-        self._string_range = string_range
+    def __init__(self):
+        self._scope = Scope.filename
+        self._string_range = StringRange(0, None)
 
     @property
-    def string_range(self):
+    def range(self):
         return self._string_range
+
+    @range.setter
+    def range(self, value):
+        self._range = value
+
+    @property
+    def scope(self):
+        return self._scope
+
+    @scope.setter
+    def scope(self, value):
+        self._scope = value
 
     @abc.abstractmethod
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -72,8 +84,8 @@ class FindAndReplaceAction(RenamingAction):
     string_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
 
-    def __init__(self, old_char, new_char, is_regex, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, old_char, new_char, is_regex):
+        super().__init__()
         self._old_char = old_char
         self._new_char = new_char
         self._is_regex = is_regex
@@ -88,8 +100,8 @@ class FindAndReplaceAction(RenamingAction):
 class OriginalNameAction(RenamingAction):
     """Gets the original name."""
 
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self):
+        super().__init__()
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring
@@ -104,8 +116,8 @@ class TitleCaseAction(RenamingAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, is_first_letter_uppercase=True, special_characters="", scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, is_first_letter_uppercase=True, special_characters=""):
+        super().__init__()
         self._is_first_letter_uppercase = is_first_letter_uppercase
         self._special_characters = special_characters
 
@@ -141,8 +153,8 @@ class UpperCaseAction(RenamingAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self):
+        super().__init__()
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring.upper()
@@ -157,8 +169,8 @@ class LowerCaseAction(RenamingAction):
         --special_characters: list of symbols after which the letters are capitalized.
     """
 
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self):
+        super().__init__()
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring.lower()
@@ -169,8 +181,8 @@ class CustomNameAction(RenamingAction):
     Can be also used to remove character if en empty string is given.
     """
 
-    def __init__(self, custom_name, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, custom_name):
+        super().__init__()
         self._custom_name = custom_name
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -180,8 +192,8 @@ class CustomNameAction(RenamingAction):
 class FolderNameAction(RenamingAction):
     """Use the parent foldername as the filename."""
 
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self):
+        super().__init__()
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         folder_name = self._file_system_tree_node.parent.modified_basename
@@ -209,8 +221,8 @@ class DateAction(RenamingAction):
     %p  locale's equivalent of either am or pm.
     """
 
-    def __init__(self, is_modified_date=True, time_format='%Y', scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, is_modified_date=True, time_format='%Y'):
+        super().__init__()
         self._is_modified_date = is_modified_date
         self._display_format = time_format
 
@@ -223,31 +235,39 @@ class DateAction(RenamingAction):
         return time.strftime(self.format_display, time.localtime(file_date))
 
 
-# class Counter(RenamingAction):
-#     """Count the number of files starting from start_index with the given increment."""
+class Counter(RenamingAction):
+    """Count the number of files starting from start_index with the given increment."""
 
-#     def __init__(self, string, string_range, start_index, increment, digit_number):
-#         super().__init__(scope, string, string_range)
-#         self._start_index = start_index
-#         self._increment = increment
-#         self._digit_number = digit_number
+    def __init__(self, start_index, increment, digit_number):
+        super().__init__()
+        self._start_index = start_index
+        self._increment = increment
+        self._digit_number = digit_number
+        self._counter = self._start_index
 
-#     def _get_modified_substring(self, filesystem_node, original_substring):
-#         counter = self.string.rank
-#         counter *= self.increment
-#         counter += self.start_index
-#         counter = str(counter)
-#         number_length = len(str(counter))
-#         if (number_length < self.digit_number):
-#             for i in range(self.digit_number - number_length):
-#                 counter = "0" + counter
-#         return counter
+    def _get_modified_substring(self, filesystem_node, original_substring):
+        self._counter += self.increment
+        counter = str(self._counter)
+        number_length = len(str(counter))
+        if (number_length < self.digit_number):
+            for i in range(self.digit_number - number_length):
+                counter = "0" + counter
+        return counter
 
 
 class GenericImageAction(RenamingAction):
-    def __init__(self, metadata, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, metadata):
+        super().__init__()
         self._metadata = metadata
+        self._scope = Scope.filename
+
+    @property
+    def scope(self):
+        return self._scope
+
+    @scope.setter
+    def scope(self, value):
+        raise Exception("This action has a predefined scope that cannot be changed.")
 
     def _get_exif_tag(self, filesystem_node):
         file_path = filesystem_node.original_path
@@ -258,8 +278,8 @@ class GenericImageAction(RenamingAction):
 
 
 class ImageDateTimeOriginal(GenericImageAction):
-    def __init__(self, time_format, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF DateTimeOriginal', scope, string_range)
+    def __init__(self, time_format):
+        super().__init__('EXIF DateTimeOriginal')
         self._time_format = time_format
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -272,8 +292,8 @@ class ImageDateTimeOriginal(GenericImageAction):
 
 
 class ImageFNumber(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF FNumber', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF FNumber')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -284,8 +304,8 @@ class ImageFNumber(GenericImageAction):
 
 
 class ImageExposureTime(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF ExposureTime', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF ExposureTime')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -296,8 +316,8 @@ class ImageExposureTime(GenericImageAction):
 
 
 class ImageISO(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF ISOSpeedRatings', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF ISOSpeedRatings')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -308,8 +328,8 @@ class ImageISO(GenericImageAction):
 
 
 class ImageCameraModel(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('Image Model', scope, string_range)
+    def __init__(self):
+        super().__init__('Image Model')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -320,8 +340,8 @@ class ImageCameraModel(GenericImageAction):
 
 
 class ImageXDimension(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF ExifImageWidth', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF ExifImageWidth')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -332,8 +352,8 @@ class ImageXDimension(GenericImageAction):
 
 
 class ImageYDimension(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF ExifImageLength', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF ExifImageLength')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -344,8 +364,8 @@ class ImageYDimension(GenericImageAction):
 
 
 class ImageFocalLength(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('EXIF FocalLength', scope, string_range)
+    def __init__(self):
+        super().__init__('EXIF FocalLength')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -356,8 +376,8 @@ class ImageFocalLength(GenericImageAction):
 
 
 class ImageArtist(GenericImageAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('Image Artist', scope, string_range)
+    def __init__(self):
+        super().__init__('Image Artist')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -368,9 +388,18 @@ class ImageArtist(GenericImageAction):
 
 
 class GenericMusicAction(RenamingAction):
-    def __init__(self, metadata, scope=Scope.filename, string_range=None):
-        super().__init__(scope, string_range)
+    def __init__(self, metadata):
+        super().__init__()
         self.metadata = metadata
+        self._scope = Scope.filename
+
+    @property
+    def scope(self):
+        return self._scope
+
+    @scope.setter
+    def scope(self, value):
+        raise Exception("This action has a predefined scope that cannot be changed.")
 
     def _get_metadata_tag(self, filesystem_node):
         file_path = filesystem_node.original_path
@@ -379,8 +408,8 @@ class GenericMusicAction(RenamingAction):
 
 
 class MusicArtist(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('artist', scope, string_range)
+    def __init__(self):
+        super().__init__('artist')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -391,8 +420,8 @@ class MusicArtist(GenericMusicAction):
 
 
 class MusicTitle(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('title', scope, string_range)
+    def __init__(self):
+        super().__init__('title')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -403,8 +432,8 @@ class MusicTitle(GenericMusicAction):
 
 
 class MusicYear(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('date', scope, string_range)
+    def __init__(self):
+        super().__init__('date')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -415,8 +444,8 @@ class MusicYear(GenericMusicAction):
 
 
 class MusicAlbum(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('album', scope, string_range)
+    def __init__(self):
+        super().__init__('album')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -427,8 +456,8 @@ class MusicAlbum(GenericMusicAction):
 
 
 class MusicTrack(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('tracknumber', scope, string_range)
+    def __init__(self):
+        super().__init__('tracknumber')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
@@ -439,8 +468,8 @@ class MusicTrack(GenericMusicAction):
 
 
 class MusicGenre(GenericMusicAction):
-    def __init__(self, scope=Scope.filename, string_range=None):
-        super().__init__('genre', scope, string_range)
+    def __init__(self):
+        super().__init__('genre')
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         try:
