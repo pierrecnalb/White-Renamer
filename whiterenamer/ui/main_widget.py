@@ -53,7 +53,7 @@ class MainWidget(QWidget):
         lowercasecase_inputs = []
         character_replacement_inputs = []
         character_replacement_inputs.append(action_manager.ActionInput(
-            'old_char', self.tr('Replace'), str, ""))
+            'old_value', self.tr('Replace'), str, ""))
         character_replacement_inputs.append(action_manager.ActionInput(
             'new_char', self.tr('With'), str, ""))
         character_replacement_inputs.append(action_manager.ActionInput(

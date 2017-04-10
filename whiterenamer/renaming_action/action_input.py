@@ -5,31 +5,38 @@ class ActionInput(object):
     """
     Describes the inputs properties of the action.
     Parameters:
-        --arg_name: string that represents the name of the given parameter.
-        --arg_caption: string that represents the caption of the given parameter.
+        --parameter_name: string that represents the parameter_name of the given parameter.
+        --caption: string that represents the caption of the given parameter.
         --arg_type: specifies which type is the given parameter.
         --default_value: specifies the default value of the given parameter.
         --optional_argument: gives the possibility to add an optional argument for storing data.
     """
 
-    def __init__(self,
-                 arg_name,
-                 arg_caption,
-                 arg_type,
-                 default_value):
-        self._name = arg_name
-        self._caption = arg_caption
-        self._type = arg_type
-        self.default_value = default_value
-        self._value = default_value
+    def __init__(self, parameter_name, input_type):
+        self._parameter_name = parameter_name
+        self._input_type = input_type
+        self._default_value = None
+        self._value = None
+        # Set the parameter name as default to caption.
+        self._caption = parameter_name
+        self._is_readonly = False
+        self._is_visible = True
 
     @property
-    def name(self):
-        return self._name
+    def parameter_name(self):
+        return self._parameter_name
 
-    @name.setter
-    def name(self, value):
-        self._name = value
+    @parameter_name.setter
+    def parameter_name(self, value):
+        self._parameter_name = value
+
+    @property
+    def input_type(self):
+        return self._input_type
+
+    @input_type.setter
+    def input_type(self, value):
+        self._input_type = value
 
     @property
     def caption(self):
@@ -40,12 +47,12 @@ class ActionInput(object):
         self._caption = value
 
     @property
-    def input_type(self):
-        return self._type
+    def value(self):
+        return self._value
 
-    @input_type.setter
-    def input_type(self, value):
-        self._type = value
+    @value.setter
+    def value(self, value):
+        self._value = value
 
     @property
     def default_value(self):
@@ -56,9 +63,17 @@ class ActionInput(object):
         self._default_value = value
 
     @property
-    def value(self):
-        return self._value
+    def is_readonly(self):
+        return self._is_readonly
 
-    @value.setter
-    def value(self, value):
-        self._value = value
+    @is_readonly.setter
+    def is_readonly(self, value):
+        self._is_readonly = value
+
+    @property
+    def is_visible(self):
+        return self._is_visible
+
+    @is_visible.setter
+    def is_visible(self, value):
+        self._is_visible = value

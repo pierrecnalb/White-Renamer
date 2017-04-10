@@ -148,21 +148,21 @@ class Action(object):
 
 class CharacterReplacementAction(Action):
     """
-    Replace old_char by new_char in the section of the path.
+    Replace old_value by new_value in the section of the path.
     path_part can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
 
-    def __init__(self, path_type, old_char, new_char, regex):
+    def __init__(self, path_type, old_value, new_value, regex):
         Action.__init__(self, path_type)
-        self.old_char = old_char
-        self.new_char = new_char
+        self.old_value = old_value
+        self.new_value = new_value
         self.regex = regex
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         if not self.regex:
-            return path_part.replace(self.old_char, self.new_char)
+            return path_part.replace(self.old_value, self.new_value)
         else:
-            return sub(self.old_char, self.new_char, path_part)
+            return sub(self.old_value, self.new_value, path_part)
 
 
 class OriginalNameAction(Action):
@@ -256,15 +256,15 @@ class LowerCaseAction(CaseChangeAction):
 
 
 class CharacterInsertionAction(Action):
-    """Insert new_char at index position."""
+    """Insert new_value at index position."""
 
-    def __init__(self, path_type, new_char, index):
+    def __init__(self, path_type, new_value, index):
         Action.__init__(self, path_type)
-        self.new_char = new_char
+        self.new_value = new_value
         self.index = index
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        return path_part[:self.index] + self.new_char + path_part[self.index:]
+        return path_part[:self.index] + self.new_value + path_part[self.index:]
 
 
 class CharacterDeletionAction(Action):

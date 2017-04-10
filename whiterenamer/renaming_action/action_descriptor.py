@@ -16,15 +16,13 @@ class ActionDescriptor(object):
         --action_class: string that represents the name of the class used for the action.
     """
 
-    def __init__(self, name, inputs, action_class):
+    def __init__(self, name, class_, inputs=[]):
         self._name = name
+        self._class = class_
         self._inputs = inputs
+        self._caption = ""
 
-        self._class = action_class
         self._input_value_by_name = {_input.name: _input.value for _input in self._inputs}
-        self._scope = Scope.filename
-        self._range = StringRange(0, None)
-        self._is_range_readonly = False
         self._scope_flags = Scope.filename | Scope.foldername | Scope.extension
 
     def __repr__(self):
@@ -32,34 +30,28 @@ class ActionDescriptor(object):
         return self._name
 
     @property
-    def range(self):
-        return self._range
-
-    @range.setter
-    def range(self, value):
-        if(self.fixed_range):
-            raise Exception("This action has a predefined range that cannot be changed.")
-        else:
-            self._range = value
+    def name(self):
+        return self._name
 
     @property
-    def scope(self):
-        return self._scope
+    def caption(self):
+        return self._caption
 
-    @scope.setter
-    def scope(self, value):
-        if(value in self.scope_flags):
-            self._scope = value
-        else:
-            raise Exception("This action has a predefined scope that cannot be changed.")
+    @caption.setter
+    def caption(self, value):
+        self._caption = value
 
     @property
-    def is_range_readonly(self):
-        return self._is_range_readonly
+    def inputs(self):
+        return self._inputs
 
     @property
     def scope_flags(self):
         return self._scope_flags
+
+    @scope_flags.setter
+    def scope_flags(self, value):
+        self._scope_flags = value
 
     def create_action(self):
         action_instance = self._class(**self._input_value_by_name)
@@ -71,58 +63,57 @@ class ActionDescriptor(object):
 class OriginalName(ActionDescriptor):
 
     def __init__(self):
-        name = "Original Name"
-        inputs = []
-        cls = OriginalNameAction
-        super().__init__(name, inputs, cls)
+        super().__init__("OriginalName", OriginalNameAction)
+        self.caption = "Original Name"
 
 
 class FindAndReplace(ActionDescriptor):
     """
-    Replace old_char by new_char in the section of the path.
+    Replace old_value by new_value in the section of the path.
     action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
-    def __init__(self, old_char, new_char, is_regex):
-        name = "Find And Replace"
+    def __init__(self):
         inputs = []
-        old_char_input = ActionInput("old_char", "Replace", str, old_char)
-        new_char_input = ActionInput("new_char", "With", str, new_char)
-        is_regex_input = ActionInput("is_regex", "Regex", "checkable", is_regex)
-        inputs.append(old_char_input)
-        inputs.append(new_char_input)
+        old_value_input = ActionInput("old_value", InputType.string)
+        old_value_input.caption = "Replace"
+        new_value_input = ActionInput("new_value", InputType.string)
+        old_value_input.caption = "With"
+        is_regex_input = ActionInput("is_regex", InputType.boolean)
+        is_regex_input.caption = "Regex"
+        inputs.append(old_value_input)
+        inputs.append(new_value_input)
         inputs.append(is_regex_input)
-        cls = FindAndReplaceAction
-        super().__init__(name, inputs, cls)
+        super().__init__("FindAndReplace", FindAndReplaceAction, inputs)
+        self.caption = "Find And Replace"
 
 
 class CharacterInsertion(ActionDescriptor):
-    """Insert new_char at index position."""
+    """Insert new_value at index position."""
 
-    def __init__(self, index):
-        name = "Insert Characters"
+    def __init__(self):
         inputs = []
-        new_char_input = ActionInput("custom_char", "Insert", str, "")
-        inputs.append(new_char_input)
-        cls = CustomNameAction
-        super().__init__(name, inputs, cls)
-        self._range = StringRange(index, index)
+        custom_name_input = ActionInput("custom_name", InputType.string)
+        custom_name_input.is_readonly = True
+        custom_name_input.is_visible = False
+        inputs.append(custom_name_input)
+        range_input = ActionInput("string_range", InputType.range)
+        range_input.caption = "Range"
+        inputs.append(range_input)
+        super().__init__("Insert", CustomNameAction, inputs)
+        self.caption = "Insert Characters"
         self._is_range_readonly = True
 
 
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
-
-    def __init__(self, index):
-        name = "Delete Characters"
+    def __init__(self):
         inputs = []
-        start_index_input = ActionInput("start_range", "From", int, 0)
-        end_index_input = ActionInput("end_range", "To", int, 1)
-        inputs.append(start_index_input)
-        inputs.append(end_index_input)
-        cls = CustomNameAction
-        super().__init__(name, inputs, cls)
-        self._range = StringRange(index, index)
-        self._is_range_readonly = True
+        custom_name_input = ActionInput("custom_name", InputType.string)
+        custom_name_input.is_readonly = True
+        custom_name_input.is_visible = False
+        inputs.append(custom_name_input)
+        super().__init__("Delete", CustomNameAction, inputs)
+        self.caption = "Delete Characters"
 
 
 class TitleCase(ActionDescriptor):
@@ -133,16 +124,16 @@ class TitleCase(ActionDescriptor):
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
         --special_characters: list of symbols after which the letters are capitalized.
     """
-
     def __init__(self):
-        name = "Titlecase"
         inputs = []
-        is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", "First Letter", "checkable", True)
-        special_characters_input = ActionInput("special_characters", "And After", str, "- _")
+        is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", InputType.boolean)
+        is_first_letter_uppercase_input.caption = "First Letter"
         inputs.append(is_first_letter_uppercase_input)
+        special_characters_input = ActionInput("special_characters", InputType.string)
+        special_characters_input.caption = "And After"
         inputs.append(special_characters_input)
-        cls = TitleCaseAction
-        super().__init__(name, inputs, cls)
+        super().__init__("Titlecase", TitleCaseAction, inputs)
+        self.caption = "Titlecase"
 
 
 class UpperCase(ActionDescriptor):
@@ -155,10 +146,8 @@ class UpperCase(ActionDescriptor):
     """
 
     def __init__(self):
-        name = "Uppercase"
-        inputs = []
-        cls = UpperCaseAction
-        super().__init__(name, inputs, cls)
+        super().__init__("Uppercase", UppercaseAction)
+        self.caption = "Uppercase"
 
 
 class LowerCase(ActionDescriptor):
@@ -169,12 +158,9 @@ class LowerCase(ActionDescriptor):
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
         --special_characters: list of symbols after which the letters are capitalized.
     """
-
     def __init__(self):
-        name = "Lowercase"
-        inputs = []
-        cls = LowerCaseAction
-        super().__init__(name, inputs, cls)
+        super().__init__("Lowercase", LowerCaseAction)
+        self.caption = "Lowercase"
 
 
 class CustomName(ActionDescriptor):
@@ -182,19 +168,17 @@ class CustomName(ActionDescriptor):
     Can be also used to remove character if en empty string is given.
     """
 
-    def __init__(self, new_name):
-        name = "Custom Name"
-        inputs = []
-        _input = ActionInput("custom_name", "New Name", str, new_name)
-        inputs.append(_input)
-        cls = CustomNameAction
-        super().__init__(name, inputs, cls)
+    def __init__(self):
+        custom_name_input = ActionInput("custom_name", InputType.string)
+        inputs.append(custom_name_input)
+        super().__init__("CustomName", CustomNameAction)
+        self.caption = "Custom Name"
 
 
 class FolderName(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
-    def __init__(self, file_system_tree_node):
+    def __init__(self):
         name = "Folder Name"
         inputs = []
         _input = ActionInput("custom_name", "New Name", str, new_name)

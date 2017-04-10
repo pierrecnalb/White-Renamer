@@ -11,7 +11,7 @@ class TestCases(unittest.TestCase):
 
     def test_original_name(self):
         whiterenamer = WhiteRenamer(root)
-        whiterenamer.filename_action_collection.append_action("OriginalName")
+        whiterenamer.filename_action_collection.append("OriginalName")
 
         # """Test to be sure that orginalnameaction is not doing anything."""
         # self.init("TestCase1", True, False, "name", False)
