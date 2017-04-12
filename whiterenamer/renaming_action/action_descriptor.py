@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-
 from action_input import ActionInput
-from string_range import StringRange
 from scope import Scope
 from renaming_actions import *
 
@@ -19,8 +17,11 @@ class ActionDescriptor(object):
     def __init__(self, name, class_, inputs=[]):
         self._name = name
         self._class = class_
-        self._inputs = inputs
         self._caption = ""
+        self._inputs = inputs
+        scope_input = ActionInput("scope", InputType.scope)
+        scope_input.is_visible = False
+        self._inputs.append(scope_input)
 
         self._input_value_by_name = {_input.name: _input.value for _input in self._inputs}
         self._scope_flags = Scope.filename | Scope.foldername | Scope.extension
@@ -61,7 +62,6 @@ class ActionDescriptor(object):
 
 
 class OriginalName(ActionDescriptor):
-
     def __init__(self):
         super().__init__("OriginalName", OriginalNameAction)
         self.caption = "Original Name"
@@ -72,6 +72,7 @@ class FindAndReplace(ActionDescriptor):
     Replace old_value by new_value in the section of the path.
     action_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
     """
+
     def __init__(self):
         inputs = []
         old_value_input = ActionInput("old_value", InputType.string)
@@ -92,26 +93,22 @@ class CharacterInsertion(ActionDescriptor):
 
     def __init__(self):
         inputs = []
-        custom_name_input = ActionInput("custom_name", InputType.string)
-        custom_name_input.is_readonly = True
-        custom_name_input.is_visible = False
-        inputs.append(custom_name_input)
-        range_input = ActionInput("string_range", InputType.range)
-        range_input.caption = "Range"
-        inputs.append(range_input)
-        super().__init__("Insert", CustomNameAction, inputs)
+        character_input = ActionInput("value", InputType.string)
+        inputs.append(character_input)
+        index_input = ActionInput("index", InputType.integer)
+        inputs.append(index_input)
+        super().__init__("Insert", CharacterInsertionAction, inputs)
         self.caption = "Insert Characters"
         self._is_range_readonly = True
 
 
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
+
     def __init__(self):
         inputs = []
-        custom_name_input = ActionInput("custom_name", InputType.string)
-        custom_name_input.is_readonly = True
-        custom_name_input.is_visible = False
-        inputs.append(custom_name_input)
+        range_input = ActionInput("string_range", InputType.range)
+        inputs.append(range_input)
         super().__init__("Delete", CustomNameAction, inputs)
         self.caption = "Delete Characters"
 
@@ -124,6 +121,7 @@ class TitleCase(ActionDescriptor):
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
         --special_characters: list of symbols after which the letters are capitalized.
     """
+
     def __init__(self):
         inputs = []
         is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", InputType.boolean)
@@ -158,6 +156,7 @@ class LowerCase(ActionDescriptor):
         --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
         --special_characters: list of symbols after which the letters are capitalized.
     """
+
     def __init__(self):
         super().__init__("Lowercase", LowerCaseAction)
         self.caption = "Lowercase"
@@ -169,9 +168,10 @@ class CustomName(ActionDescriptor):
     """
 
     def __init__(self):
+        inputs = []
         custom_name_input = ActionInput("custom_name", InputType.string)
         inputs.append(custom_name_input)
-        super().__init__("CustomName", CustomNameAction)
+        super().__init__("CustomName", CustomNameAction, inputs)
         self.caption = "Custom Name"
 
 
@@ -179,18 +179,15 @@ class FolderName(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
     def __init__(self):
-        name = "Folder Name"
         inputs = []
-        _input = ActionInput("custom_name", "New Name", str, new_name)
-        inputs.append(_input)
-        cls = FolderNameAction
-        super().__init__(name, inputs, cls)
+        range_input = ActionInput("string_range", InputType.range)
+        inputs.append(range_input)
+        super().__init__("FolderName", FolderNameAction, inputs)
+        self.caption = "Folder Name"
 
 
 class FileDate(ActionDescriptor):
-
     def __init__(self):
-        name = "Date"
         inputs = []
         is_modified_date_input = ActionInput("is_modified_date", "Modified", bool, True)
         is_created_date_input = ActionInput("is_modified_date", "Created", bool, False)
@@ -199,11 +196,13 @@ class FileDate(ActionDescriptor):
         inputs.append(is_created_date_input)
         inputs.append(time_format_input_)
         cls = DateAction
-        super().__init__(name, inputs, cls)
+        super().__init__("Date", DateAction, inputs)
+        self.caption = "Date"
 
 
 class Counter(ActionDescriptor):
     """Count the number of files starting from start_index with the given increment."""
+
     def __init__(self):
         name = "Counter"
         inputs = []
@@ -218,7 +217,6 @@ class Counter(ActionDescriptor):
 
 
 class ImageOriginalDate(ActionDescriptor):
-
     def __init__(self):
         name = "Original Date"
         inputs = []

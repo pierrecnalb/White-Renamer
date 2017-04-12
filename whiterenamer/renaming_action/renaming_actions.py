@@ -188,6 +188,19 @@ class CustomNameAction(Action):
         return self._custom_name
 
 
+class CharacterInsertionAction(CustomNameAction):
+    """Insert new_value at index position."""
+
+    def __init__(self, value, index, scope=Scope.filename):
+        super().__init__(value, scope, StringRange(index, index))
+
+
+class CharacterDeletionAction(CustomNameAction):
+    """Delete n-character from starting_position to ending_position."""
+    def __init__(self, string_range, scope=Scope.filename):
+        super().__init__("", scope, string_range)
+
+
 class FolderNameAction(Action):
     """Use the parent foldername as the filename."""
 
