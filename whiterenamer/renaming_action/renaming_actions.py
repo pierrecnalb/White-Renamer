@@ -7,9 +7,9 @@ from mutagen.easyid3 import EasyID3
 import abc
 from string_tokenizer import StringTokenizer
 from string_range import StringRange
-import Scope
-from file_node import FileNode
-from folder_node import FolderNode
+from scope import Scope
+# from ..file_system import FileNode
+# from folder_node import FolderNode
 
 
 class Action(object):
@@ -247,10 +247,10 @@ class DateAction(Action):
         return time.strftime(self.format_display, time.localtime(file_date))
 
 
-class Counter(Action):
+class CounterAction(Action):
     """Count the number of files starting from start_index with the given increment."""
 
-    def __init__(self, start_index, increment, digit_number, scope=Scope.filename, string_range=StringRange(0, None)):
+    def __init__(self, start_index, increment, digit_number=1, scope=Scope.filename, string_range=StringRange(0, None)):
         super().__init__(scope, string_range)
         self._start_index = start_index
         self._increment = increment

@@ -3,6 +3,35 @@
 from action_input import ActionInput
 from scope import Scope
 from renaming_actions import *
+from input_type import InputType
+
+
+class ActionDescriptorGroup(object):
+    """
+    Contains a collectino of ActionDescriptor.
+    Parameters:
+        --action_descriptors: a list of ActionDescriptor.
+    """
+
+    def __init__(self, name):
+        self._name = name
+        self._caption = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def caption(self):
+        return self._caption
+
+    @caption.setter
+    def caption(self, value):
+        self._caption = value
+
+    def __repr__(self):
+        """override string representation of the class"""
+        return self.name
 
 
 class ActionDescriptor(object):
@@ -14,21 +43,28 @@ class ActionDescriptor(object):
         --action_class: string that represents the name of the class used for the action.
     """
 
-    def __init__(self, name, class_, inputs=[]):
+    def __init__(self, name, class_):
         self._name = name
         self._class = class_
         self._caption = ""
-        self._inputs = inputs
+        self._inputs = dict()
         scope_input = ActionInput("scope", InputType.scope)
         scope_input.is_visible = False
-        self._inputs.append(scope_input)
-
-        self._input_value_by_name = {_input.name: _input.value for _input in self._inputs}
+        self._inputs["scope"] = scope_input
+        range_input = ActionInput("string_range", InputType.range)
+        range_input.is_visible = False
+        self._inputs["string_range"] = range_input
         self._scope_flags = Scope.filename | Scope.foldername | Scope.extension
+        self._group = None
 
     def __repr__(self):
         """override string representation of the class"""
         return self._name
+
+    @property
+    def inputs(self):
+        """ A dictionary mapping the action inputs with the corresponding parameter names."""
+        return self._inputs
 
     @property
     def name(self):
@@ -43,10 +79,6 @@ class ActionDescriptor(object):
         self._caption = value
 
     @property
-    def inputs(self):
-        return self._inputs
-
-    @property
     def scope_flags(self):
         return self._scope_flags
 
@@ -54,10 +86,15 @@ class ActionDescriptor(object):
     def scope_flags(self, value):
         self._scope_flags = value
 
+    @property
+    def group(self):
+        return self._group
+
+    def _add_input(self, action_input):
+        self.inputs[action_input.name] = action_input
+
     def create_action(self):
-        action_instance = self._class(**self._input_value_by_name)
-        action_instance.range = self.range
-        action_instance.scope = self.scope
+        action_instance = self._class(**self._inputs)
         return action_instance
 
 
@@ -74,17 +111,16 @@ class FindAndReplace(ActionDescriptor):
     """
 
     def __init__(self):
-        inputs = []
+        super().__init__("FindAndReplace", FindAndReplaceAction)
         old_value_input = ActionInput("old_value", InputType.string)
         old_value_input.caption = "Replace"
+        self._add_input(old_value_input)
         new_value_input = ActionInput("new_value", InputType.string)
-        old_value_input.caption = "With"
+        new_value_input.caption = "With"
+        self._add_input(new_value_input)
         is_regex_input = ActionInput("is_regex", InputType.boolean)
         is_regex_input.caption = "Regex"
-        inputs.append(old_value_input)
-        inputs.append(new_value_input)
-        inputs.append(is_regex_input)
-        super().__init__("FindAndReplace", FindAndReplaceAction, inputs)
+        self._add_input(is_regex_input)
         self.caption = "Find And Replace"
 
 
@@ -92,24 +128,21 @@ class CharacterInsertion(ActionDescriptor):
     """Insert new_value at index position."""
 
     def __init__(self):
-        inputs = []
+        super().__init__("Insert", CharacterInsertionAction)
         character_input = ActionInput("value", InputType.string)
-        inputs.append(character_input)
+        self._add_input(character_input)
         index_input = ActionInput("index", InputType.integer)
-        inputs.append(index_input)
-        super().__init__("Insert", CharacterInsertionAction, inputs)
+        self._add_input(index_input)
         self.caption = "Insert Characters"
-        self._is_range_readonly = True
 
 
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
 
     def __init__(self):
-        inputs = []
+        super().__init__("Delete", CustomNameAction)
         range_input = ActionInput("string_range", InputType.range)
-        inputs.append(range_input)
-        super().__init__("Delete", CustomNameAction, inputs)
+        self._add_input(range_input)
         self.caption = "Delete Characters"
 
 
@@ -123,14 +156,13 @@ class TitleCase(ActionDescriptor):
     """
 
     def __init__(self):
-        inputs = []
+        super().__init__("Titlecase", TitleCaseAction)
         is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", InputType.boolean)
         is_first_letter_uppercase_input.caption = "First Letter"
-        inputs.append(is_first_letter_uppercase_input)
+        self._add_input(is_first_letter_uppercase_input)
         special_characters_input = ActionInput("special_characters", InputType.string)
         special_characters_input.caption = "And After"
-        inputs.append(special_characters_input)
-        super().__init__("Titlecase", TitleCaseAction, inputs)
+        self._add_input(special_characters_input)
         self.caption = "Titlecase"
 
 
@@ -168,10 +200,9 @@ class CustomName(ActionDescriptor):
     """
 
     def __init__(self):
-        inputs = []
+        super().__init__("CustomName", CustomNameAction)
         custom_name_input = ActionInput("custom_name", InputType.string)
-        inputs.append(custom_name_input)
-        super().__init__("CustomName", CustomNameAction, inputs)
+        self._add_input(custom_name_input)
         self.caption = "Custom Name"
 
 
@@ -179,24 +210,18 @@ class FolderName(ActionDescriptor):
     """Use the parent foldername as the filename."""
 
     def __init__(self):
-        inputs = []
-        range_input = ActionInput("string_range", InputType.range)
-        inputs.append(range_input)
-        super().__init__("FolderName", FolderNameAction, inputs)
+        super().__init__("FolderName", FolderNameAction)
         self.caption = "Folder Name"
 
 
 class FileDate(ActionDescriptor):
     def __init__(self):
-        inputs = []
-        is_modified_date_input = ActionInput("is_modified_date", "Modified", bool, True)
-        is_created_date_input = ActionInput("is_modified_date", "Created", bool, False)
-        time_format_input_ = ActionInput("time_format", "Format", str, "%Y-%m-%d %H:%M:%S (%A %B)")
-        inputs.append(is_modified_date_input)
-        inputs.append(is_created_date_input)
-        inputs.append(time_format_input_)
-        cls = DateAction
-        super().__init__("Date", DateAction, inputs)
+        super().__init__("Date", DateAction)
+        is_modified_date_input = ActionInput("is_modified_date", InputType.boolean)
+        is_modified_date_input.caption = "Modified"
+        time_format_input = ActionInput("time_format", InputType.string)
+        time_format_input.caption = "Format"
+        self._add_input(time_format_input)
         self.caption = "Date"
 
 
@@ -204,150 +229,137 @@ class Counter(ActionDescriptor):
     """Count the number of files starting from start_index with the given increment."""
 
     def __init__(self):
-        name = "Counter"
-        inputs = []
-        start_index_input = ActionInput("start_index", "Start At", int, 0)
-        increment_input = ActionInput("increment", "Increment", int, 1)
-        digit_number_input = ActionInput("digit_number", "Number of Digit", int, 1)
-        inputs.append(start_index_input)
-        inputs.append(increment_input)
-        inputs.append(digit_number_input)
-        cls = CounterAction
-        super().__init__(name, inputs, cls)
+        super().__init__("Counter", CounterAction)
+        start_index_input = ActionInput("start_index", InputType.number)
+        start_index_input.caption = "Start At"
+        self._add_input(start_index_input)
+        increment_input = ActionInput("increment", InputType.number)
+        increment_input.caption = "Increment"
+        self._add_input(increment_input)
+        digit_number_input = ActionInput("digit_number", InputType.number)
+        digit_number_input.caption = "Number of Digit"
+        self._add_input(digit_number_input)
+        self.caption = "Counter"
 
 
 class ImageOriginalDate(ActionDescriptor):
     def __init__(self):
-        name = "Original Date"
-        inputs = []
-        time_format_input = ActionInput("time_format", "Format", str, "%Y-%m-%d %H:%M:%S")
-        inputs.append(time_format_input)
-        cls = ImageDateTimeOriginal
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageDate", ImageDateTimeOriginal)
+        self.caption = "Original Date"
+        time_format_input = ActionInput("time_format", InputType.string)
+        time_format_input.caption = "Format"
+        self._add_input(time_format_input)
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageFNumber(ActionDescriptor):
     def __init__(self):
-        name = "F Number"
-        inputs = []
-        cls = ImageFNumber
-        super().__init__(name, inputs, cls)
+        super().__init__("FNumber", ImageFNumber)
+        self.caption = "F Number"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageExposure(ActionDescriptor):
     def __init__(self):
-        name = "Exposure"
-        inputs = []
-        cls = ImageExposureTime
-        super().__init__(name, inputs, cls)
+        super().__init__("Exposure", ImageExposureTime)
+        self.caption = "Exposure"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageISO(ActionDescriptor):
     def __init__(self):
-        name = "ISO"
-        inputs = []
-        cls = ImageISO
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageISO", ImageISO)
+        self.caption = "ISO"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageCameraModel(ActionDescriptor):
     def __init__(self):
-        name = "Camera Model"
-        inputs = []
-        cls = ImageCameraModel
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageCameraModel", ImageCameraModel)
+        self.caption = "Camera Model"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageXDimension(ActionDescriptor):
     def __init__(self):
-        name = "X Dimension"
-        inputs = []
-        cls = ImageXDimension
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageX", ImageXDimension)
+        self.caption = "X Dimension"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageYDimension(ActionDescriptor):
     def __init__(self):
-        name = "Y Dimension"
-        inputs = []
-        cls = ImageYDimension
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageY", ImageYDimension)
+        self.caption = "Y Dimension"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageFocalLength(ActionDescriptor):
     def __init__(self):
-        name = "Focal Length"
-        inputs = []
-        cls = ImageFocalLength
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageFocal", ImageFocalLength)
+        self.caption = "Focal Length"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class ImageArtist(ActionDescriptor):
     def __init__(self):
-        name = "Artist"
-        inputs = []
-        cls = ImageArtist
-        super().__init__(name, inputs, cls)
+        super().__init__("ImageArtist", ImageArtist)
+        self.caption = "Artist"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Image")
 
 
 class MusicArtist(ActionDescriptor):
     def __init__(self):
-        name = "Artist"
-        inputs = []
-        cls = MusicArtist
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicArtist", MusicArtist)
+        self.caption = "Artist"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
 
 
 class MusicTitle(ActionDescriptor):
     def __init__(self):
-        name = "Title"
-        inputs = []
-        cls = MusicTitle
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicTitle", MusicTitle)
+        self.caption = "Title"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
 
 
 class MusicYear(ActionDescriptor):
     def __init__(self):
-        name = "Year"
-        inputs = []
-        cls = MusicYear
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicYear", MusicYear)
+        self.caption = "Year"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
 
 
 class MusicAlbum(ActionDescriptor):
     def __init__(self):
-        name = "Album"
-        inputs = []
-        cls = MusicAlbum
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicAlbum", MusicAlbum)
+        self.caption = "Album"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
 
 
 class MusicTrack(ActionDescriptor):
     def __init__(self):
-        name = "Track Number"
-        inputs = []
-        cls = MusicTrack
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicTrack", MusicTrack)
+        self.caption = "Track Number"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
 
 
 class MusicGenre(ActionDescriptor):
     def __init__(self):
-        name = "Genre"
-        inputs = []
-        cls = MusicGenre
-        super().__init__(name, inputs, cls)
+        super().__init__("MusicGenre", MusicGenre)
+        self.caption = "Genre"
         self._scope_flags = Scope.filename
+        self.group = ActionDescriptorGroup("Music")
