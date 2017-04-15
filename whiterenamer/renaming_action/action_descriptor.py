@@ -4,6 +4,7 @@ from action_input import ActionInput
 from scope import Scope
 from renaming_actions import *
 from input_type import InputType
+import inspect
 
 
 class ActionDescriptorGroup(object):
@@ -56,6 +57,7 @@ class ActionDescriptor(object):
         self._inputs["string_range"] = range_input
         self._scope_flags = Scope.filename | Scope.foldername | Scope.extension
         self._group = None
+        self._documentation = inspect.getdoc(class_)
 
     def __repr__(self):
         """override string representation of the class"""
@@ -89,6 +91,11 @@ class ActionDescriptor(object):
     @property
     def group(self):
         return self._group
+
+    @property
+    def documentation(self):
+        """Gets the documentation of the action. (It is fetch automatically from the docstring of the action class.)"""
+        return self._documentation
 
     def _add_input(self, action_input):
         self.inputs[action_input.name] = action_input
