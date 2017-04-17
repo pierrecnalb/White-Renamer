@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import file_system_tree_model
+from action_collection import ActionCollection
 
 
 class Renamer(object):
@@ -22,7 +23,7 @@ class Renamer(object):
 
     @property
     def action_collection(self):
-        return self._file_system_action_collection
+        return self._action_collection
 
     def invoke_actions(self):
         for filesystem_node in self._file_system_tree_model.filtered_nodes:

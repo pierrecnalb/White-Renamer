@@ -3,9 +3,9 @@
 
 class ActionInput(object):
     """
-    Describes the inputs properties of the action.
+    Describes a parameter from an action.
     Parameters:
-        --parameter_name: string that represents the parameter_name of the given parameter.
+        --parameter_name: string that represents the name given to the parameter described by this action input.
         --caption: string that represents the caption of the given parameter.
         --arg_type: specifies which type is the given parameter.
         --default_value: specifies the default value of the given parameter.
@@ -52,6 +52,8 @@ class ActionInput(object):
 
     @value.setter
     def value(self, value):
+        if(self.is_readonly):
+            raise Exception("The value of this input is readonly and cannot be changed.")
         self._value = value
 
     @property

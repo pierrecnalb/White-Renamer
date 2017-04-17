@@ -101,6 +101,11 @@ class ActionDescriptor(object):
         self.inputs[action_input.name] = action_input
 
     def create_action(self):
+        # Verify if the given scope is in the scope flags.
+        if self._inputs.__contains__("scope"):
+            scope = self._inputs["scope"]
+            if scope not in self.scope_flags:
+                raise Exception("Invalid scope: it cannot be applied to the given filesystem node.")
         action_instance = self._class(**self._inputs)
         return action_instance
 
@@ -145,7 +150,7 @@ class CharacterInsertion(ActionDescriptor):
 
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
-
+    
     def __init__(self):
         super().__init__("Delete", CustomNameAction)
         range_input = ActionInput("string_range", InputType.range)
