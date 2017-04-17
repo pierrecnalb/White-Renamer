@@ -66,7 +66,7 @@ is inherited by all the specific actions.
 
     def execute(self, filesystem_node):
         if (not self._is_scope_valid(filesystem_node)):
-            return
+            raise Exception("Invalid scope: it cannot be applied to the given filesystem node.")
         original_name = self._get_original_name(filesystem_node)
         tokenizer = StringTokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
