@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-import file_system_tree_model
-from action_collection import ActionCollection
+from factory import Factory
 
 
 class Renamer(object):
     def __init__(self, root_path, is_recursive=False, file_filter=None):
         self._file_system_tree_model = FileSystemTreeModel(root_path, is_recursive)
-        self._action_collection = ActionCollection()
+        self._action_collection = list()
+        self._action_parser
 
     @property
     def file_filter(self):

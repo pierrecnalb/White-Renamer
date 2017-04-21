@@ -15,8 +15,6 @@ class ActionInput(object):
     def __init__(self, parameter_name, input_type):
         self._parameter_name = parameter_name
         self._input_type = input_type
-        self._default_value = None
-        self._value = None
         # Set the parameter name as default to caption.
         self._caption = parameter_name
         self._is_readonly = False
@@ -45,24 +43,6 @@ class ActionInput(object):
     @caption.setter
     def caption(self, value):
         self._caption = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        if(self.is_readonly):
-            raise Exception("The value of this input is readonly and cannot be changed.")
-        self._value = value
-
-    @property
-    def default_value(self):
-        return self._default_value
-
-    @default_value.setter
-    def default_value(self, value):
-        self._default_value = value
 
     @property
     def is_readonly(self):

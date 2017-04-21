@@ -94,19 +94,32 @@ class ActionDescriptor(object):
 
     @property
     def documentation(self):
-        """Gets the documentation of the action. (It is fetch automatically from the docstring of the action class.)"""
+        """Gets the documentation of the action.
+        (It is fetched automatically from the docstring of the action class.)"""
         return self._documentation
 
     def _add_input(self, action_input):
         self.inputs[action_input.name] = action_input
 
-    def create_action(self):
+    def _verify_arguments(self, **keyword_arguments):
+        """Verify if the keyword_arguments passed to create the action are allowed."""
         # Verify if the given scope is in the scope flags.
-        if self._inputs.__contains__("scope"):
+        scope = self._inputs.get("scope")
+        if scope is not None:
             scope = self._inputs["scope"]
             if scope not in self.scope_flags:
                 raise Exception("Invalid scope: it cannot be applied to the given filesystem node.")
-        action_instance = self._class(**self._inputs)
+        for keyword_argument in keyword_arguments:
+            try:
+                input_ = self._inputs[keyword_argument]
+                if input_.is_readonly:
+                    raise Exception("The argument {0} is readonly and cannot be changed.".format(keyword_argument))
+            except KeyError:
+                raise KeyError("The action {0} does not contain a {1} argument.".format(self._class.name, keyword_argument))
+
+    def create_action(self, **keyword_arguments):
+        self._verify_arguments(**keyword_arguments)
+        action_instance = self._class(**keyword_arguments)
         return action_instance
 
 
@@ -150,7 +163,7 @@ class CharacterInsertion(ActionDescriptor):
 
 class CharacterDeletion(ActionDescriptor):
     """Delete n-character from starting_position to ending_position."""
-    
+
     def __init__(self):
         super().__init__("Delete", CustomNameAction)
         range_input = ActionInput("string_range", InputType.range)
