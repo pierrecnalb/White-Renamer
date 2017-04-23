@@ -5,25 +5,33 @@ import re
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
 import abc
-from string_tokenizer import StringTokenizer
-from string_range import StringRange
-from scope import Scope
-# from ..file_system import FileNode
-# from folder_node import FolderNode
+from enum import Enum
+from stringrange import StringRange, Tokenizer
+from ..filesystem import File, Folder
+
+
+class Scope(Enum):
+    """Specifies the filesystem entity.
+    """
+    foldername = 1
+    filename = 2
+    extension = 4
 
 
 class Action(object):
-    """
-Describes how the action is applied on the FilesystemNodes. This class
-is inherited by all the specific actions.
-    Parameters:
-        --name: string that represents where the action will be applied.
-    name can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
-        --file_or_folder: specifies where to apply the actions : to the files or the folders.
+    """An action modifies the name of a given filesystem node.
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, scope=Scope.filename, string_range=StringRange(0, None)):
+    def __init__(self, scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """The abstract action.
+
+        Args:
+           scope (Scope): Specifies what filesystem entity must be modified.
+           string_range (StringRange):
+            A portion of the name upon which the action is applied.
+        """
         self._scope = scope
         self._string_range = string_range
 
@@ -46,13 +54,20 @@ is inherited by all the specific actions.
     @abc.abstractmethod
     def _get_modified_substring(self, filesystem_node, original_substring):
         """Gets the modified portion of the file/folder name.
-        The portion is defined by the string_range."""
+        The portion is defined by the string_range.
+        """
 
     def _is_scope_valid(self, filesystem_node):
-        if (isinstance(filesystem_node, FileNode)):
-            if (self._scope is Scope.filename or self._scope is Scope.extension):
+        """
+        Specifies whether the given scope
+        works with the current filesystem node.
+        """
+        if (isinstance(filesystem_node, File)):
+            if (self._scope is Scope.filename or
+                    self._scope is Scope.extension):
                 return True
-        if (self._scope is Scope.foldername and not isinstance(filesystem_node, FolderNode)):
+        if (self._scope is Scope.foldername and
+                not isinstance(filesystem_node, Folder)):
             return True
         return False
 
@@ -65,13 +80,21 @@ is inherited by all the specific actions.
         return original_name
 
     def execute(self, filesystem_node):
+        """Executes the actino on the given filesystem node.
+
+        Args:
+            filesystem_node (Node): The node upon which the name will change.
+        """
         if (not self._is_scope_valid(filesystem_node)):
-            raise Exception("Invalid scope: it cannot be applied to the given filesystem node.")
+            raise Exception("Invalid scope: \
+                it cannot be applied to the given filesystem node.")
         original_name = self._get_original_name(filesystem_node)
-        tokenizer = StringTokenizer(original_name, self._string_range)
+        tokenizer = Tokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
-        modified_substring = self._get_modified_substring(filesystem_node, original_substring)
-        new_name = tokenizer.first_token + modified_substring + tokenizer.last_token
+        modified_substring = self._get_modified_substring(filesystem_node,
+                                                          original_substring)
+        new_name = (
+            tokenizer.first_token + modified_substring + tokenizer.last_token)
         if (self._scope is Scope.extension):
             filesystem_node.new_extension += new_name
         else:
@@ -79,9 +102,12 @@ is inherited by all the specific actions.
 
 
 class OriginalNameAction(Action):
-    """Gets the original name."""
-
     def __init__(self, scope):
+        """Keeps the original name. This action does not do anything.
+
+        Args:
+           scope (Scope): Specifies what filesystem entity must be modified.
+        """
         super().__init__(scope)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -89,12 +115,23 @@ class OriginalNameAction(Action):
 
 
 class FindAndReplaceAction(Action):
-    """
-    Replace old_value by new_value in the section of the path.
-    string_range can be 'folder', 'file', 'prefix', 'suffix' or 'extension'.
-    """
+    def __init__(self,
+                 old_value,
+                 new_value,
+                 is_regex=False,
+                 scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Finds a value and replaces it with the given value.
 
-    def __init__(self, old_value, new_value, is_regex=False, scope=Scope.filename, string_range=StringRange(0, None)):
+        Args:
+            old_value (string): The string to change.
+            new_value (string): The new string that will replace the old_value.
+            is_regex (bool): Specifies whether the old_value uses a regex.
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
         self._old_value = old_value
         self._new_value = new_value
@@ -108,14 +145,24 @@ class FindAndReplaceAction(Action):
 
 
 class TitleCaseAction(Action):
-    """
-    Return the original name with a chosen casing option.
-    Parameters:
-        --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
-        --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --special_characters: list of symbols after which the letters are capitalized.
-    """
-    def __init__(self, is_first_letter_uppercase=True, special_characters="", scope=Scope.filename, string_range=StringRange(0, None)):
+    def __init__(self,
+                 is_first_letter_uppercase=True,
+                 special_characters="",
+                 scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Titlecases the original name.
+
+        Args:
+            is_first_letter_uppercase (bool):
+                Specifies whether the first letter should be uppercase
+                or lowercase.
+            special_characters: list of symbols after which the letters are
+                capitalized.
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
         self._is_first_letter_uppercase = is_first_letter_uppercase
         self._special_characters = special_characters
@@ -134,9 +181,11 @@ class TitleCaseAction(Action):
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         decomposed_name = self._get_decomposed_name(original_substring)
-        for special_character_index in self._get_special_character_indices(original_substring):
+        for special_character_index in self._get_special_character_indices(
+                original_substring):
             if special_character_index < len(decomposed_name):
-                decomposed_name[special_character_index + 1] = decomposed_name[special_character_index + 1].upper()
+                decomposed_name[special_character_index + 1] = decomposed_name[
+                    special_character_index + 1].upper()
         if self._is_first_letter_uppercase:
             decomposed_name[0] = decomposed_name[0].upper()
         modified_sliced_name = ''.join(decomposed_name)
@@ -144,15 +193,16 @@ class TitleCaseAction(Action):
 
 
 class UpperCaseAction(Action):
-    """
-    Return the original name with a chosen casing option.
-    Parameters:
-        --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
-        --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --special_characters: list of symbols after which the letters are capitalized.
-    """
+    def __init__(self, scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Uppercases the original name.
 
-    def __init__(self, scope=Scope.filename, string_range=StringRange(0, None)):
+        Args:
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -160,15 +210,16 @@ class UpperCaseAction(Action):
 
 
 class LowerCaseAction(Action):
-    """
-    Return the original name with a chosen casing option.
-    Parameters:
-        --case_choise: option to specify the case : 'uppercase', 'lowercase', 'titlecase'.
-        --is_first_letter_uppercase: boolean making first letter uppercase or lowercase.
-        --special_characters: list of symbols after which the letters are capitalized.
-    """
+    def __init__(self, scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Lowercases the original name.
 
-    def __init__(self, scope=Scope.filename, string_range=StringRange(0, None)):
+        Args:
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -176,11 +227,20 @@ class LowerCaseAction(Action):
 
 
 class CustomNameAction(Action):
-    """Use a custom name in the filename.
-    Can be also used to remove character if en empty string is given.
-    """
+    def __init__(self,
+                 custom_name,
+                 scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Replace the given portion of the filesystem node with a custom name.
+        Can be also used to remove character if en empty string is given.
 
-    def __init__(self, custom_name, scope=Scope.filename, string_range=StringRange(0, None)):
+        Args:
+            custom_name (string): The new name to be given.
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
         self._custom_name = custom_name
 
@@ -189,22 +249,45 @@ class CustomNameAction(Action):
 
 
 class CharacterInsertionAction(CustomNameAction):
-    """Insert new_value at index position."""
-
     def __init__(self, value, index, scope=Scope.filename):
+        """Inserts a string at the given index.
+
+        Args:
+            value (string): The string to insert.
+            index (int): The position at which the value should be inserted.
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(value, scope, StringRange(index, index))
 
 
 class CharacterDeletionAction(CustomNameAction):
-    """Delete n-character from starting_position to ending_position."""
     def __init__(self, string_range, scope=Scope.filename):
+        """Deletes n-character(s) specified by the given string range.
+
+        Args:
+            string_range (StringRange): A portion of the name
+                upon which the action is applied.
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+        """
         super().__init__("", scope, string_range)
 
 
 class FolderNameAction(Action):
-    """Use the parent foldername as the filename."""
 
-    def __init__(self, scope=Scope.filename, string_range=StringRange(0, None)):
+    def __init__(self, scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """Use the parent foldername as the new name.
+
+        Args:
+            scope (Scope, optional): Specifies what filesystem entity must be
+                modified.
+            string_range (StringRange): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -213,27 +296,38 @@ class FolderNameAction(Action):
 
 
 class DateAction(Action):
-    """
-    Use the created or modified date metadata as the filename.
-    If is_modified_time = True, the modified date from the file metadata is taken. Otherwise, it is the created date.
-    Commonly used format_display are :
-    %y  year with century as a decimal number.
-    %m  month as a decimal number [01,12].
-    %d  day of the month as a decimal number [01,31].
-    %h  hour (24-hour clock) as a decimal number [00,23].
-    %m  minute as a decimal number [00,59].
-    %s  second as a decimal number [00,61].
-    %z  time zone offset from utc.
-    %a  locale's abbreviated weekday name.
-    %a  locale's full weekday name.
-    %b  locale's abbreviated month name.
-    %b  locale's full month name.
-    %c  locale's appropriate date and time representation.
-    %i  hour (12-hour clock) as a decimal number [01,12].
-    %p  locale's equivalent of either am or pm.
-    """
 
-    def __init__(self, is_modified_date=True, time_format='%Y', scope=Scope.filename, string_range=StringRange(0, None)):
+    def __init__(self,
+                 is_modified_date=True,
+                 time_format='%Y',
+                 scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """ Uses the created or modified date metadata as the new name.
+
+        Args:
+            is_modified_date (bool): Specifies whether the modified or
+                the created date is used.
+            time_format (string): The format to display the date.
+                Commonly used format_display are :
+                %y  year with century as a decimal number.
+                %m  month as a decimal number [01,12].
+                %d  day of the month as a decimal number [01,31].
+                %h  hour (24-hour clock) as a decimal number [00,23].
+                %m  minute as a decimal number [00,59].
+                %s  second as a decimal number [00,61].
+                %z  time zone offset from utc.
+                %a  locale's abbreviated weekday name.
+                %a  locale's full weekday name.
+                %b  locale's abbreviated month name.
+                %b  locale's full month name.
+                %c  locale's appropriate date and time representation.
+                %i  hour (12-hour clock) as a decimal number [01,12].
+                %p  locale's equivalent of either am or pm.
+            scope (Scope, optional): Specifies what filesystem entity can be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
         self._is_modified_date = is_modified_date
         self._display_format = time_format
@@ -248,9 +342,24 @@ class DateAction(Action):
 
 
 class CounterAction(Action):
-    """Count the number of files starting from start_index with the given increment."""
+    def __init__(self,
+                 start_index,
+                 increment,
+                 digit_number=1,
+                 scope=Scope.filename,
+                 string_range=StringRange(0, None)):
+        """A counter that is incremented for each files that use it.
 
-    def __init__(self, start_index, increment, digit_number=1, scope=Scope.filename, string_range=StringRange(0, None)):
+        Args:
+            start_index (int): The index at which the counter starts.
+            increment (int): Specifies the incrementation of the counter
+                for each iteration.
+            digit_number (int): The number of digit the counter has.
+            scope (Scope, optional): Specifies what filesystem entity can be
+                modified.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(scope, string_range)
         self._start_index = start_index
         self._increment = increment
@@ -269,17 +378,16 @@ class CounterAction(Action):
 
 class GenericImageAction(Action):
     def __init__(self, metadata, string_range=StringRange(0, None)):
+        """An abstract action using the image metadata as new name.
+
+        Args:
+            metadata (string): The metadata that must be extracted.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__(Scope.filename, string_range)
         self._metadata = metadata
         self._scope = Scope.filename
-
-    @property
-    def scope(self):
-        return self._scope
-
-    @scope.setter
-    def scope(self, value):
-        raise Exception("This action has a predefined scope that cannot be changed.")
 
     def _get_exif_tag(self, filesystem_node):
         file_path = filesystem_node.original_path
@@ -291,6 +399,28 @@ class GenericImageAction(Action):
 
 class ImageDateTimeOriginal(GenericImageAction):
     def __init__(self, time_format, string_range=StringRange(0, None)):
+        """Uses the image date metadata.
+
+        Args:
+            time_format (string): The format to display the date.
+                Commonly used format_display are :
+                %y  year with century as a decimal number.
+                %m  month as a decimal number [01,12].
+                %d  day of the month as a decimal number [01,31].
+                %h  hour (24-hour clock) as a decimal number [00,23].
+                %m  minute as a decimal number [00,59].
+                %s  second as a decimal number [00,61].
+                %z  time zone offset from utc.
+                %a  locale's abbreviated weekday name.
+                %a  locale's full weekday name.
+                %b  locale's abbreviated month name.
+                %b  locale's full month name.
+                %c  locale's appropriate date and time representation.
+                %i  hour (12-hour clock) as a decimal number [01,12].
+                %p  locale's equivalent of either am or pm.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__('EXIF DateTimeOriginal', string_range)
         self._time_format = time_format
 

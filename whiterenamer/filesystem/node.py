@@ -7,13 +7,17 @@ import uuid
 import re
 
 
-class FileSystemTreeNode(object):
+class Node(object):
+    """ An abstract filesystem node. It can be either a file or a directory."""
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, unique_id, path, parent=None):
-        """
+        """ Creates a filesystem node.
+
         Args:
-             name = a FolderName or a FileName
+            unique_id (int): An integer representing the id of the node.
+            path (string): The full path of the node.
+            parent (Node, optional): The directory node containing this node.
         """
         self._unique_id = unique_id
         self._parent = parent
@@ -28,15 +32,17 @@ class FileSystemTreeNode(object):
         self._new_name = ""
 
     def __repr__(self):
-        """override string representation of the class"""
+        """Override string representation of the class."""
         return self._name
 
     @property
     def unique_id(self):
+        """int: The id of the node."""
         return self._unique_id
 
     @property
     def path(self):
+        """string: The full path of the node."""
         return self._path
 
     def _set_path(self, path):
@@ -52,14 +58,17 @@ class FileSystemTreeNode(object):
 
     @property
     def name(self):
+        """Gets the name of the node."""
         return self._original_name
 
     @property
     def new_name(self):
+        """Gets the new given name of the node."""
         return self._new_name
 
     @new_name.setter
     def new_name(self, value):
+        """Sets a new name."""
         self._new_name = value
 
     @property
@@ -96,7 +105,9 @@ class FileSystemTreeNode(object):
     def _get_new_path(self):
         """Since a parent folder may have been renamed during the renaming process,
         the original path to the current node may not be correct anymore.
-        We need to get back to the parent path that should have been reset if renamed."""
+        We need to get back to the parent path that should have been reset
+        if renamed.
+        """
         return os.path.join(self.parent.path, self.new_name)
 
     def _move(self, original_path, modified_path):
@@ -105,16 +116,20 @@ class FileSystemTreeNode(object):
             if self.parent.has_conflicting_children_name():
                 raise Exception("""Naming conflict error.
                 Several items in the same folder have the same name.
-                This may cause data loss. Please choose new options to avoid duplicates.""")
+                This may cause data loss.
+                Please choose new options to avoid duplicates.""")
             new_path = self._get_new_path()
             # find if new name is already taken by another file.
             if os.path.exists(new_path):
                 # get tree node with the same name.
-                conflicting_tree_node = self.parent.find_child_by_path(new_path)
-                # verify if the conflicting tree node is not in fact the same tree node. (i.e. no changes)
+                conflicting_tree_node = self.parent.find_child_by_path(
+                    new_path)
+                # verify if the conflicting tree node
+                # is not in fact the same tree node. (i.e. no changes)
                 if conflicting_tree_node is not None:
                     if self.unique_id != conflicting_tree_node.unique_id:
-                        # rename conflicting tree node with a unique temporary name.
+                        # rename conflicting tree node
+                        # with a unique temporary name.
                         conflicting_name_backup = conflicting_tree_node.new_name
                         conflicting_tree_node.modified_name = str(uuid.uuid4())
                         conflicting_tree_node.rename()

@@ -7,20 +7,46 @@ from input_type import InputType
 import inspect
 
 
-class ActionDescriptorGroup(object):
-    """
-    Contains a collectino of ActionDescriptor.
+class InputType(Enum):
+    boolean = 0
+    string = 1
+    number = 2
+    range = 3
+
+
+class ActionInput(object):
+    """ Describes a parameter from an action.
     Parameters:
-        --action_descriptors: a list of ActionDescriptor.
+        --parameter_name: string that represents the name given to the parameter described by this action input.
+        --caption: string that represents the caption of the given parameter.
+        --arg_type: specifies which type is the given parameter.
+        --default_value: specifies the default value of the given parameter.
+        --optional_argument: gives the possibility to add an optional argument for storing data.
     """
 
-    def __init__(self, name):
-        self._name = name
-        self._caption = name
+    def __init__(self, parameter_name, input_type):
+        self._parameter_name = parameter_name
+        self._input_type = input_type
+        # Set the parameter name as default to caption.
+        self._caption = parameter_name
+        self._is_readonly = False
+        self._is_visible = True
 
     @property
-    def name(self):
-        return self._name
+    def parameter_name(self):
+        return self._parameter_name
+
+    @parameter_name.setter
+    def parameter_name(self, value):
+        self._parameter_name = value
+
+    @property
+    def input_type(self):
+        return self._input_type
+
+    @input_type.setter
+    def input_type(self, value):
+        self._input_type = value
 
     @property
     def caption(self):
@@ -30,9 +56,21 @@ class ActionDescriptorGroup(object):
     def caption(self, value):
         self._caption = value
 
-    def __repr__(self):
-        """override string representation of the class"""
-        return self.name
+    @property
+    def is_readonly(self):
+        return self._is_readonly
+
+    @is_readonly.setter
+    def is_readonly(self, value):
+        self._is_readonly = value
+
+    @property
+    def is_visible(self):
+        return self._is_visible
+
+    @is_visible.setter
+    def is_visible(self, value):
+        self._is_visible = value
 
 
 class ActionDescriptor(object):
@@ -95,27 +133,34 @@ class ActionDescriptor(object):
     @property
     def documentation(self):
         """Gets the documentation of the action.
-        (It is fetched automatically from the docstring of the action class.)"""
+        (It is fetched automatically from the docstring of the action class.)
+        """
         return self._documentation
 
     def _add_input(self, action_input):
         self.inputs[action_input.name] = action_input
 
     def _verify_arguments(self, **keyword_arguments):
-        """Verify if the keyword_arguments passed to create the action are allowed."""
+        """Verify if the keyword_arguments passed to create the action are allowed.
+        """
         # Verify if the given scope is in the scope flags.
         scope = self._inputs.get("scope")
         if scope is not None:
             scope = self._inputs["scope"]
             if scope not in self.scope_flags:
-                raise Exception("Invalid scope: it cannot be applied to the given filesystem node.")
+                raise Exception("Invalid scope: \
+                it cannot be applied to the given filesystem node.")
         for keyword_argument in keyword_arguments:
             try:
                 input_ = self._inputs[keyword_argument]
                 if input_.is_readonly:
-                    raise Exception("The argument {0} is readonly and cannot be changed.".format(keyword_argument))
+                    raise Exception(
+                        "The argument {0} is readonly and cannot be changed.".
+                        format(keyword_argument))
             except KeyError:
-                raise KeyError("The action {0} does not contain a {1} argument.".format(self._class.name, keyword_argument))
+                raise KeyError(
+                    "The action {0} does not contain a {1} argument.".format(
+                        self._class.name, keyword_argument))
 
     def create_action(self, **keyword_arguments):
         self._verify_arguments(**keyword_arguments)
@@ -182,10 +227,12 @@ class TitleCase(ActionDescriptor):
 
     def __init__(self):
         super().__init__("Titlecase", TitleCaseAction)
-        is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase", InputType.boolean)
+        is_first_letter_uppercase_input = ActionInput(
+            "is_first_letter_uppercase", InputType.boolean)
         is_first_letter_uppercase_input.caption = "First Letter"
         self._add_input(is_first_letter_uppercase_input)
-        special_characters_input = ActionInput("special_characters", InputType.string)
+        special_characters_input = ActionInput("special_characters",
+                                               InputType.string)
         special_characters_input.caption = "And After"
         self._add_input(special_characters_input)
         self.caption = "Titlecase"
@@ -242,7 +289,8 @@ class FolderName(ActionDescriptor):
 class FileDate(ActionDescriptor):
     def __init__(self):
         super().__init__("Date", DateAction)
-        is_modified_date_input = ActionInput("is_modified_date", InputType.boolean)
+        is_modified_date_input = ActionInput("is_modified_date",
+                                             InputType.boolean)
         is_modified_date_input.caption = "Modified"
         time_format_input = ActionInput("time_format", InputType.string)
         time_format_input.caption = "Format"
@@ -388,3 +436,31 @@ class MusicGenre(ActionDescriptor):
         self.caption = "Genre"
         self._scope_flags = Scope.filename
         self.group = ActionDescriptorGroup("Music")
+
+
+class ActionDescriptorGroup(object):
+    """
+    Contains a collectino of ActionDescriptor.
+    Parameters:
+        --action_descriptors: a list of ActionDescriptor.
+    """
+
+    def __init__(self, name):
+        self._name = name
+        self._caption = name
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def caption(self):
+        return self._caption
+
+    @caption.setter
+    def caption(self, value):
+        self._caption = value
+
+    def __repr__(self):
+        """override string representation of the class"""
+        return self.name

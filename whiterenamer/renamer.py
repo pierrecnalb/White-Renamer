@@ -5,7 +5,7 @@ from factory import Factory
 
 class Renamer(object):
     def __init__(self, root_path, is_recursive=False, file_filter=None):
-        self._file_system_tree_model = FileSystemTreeModel(root_path, is_recursive)
+        self._file_system_tree_model = DataModel(root_path, is_recursive)
         self._action_collection = list()
         self._action_parser
 

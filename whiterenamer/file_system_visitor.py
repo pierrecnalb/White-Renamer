@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import abc
-from file_node import FileNode
-from folder_node import FolderNode
+from file_node import File
+from folder_node import Folder
 import RenamingType
 
 
@@ -20,7 +20,7 @@ class FolderActionVisitor(FileSystemActionVisitor):
         super()
 
     def visit(self, file_system_tree_node):
-        if(not isinstance(file_system_tree_node, FolderNode)):
+        if(not isinstance(file_system_tree_node, Folder)):
             return
         modified_basename = ""
         for action in self:
@@ -33,7 +33,7 @@ class FileActionVisitor(FileSystemActionVisitor):
         super()
 
     def visit(self, file_system_tree_node):
-        if(not isinstance(file_system_tree_node, FileNode)):
+        if(not isinstance(file_system_tree_node, File)):
             return
         modified_basename = ""
         for action in self:
@@ -47,7 +47,7 @@ class ExtensionActionVisitor(FileSystemActionVisitor):
         super()
 
     def visit(self, file_system_tree_node):
-        if(not isinstance(file_system_tree_node, FileNode)):
+        if(not isinstance(file_system_tree_node, File)):
             return
         modified_extension = ""
         for action in self:

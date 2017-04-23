@@ -6,7 +6,7 @@ if __name__ is "__main__":
     arguments = sys.argv
 
 path = r"/home/pierre/Documents/Programs/whiterenamer-1.0.0/whiterenamer/model/testcases.t"
-# model = FileSystemTreeModel(path, False)
+# model = DataModel(path, False)
 renamer = Renamer(path, False)
 string_range = StringRange(1, 3)
 renamer.append("CustomName", "foo", string_range)

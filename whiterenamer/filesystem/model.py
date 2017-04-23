@@ -6,7 +6,7 @@ from file_filter import FileFilter
 import os
 
 
-class FileSystemTreeModel(object):
+class Model(object):
     """
     Represents a portion of the FilesystemNode depending on filters chosen by the users.
     Parameters:

@@ -2,7 +2,7 @@
 
 from . import model
 
-from file_system_tree_model import FileSystemTreeModel
+from file_system_tree_model import DataModel
 from file_system_visitor import FilenameActionCollection, ExtensionActionCollection, FolderActionCollection
 
 
