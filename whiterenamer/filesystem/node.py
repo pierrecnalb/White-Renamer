@@ -122,19 +122,18 @@ class Node(object):
             # find if new name is already taken by another file.
             if os.path.exists(new_path):
                 # get tree node with the same name.
-                conflicting_tree_node = self.parent.find_child_by_path(
-                    new_path)
+                conflicting_node = self.parent.find_child_by_path(new_path)
                 # verify if the conflicting tree node
                 # is not in fact the same tree node. (i.e. no changes)
-                if conflicting_tree_node is not None:
-                    if self.unique_id != conflicting_tree_node.unique_id:
+                if conflicting_node is not None:
+                    if self.unique_id != conflicting_node.unique_id:
                         # rename conflicting tree node
                         # with a unique temporary name.
-                        conflicting_name_backup = conflicting_tree_node.new_name
-                        conflicting_tree_node.modified_name = str(uuid.uuid4())
-                        conflicting_tree_node.rename()
+                        conflicting_name_backup = conflicting_node.new_name
+                        conflicting_node.modified_name = str(uuid.uuid4())
+                        conflicting_node.rename()
                         # get the conflicting tree node back to its original settings.
-                        conflicting_tree_node.modified_name = conflicting_name_backup
+                        conflicting_node.modified_name = conflicting_name_backup
             # rename current node.
             shutil.move(original_path, modified_path)
             # apply new path to the tree nodes, so that child nodes will stil have a valid path.

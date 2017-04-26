@@ -2,7 +2,7 @@
 
 import os
 from enum import Enum
-from node import Node
+from .node import Node
 
 
 class File(Node):
@@ -52,11 +52,11 @@ class File(Node):
             'cr2', 'pef'
         ]
         if (self._extension in music_extensions):
-            self._file_type = FileType.music
+            self._file_type = Types.music
         if (self._extension in image_extensions):
-            self._file_type = FileType.image
+            self._file_type = Types.image
         else:
-            self._file_type = FileType.normal
+            self._file_type = Types.normal
 
     def is_filtered(self, file_filter):
         if super().is_filtered(file_filter):
@@ -68,14 +68,22 @@ class File(Node):
         return False
 
 
-class FileType(Enum):
-    normal = 0
-    music = 1
-    image = 2
-    video = 3
+class Types(Enum):
+    document = 1
+    music = 2
+    image = 4
+    video = 8
+    other = 16
+    all = 31
 
 
-class FileFilter(object):
+class NodeType(Enum):
+    all = 0
+    folder = 1,
+    file = 2
+
+
+class Filter(object):
     """
     Contains all the FilesystemNodes representing the files system structure with or without the subdirectories, starting from the input path.
     Parameters:
@@ -84,11 +92,9 @@ class FileFilter(object):
     """
 
     def __init__(self):
-        # self._is_recursive = False
         self._show_hidden_files = False
-        self._files_only = False
-        self._folders_only = False
-        self._files_type = FileType.all
+        self._node_type = NodeType.all
+        self._file_type = Types.all
         self._search_pattern = ""
 
     @property
@@ -99,40 +105,20 @@ class FileFilter(object):
     def show_hidden_files(self, value):
         self._show_hidden_files = value
 
-    # @property
-    # def is_recursive(self):
-    #     return self._is_recursive
+    @property
+    def node_type(self):
+        return self._node_type
 
-    # @is_recursive.setter
-    # def is_recursive(self, value):
-    #     self._is_recursive = value
+    @node_type.setter
+    def node_type(self, value):
+        self._node_type = value
 
     @property
-    def files_only(self):
-        return self._files_only
-
-    @files_only.setter
-    def files_only(self, value):
-        if (value is True):
-            self._folders_only = False
-        self._files_only = value
-
-    @property
-    def folders_only(self):
-        return self._folders_only
-
-    @folders_only.setter
-    def folders_only(self, value):
-        if (self._files_only is True):
-            self._files_only = False
-        self._folders_only = value
-
-    @property
-    def files_type(self):
+    def file_type(self):
         self._file_type
 
-    @files_type.setter
-    def files_type(self, value):
+    @file_type.setter
+    def file_type(self, value):
         self._file_type = value
 
     @property

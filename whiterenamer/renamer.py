@@ -1,32 +1,38 @@
 #!/usr/bin/python3
 
-from factory import Factory
+from .filesystem.model import Model
+from .actions.factory import ActionFactory
 
 
 class Renamer(object):
     def __init__(self, root_path, is_recursive=False, file_filter=None):
-        self._file_system_tree_model = DataModel(root_path, is_recursive)
+        self._model = Model(root_path, is_recursive, file_filter)
         self._action_collection = list()
-        self._action_parser
+        self._factory = ActionFactory
 
     @property
-    def file_filter(self):
-        return self._file_systme_tree_model.file_filter
-
-    @property
-    def is_recursive(self):
-        return self._file_system_tree_model.is_recursive
-
-    @is_recursive.setter
-    def is_recursive(self, value):
-        self._file_system_tree_mode.is_recursive = value
+    def model(self):
+        return self._model
 
     @property
     def action_collection(self):
         return self._action_collection
 
+    def append(self, action_name, **parameters):
+        action = self._factory.create(action_name, **parameters)
+        self.append(action)
+        return action
+
+    def insert(self, index, action_name, **parameters):
+        action = self._factory.create(action_name, **parameters)
+        self.insert(action, index)
+        return action
+
+    def remove(self, index):
+        return self.pop(index)
+
     def invoke_actions(self):
-        for filesystem_node in self._file_system_tree_model.filtered_nodes:
+        for filesystem_node in self._model.filtered_nodes:
             for action in self.action_collection:
                 action.execute(filesystem_node)
 

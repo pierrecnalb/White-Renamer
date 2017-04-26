@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
-from folder_node import FolderNode
-from file_node import FileNode
-from file_filter import FileFilter
 import os
+from .folder import Folder
+from .file import File, Filter
 
 
 class Model(object):
@@ -20,10 +19,11 @@ class Model(object):
         --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
     """
 
-    def __init__(self, root_path, is_recursive=False, file_filter=FileFilter()):
+    def __init__(self, root_path, is_recursive=False,
+                 file_filter=Filter()):
         self._current_id = 0
         self._nodes_by_id = dict()
-        self._root_node = FolderNode(self._current_id, root_path, None)
+        self._root_node = Folder(self._current_id, root_path, None)
         self._nodes_by_id[self._current_id] = self._root_node
         self._is_recursive = is_recursive
         self._file_filter = file_filter
@@ -76,7 +76,7 @@ class Model(object):
             child_path = os.path.join(path, child)
             if os.path.isdir(child_path):
                 # add folder
-                folder_node = FolderNode(self._new_id(), child_path, tree_node)
+                folder_node = Folder(self._new_id(), child_path, tree_node)
                 self._nodes_by_id[self._current_id] = folder_node
                 if (not self.is_recursive):
                     continue
@@ -84,9 +84,8 @@ class Model(object):
                     self._scan_file_system(folder_node)
             else:
                 # add file
-                file_node = FileNode(self._new_id(), child_path, tree_node)
+                file_node = File(self._new_id(), child_path, tree_node)
                 self._nodes_by_id[self._current_id] = file_node
-
 
     # def natural_sort(self, tree_node):
     #     """ Sorts the given iterable in the way that is expected.

@@ -277,7 +277,6 @@ class CharacterDeletionAction(CustomNameAction):
 
 
 class FolderNameAction(Action):
-
     def __init__(self, scope=Scope.filename,
                  string_range=StringRange(0, None)):
         """Use the parent foldername as the new name.
@@ -296,7 +295,6 @@ class FolderNameAction(Action):
 
 
 class DateAction(Action):
-
     def __init__(self,
                  is_modified_date=True,
                  time_format='%Y',
