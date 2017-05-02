@@ -299,7 +299,7 @@ class MainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def hide_files_click(self, value):
-        self.show_hidden_files = value
+        self.discard_hidden_files = value
         self.reset_files_collection()
 
     def are_hidden_files_shown(self):

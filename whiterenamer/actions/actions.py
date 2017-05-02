@@ -2,91 +2,91 @@
 
 import time
 import re
+import abc
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
-import abc
 from enum import Enum
-from stringrange import StringRange, Tokenizer
+from scope import Target, StringRange, Tokenizer
 from ..filesystem import File, Folder
 
 
-class Scope(Enum):
-    """Specifies the filesystem entity.
-    """
-    foldername = 1
-    filename = 2
-    extension = 4
-
 
 class Action(object):
-    """An action modifies the name of a given filesystem node.
-    """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, scope=Scope.filename,
+    def __init__(self, target=Target.filename,
                  string_range=StringRange(0, None)):
-        """The abstract action.
+        """ An abstract action that modifies the name of a given filesystem node
 
         Args:
-           scope (Scope): Specifies what filesystem entity must be modified.
+           target (Target): Specifies what target must be modified.
            string_range (StringRange):
-            A portion of the name upon which the action is applied.
+            A portion of the target name upon which the action is applied.
         """
-        self._scope = scope
+        self._target = target
         self._string_range = string_range
 
     @property
     def range(self):
+        """Gets the portion of the target name upon which the action is applied."""
         return self._string_range
 
     @range.setter
     def range(self, value):
+        """Sets the portion of the target name upon which the action is applied."""
         self._range = value
 
     @property
-    def scope(self):
-        return self._scope
+    def target(self):
+        """ Gets the target (file, folder, extension) for which this action must be applied."""
+        return self._target
 
-    @scope.setter
-    def scope(self, value):
-        self._scope = value
+    @target.setter
+    def target(self, value):
+        """ Sets the target (file, folder, extension) for which this action must be applied."""
+        self._target = value
 
     @abc.abstractmethod
     def _get_modified_substring(self, filesystem_node, original_substring):
         """Gets the modified portion of the file/folder name.
-        The portion is defined by the string_range.
+        (The portion is defined by the string_range.)
+        This method must be overriden by all subclasses.
+        The new name for the given range must be returned by this method.
+        Thus, any new action must inherit from the Action class and implement the logic
+        of the action in this overriden method.
         """
 
-    def _is_scope_valid(self, filesystem_node):
+    def _is_target_valid(self, filesystem_node):
         """
-        Specifies whether the given scope
+        Specifies whether the given target
         works with the current filesystem node.
         """
         if (isinstance(filesystem_node, File)):
-            if (self._scope is Scope.filename or
-                    self._scope is Scope.extension):
+            if (self._target is Target.filename or
+                self._target is Target.extension):
                 return True
-        if (self._scope is Scope.foldername and
-                not isinstance(filesystem_node, Folder)):
+        if (self._target is Target.foldername and
+            not isinstance(filesystem_node, Folder)):
             return True
         return False
 
     def _get_original_name(self, filesystem_node):
         original_name = ""
-        if (self._scope is Scope.filename or self._scope is Scope.foldername):
+        if (self._target is Target.filename or self._target is Target.foldername):
             original_name = filesystem_node.basename
-        elif (self._scope is Scope.extension):
+        elif (self._target is Target.extension):
             original_name = filesystem_node.extension
         return original_name
 
     def execute(self, filesystem_node):
-        """Executes the actino on the given filesystem node.
+        """Executes the action on the given filesystem node.
+        This modifies the name of the Node object.
 
         Args:
             filesystem_node (Node): The node upon which the name will change.
         """
-        if (not self._is_scope_valid(filesystem_node)):
-            raise Exception("Invalid scope: \
+        if (not self._is_target_valid(filesystem_node)):
+            raise Exception("Invalid target: \
                 it cannot be applied to the given filesystem node.")
         original_name = self._get_original_name(filesystem_node)
         tokenizer = Tokenizer(original_name, self._string_range)
@@ -95,20 +95,20 @@ class Action(object):
                                                           original_substring)
         new_name = (
             tokenizer.first_token + modified_substring + tokenizer.last_token)
-        if (self._scope is Scope.extension):
+        if (self._target is Target.extension):
             filesystem_node.new_extension += new_name
         else:
             filesystem_node.new_name += new_name
 
 
 class OriginalNameAction(Action):
-    def __init__(self, scope):
+    def __init__(self, target):
         """Keeps the original name. This action does not do anything.
 
         Args:
-           scope (Scope): Specifies what filesystem entity must be modified.
+           target (Target): Specifies what filesystem entity must be modified.
         """
-        super().__init__(scope)
+        super().__init__(target)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring
@@ -119,7 +119,7 @@ class FindAndReplaceAction(Action):
                  old_value,
                  new_value,
                  is_regex=False,
-                 scope=Scope.filename,
+                 target=Target.filename,
                  string_range=StringRange(0, None)):
         """Finds a value and replaces it with the given value.
 
@@ -127,12 +127,12 @@ class FindAndReplaceAction(Action):
             old_value (string): The string to change.
             new_value (string): The new string that will replace the old_value.
             is_regex (bool): Specifies whether the old_value uses a regex.
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
         self._old_value = old_value
         self._new_value = new_value
         self._is_regex = is_regex
@@ -148,9 +148,9 @@ class TitleCaseAction(Action):
     def __init__(self,
                  is_first_letter_uppercase=True,
                  special_characters="",
-                 scope=Scope.filename,
+                 target=Target.filename,
                  string_range=StringRange(0, None)):
-        """Titlecases the original name.
+        """Return a titlecased version of the name, i.e. words start with uppercase characters, all remaining cased characters have lowercase.
 
         Args:
             is_first_letter_uppercase (bool):
@@ -158,12 +158,12 @@ class TitleCaseAction(Action):
                 or lowercase.
             special_characters: list of symbols after which the letters are
                 capitalized.
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
         self._is_first_letter_uppercase = is_first_letter_uppercase
         self._special_characters = special_characters
 
@@ -188,106 +188,90 @@ class TitleCaseAction(Action):
                     special_character_index + 1].upper()
         if self._is_first_letter_uppercase:
             decomposed_name[0] = decomposed_name[0].upper()
-        modified_sliced_name = ''.join(decomposed_name)
+            modified_sliced_name = ''.join(decomposed_name)
         return modified_sliced_name
 
 
 class UpperCaseAction(Action):
-    def __init__(self, scope=Scope.filename,
+    def __init__(self, target=Target.filename,
                  string_range=StringRange(0, None)):
         """Uppercases the original name.
 
         Args:
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring.upper()
 
 
 class LowerCaseAction(Action):
-    def __init__(self, scope=Scope.filename,
+    def __init__(self, target=Target.filename,
                  string_range=StringRange(0, None)):
         """Lowercases the original name.
 
         Args:
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return original_substring.lower()
 
 
-class CustomNameAction(Action):
+class OverwriteAction(Action):
     def __init__(self,
                  custom_name,
-                 scope=Scope.filename,
+                 target=Target.filename,
                  string_range=StringRange(0, None)):
         """Replace the given portion of the filesystem node with a custom name.
-        Can be also used to remove character if en empty string is given.
 
         Args:
             custom_name (string): The new name to be given.
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
         self._custom_name = custom_name
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         return self._custom_name
 
 
-class CharacterInsertionAction(CustomNameAction):
-    def __init__(self, value, index, scope=Scope.filename):
-        """Inserts a string at the given index.
-
-        Args:
-            value (string): The string to insert.
-            index (int): The position at which the value should be inserted.
-            scope (Scope, optional): Specifies what filesystem entity must be
-                modified.
-            string_range (StringRange, optional): A portion of the name
-                upon which the action is applied.
-        """
-        super().__init__(value, scope, StringRange(index, index))
-
-
-class CharacterDeletionAction(CustomNameAction):
-    def __init__(self, string_range, scope=Scope.filename):
+class DeleteAction(Action):
+    def __init__(self, string_range, target=Target.filename):
         """Deletes n-character(s) specified by the given string range.
 
         Args:
             string_range (StringRange): A portion of the name
                 upon which the action is applied.
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
         """
-        super().__init__("", scope, string_range)
+        super().__init__("", target, string_range)
 
 
 class FolderNameAction(Action):
-    def __init__(self, scope=Scope.filename,
+    def __init__(self, target=Target.filename,
                  string_range=StringRange(0, None)):
-        """Use the parent foldername as the new name.
+        """Uses the parent foldername as the new name.
 
         Args:
-            scope (Scope, optional): Specifies what filesystem entity must be
+            target (Target, optional): Specifies what filesystem entity must be
                 modified.
             string_range (StringRange): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         folder_name = self._file_system_tree_node.parent.modified_basename
@@ -298,7 +282,7 @@ class DateAction(Action):
     def __init__(self,
                  is_modified_date=True,
                  time_format='%Y',
-                 scope=Scope.filename,
+                 target=Target.filename,
                  string_range=StringRange(0, None)):
         """ Uses the created or modified date metadata as the new name.
 
@@ -321,12 +305,12 @@ class DateAction(Action):
                 %c  locale's appropriate date and time representation.
                 %i  hour (12-hour clock) as a decimal number [01,12].
                 %p  locale's equivalent of either am or pm.
-            scope (Scope, optional): Specifies what filesystem entity can be
+            target (Target, optional): Specifies what filesystem entity can be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
         self._is_modified_date = is_modified_date
         self._display_format = time_format
 
@@ -344,21 +328,21 @@ class CounterAction(Action):
                  start_index,
                  increment,
                  digit_number=1,
-                 scope=Scope.filename,
+                 target=Target.filename,
                  string_range=StringRange(0, None)):
-        """A counter that is incremented for each files that use it.
+        """A counter that is incremented for each files that uses it.
 
         Args:
             start_index (int): The index at which the counter starts.
             increment (int): Specifies the incrementation of the counter
                 for each iteration.
             digit_number (int): The number of digit the counter has.
-            scope (Scope, optional): Specifies what filesystem entity can be
+            target (Target, optional): Specifies what filesystem entity can be
                 modified.
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(scope, string_range)
+        super().__init__(target, string_range)
         self._start_index = start_index
         self._increment = increment
         self._digit_number = digit_number
@@ -383,9 +367,9 @@ class GenericImageAction(Action):
             string_range (StringRange, optional): A portion of the name
                 upon which the action is applied.
         """
-        super().__init__(Scope.filename, string_range)
+        super().__init__(Target.filename, string_range)
         self._metadata = metadata
-        self._scope = Scope.filename
+        self._target = Target.filename
 
     def _get_exif_tag(self, filesystem_node):
         file_path = filesystem_node.original_path
@@ -395,7 +379,7 @@ class GenericImageAction(Action):
             return exif_tag
 
 
-class ImageDateTimeOriginal(GenericImageAction):
+class ImageDateAction(GenericImageAction):
     def __init__(self, time_format, string_range=StringRange(0, None)):
         """Uses the image date metadata.
 
@@ -431,8 +415,14 @@ class ImageDateTimeOriginal(GenericImageAction):
             return original_substring
 
 
-class ImageFNumber(GenericImageAction):
+class ImageFNumberAction(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image exif F number metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__('EXIF FNumber', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -445,6 +435,12 @@ class ImageFNumber(GenericImageAction):
 
 class ImageExposureTime(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image exposure time metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__('EXIF ExposureTime', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -457,6 +453,12 @@ class ImageExposureTime(GenericImageAction):
 
 class ImageISO(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image ISO metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
         super().__init__('EXIF ISOSpeedRatings', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -469,6 +471,13 @@ class ImageISO(GenericImageAction):
 
 class ImageCameraModel(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image camera model metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('Image Model', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -481,6 +490,13 @@ class ImageCameraModel(GenericImageAction):
 
 class ImageXDimension(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image width metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('EXIF ExifImageWidth', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -493,6 +509,13 @@ class ImageXDimension(GenericImageAction):
 
 class ImageYDimension(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image length metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('EXIF ExifImageLength', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -505,6 +528,13 @@ class ImageYDimension(GenericImageAction):
 
 class ImageFocalLength(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image focal length metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('EXIF FocalLength', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -517,6 +547,13 @@ class ImageFocalLength(GenericImageAction):
 
 class ImageArtist(GenericImageAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the image artist metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('Image Artist', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -529,9 +566,16 @@ class ImageArtist(GenericImageAction):
 
 class GenericMusicAction(Action):
     def __init__(self, metadata, string_range=StringRange(0, None)):
-        super().__init__(Scope.filename, string_range)
+        """An abstract action using the music metadata as new name.
+
+        Args:
+            metadata (string): The metadata that must be extracted.
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+        super().__init__(Target.filename, string_range)
         self.metadata = metadata
-        self._scope = Scope.filename
+        self._target = Target.filename
 
     def _get_metadata_tag(self, filesystem_node):
         file_path = filesystem_node.original_path
@@ -541,6 +585,13 @@ class GenericMusicAction(Action):
 
 class MusicArtist(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music artist metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('artist', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -553,6 +604,13 @@ class MusicArtist(GenericMusicAction):
 
 class MusicTitle(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music title metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('title', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -565,6 +623,13 @@ class MusicTitle(GenericMusicAction):
 
 class MusicYear(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music year metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('date', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -577,6 +642,13 @@ class MusicYear(GenericMusicAction):
 
 class MusicAlbum(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music album metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('album', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -589,6 +661,13 @@ class MusicAlbum(GenericMusicAction):
 
 class MusicTrack(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music track metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('tracknumber', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):
@@ -601,6 +680,13 @@ class MusicTrack(GenericMusicAction):
 
 class MusicGenre(GenericMusicAction):
     def __init__(self, string_range=StringRange(0, None)):
+        """ Uses the music genre metadata.
+
+        Args:
+            string_range (StringRange, optional): A portion of the name
+                upon which the action is applied.
+        """
+
         super().__init__('genre', string_range)
 
     def _get_modified_substring(self, filesystem_node, original_substring):

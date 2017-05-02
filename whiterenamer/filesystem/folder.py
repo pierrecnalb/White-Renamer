@@ -4,25 +4,25 @@ from .node import Node
 
 
 class Folder(Node):
-    """ Describes a directory in the filesystem."""
-
     def __init__(self, unique_id, path, parent_node=None):
-        """ Creates a directory node.
+        """ Describes a directory in the filesystem.
 
         Args:
-            unique_id (int): 
-            path: the full path of the folder.
+            unique_id (int): An integer representing the id of the node.
+            path (string): The full path of the node.
+            parent (Node, optional): The directory node containing this node.
         """
         super().__init__(unique_id, path, parent_node)
         self._children = []
 
     @property
     def has_children(self):
+        """ Specifies whether the current folder contains any nodes."""
         return self._children.length > 0
 
-    def add_child(self, file_system_tree_node):
-        self._children.append(file_system_tree_node)
-        return file_system_tree_node
+    def add_child(self, node):
+        self._children.append(node)
+        return node
 
     @property
     def children(self):
@@ -36,12 +36,11 @@ class Folder(Node):
         return False
 
     def has_conflicting_children_name(self):
-        """Finds if there are duplicate files/folders.
-        If there are some duplicates, appends a counter to differenciate them.
+        """ Specifies whether there are naming duplicates among the direct children.
         """
         unique_names = []
         for child_node in self.children:
-            if (child_node.modified_basename not in unique_names):
+            if (child_node.new_name not in unique_names):
                 unique_names.append(child_node.modified_basename)
             else:
                 return True

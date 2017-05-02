@@ -8,11 +8,10 @@ import re
 
 
 class Node(object):
-    """ An abstract filesystem node. It can be either a file or a directory."""
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, unique_id, path, parent=None):
-        """ Creates a filesystem node.
+        """ An abstract filesystem node (Base class for a file or a directory.)
 
         Args:
             unique_id (int): An integer representing the id of the node.
@@ -50,26 +49,26 @@ class Node(object):
         self._path = path
         self._set_name(path)
 
-    def _set_name(self, path):
+    def _set_basename(self, path):
         (_, basename) = os.path.split(self._path)
-        self._name = basename
-        self._new_name = ""
+        self._original_basename = basename
+        self._basename = ""
         self._is_hidden = basename.startswith('.')
 
     @property
-    def name(self):
-        """Gets the name of the node."""
-        return self._original_name
+    def original_basename(self):
+        """Gets the unmodified basename of the node (extension excluded)."""
+        return self._original_basename
 
     @property
-    def new_name(self):
-        """Gets the new given name of the node."""
-        return self._new_name
+    def basename(self):
+        """Gets the basename of the node (extension excluded)."""
+        return self._basename
 
     @new_name.setter
-    def new_name(self, value):
-        """Sets a new name."""
-        self._new_name = value
+    def basename(self, value):
+        """Sets a new basename. (extension not affected.)"""
+        self._basename = value
 
     @property
     def parent(self):
@@ -96,7 +95,7 @@ class Node(object):
         return self._is_folder
 
     def is_filtered(self, file_filter):
-        if file_filter.show_hidden_files is not self._is_hidden:
+        if file_filter.discard_hidden_files is not self._is_hidden:
             return True
         if re.match(file_filter.search_pattern, self._name):
             return True

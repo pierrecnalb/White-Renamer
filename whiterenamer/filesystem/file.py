@@ -7,6 +7,13 @@ from .node import Node
 
 class File(Node):
     def __init__(self, unique_id, path, parent_node=None):
+        """ Describes a file in the filesystem.
+
+        Args:
+            unique_id (int): An integer representing the id of the node.
+            path (string): The full path of the node.
+            parent (Node, optional): The directory node containing this node.
+        """
         super().__init__(unique_id, path, parent_node)
         self._set_file_type()
 
@@ -34,6 +41,7 @@ class File(Node):
 
     @property
     def path(self):
+        """ The full path of this file (extension included).."""
         return super().path + "." + self._extension
 
     def _set_path(self, path):
@@ -83,48 +91,3 @@ class NodeType(Enum):
     file = 2
 
 
-class Filter(object):
-    """
-    Contains all the FilesystemNodes representing the files system structure with or without the subdirectories, starting from the input path.
-    Parameters:
-        --input_path: string that represents the root directory to start the files collection from.
-        --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
-    """
-
-    def __init__(self):
-        self._show_hidden_files = False
-        self._node_type = NodeType.all
-        self._file_type = Types.all
-        self._search_pattern = ""
-
-    @property
-    def show_hidden_files(self):
-        return self._show_hidden_files
-
-    @show_hidden_files.setter
-    def show_hidden_files(self, value):
-        self._show_hidden_files = value
-
-    @property
-    def node_type(self):
-        return self._node_type
-
-    @node_type.setter
-    def node_type(self, value):
-        self._node_type = value
-
-    @property
-    def file_type(self):
-        self._file_type
-
-    @file_type.setter
-    def file_type(self, value):
-        self._file_type = value
-
-    @property
-    def search_pattern(self):
-        self._search_pattern
-
-    @search_pattern.setter
-    def search_pattern(self, value):
-        self._search_pattern = value

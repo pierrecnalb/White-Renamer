@@ -1,6 +1,13 @@
 #!/usr/bin/python3
 
 
+class Target(Enum):
+    """Specifies a filesystem node scope."""
+    foldername = 1
+    filename = 2
+    extension = 4
+
+
 class StringRange(object):
     def __init__(self, start=0, end=None):
         """

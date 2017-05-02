@@ -133,11 +133,11 @@ class FileSystemView(object):
     """
     Represents a portion of the FilesSystem. This portion depends on the following filters:
     Parameters:
-        --show_hidden_files: whether or not to show the hidden files.
+        --discard_hidden_files: whether or not to show the hidden files.
     """
 
-    def __init__(self, root_tree_node, show_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
-        self.show_hidden_files = show_hidden_files
+    def __init__(self, root_tree_node, discard_hidden_files, files_type, name_filter, sorting_criteria, reverse_order):
+        self.discard_hidden_files = discard_hidden_files
         self.files_type = files_type
         self.name_filter = name_filter
         self.sorting_criteria = sorting_criteria
@@ -163,7 +163,7 @@ class FileSystemView(object):
                 self.filter_files(tree_node_child, tree_node_child_view)
 
     def is_filtered_tree_node(self, tree_node):
-        if (not self.show_hidden_files and tree_node.is_hidden):
+        if (not self.discard_hidden_files and tree_node.is_hidden):
             return True
         if(tree_node.has_children is False and tree_node.is_folder is True and self.files_type != ["folders"]):
             return True

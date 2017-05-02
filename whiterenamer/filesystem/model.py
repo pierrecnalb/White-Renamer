@@ -2,59 +2,52 @@
 
 import os
 from .folder import Folder
-from .file import File, Filter
+from .file import File
 
 
 class Model(object):
-    """
-    Represents a portion of the FilesystemNode depending on filters chosen by the users.
-    Parameters:
-        --file_system_tree_node: original filesystemtreenode
-        --rank: integer that represents the position of the current file/folder in the list of FilesystemNode children.
-    """
-    """
-    Contains all the FilesystemNodes representing the files system structure with or without the subdirectories, starting from the input path.
-    Parameters:
-        --input_path: string that represents the root directory to start the files collection from.
-        --use_subdirectory: boolean that tells to look over the subdirectories recursively or not.
-    """
-
     def __init__(self, root_path, is_recursive=False,
                  file_filter=Filter()):
+    """ Represents a part or the full filesystem structure, starting from the given root node.
+
+    Args:
+        root_path (string): The full path of the root node.
+        is_recursive (bool): Specifies whether the model uses the subdirectories recursively or not.
+        file_filter (Filter, optional): An optional filter to discard some specific files.
+    """
         self._current_id = 0
         self._nodes_by_id = dict()
-        self._root_node = Folder(self._current_id, root_path, None)
-        self._nodes_by_id[self._current_id] = self._root_node
+        self._root_folder = Folder(self._current_id, root_path, None)
+        self._nodes_by_id[self._current_id] = self._root_folder
         self._is_recursive = is_recursive
         self._file_filter = file_filter
         self._build_tree_model()
 
     @property
-    def file_filter(self):
+    def filter(self):
+        """ The Filter used in this model to discard some files."""
         return self._file_filter
 
     @property
     def is_recursive(self):
+        """ Specifies whether the model uses the subdirectories recursively or not."""
         return self._is_recursive
 
     @is_recursive.setter
     def is_recursive(self, value):
+        """ Specifies whether the model uses the subdirectories recursively or not."""
         self._is_recursive = value
         self._build_tree_model()
 
     @property
-    def root_node(self):
-        return self._root_node
+    def root_folder(self):
+        """ The Folder that is the root of the model."""
+        return self._root_folder
+
 
     @property
-    def all_nodes(self):
-        node_list = list()
-        for node_id_map in self._nodes_by_id:
-            node_list.append(self._nodes_by_id[node_id_map])
-        return node_list
-
-    @property
-    def filtered_nodes(self):
+    def nodes(self):
+        """ Returns a flat list of all nodes in the filesystem model (filtered nodes excluded)."""
         node_list = list()
         for node_id_map in self._nodes_by_id:
             current_node = self._nodes_by_id[node_id_map]
@@ -62,11 +55,19 @@ class Model(object):
                 node_list.append(current_node)
         return node_list
 
+    @property
+    def _all_nodes(self):
+        """ Returns a flat list of all nodes in the filesystem model (included filtered nodes)."""
+        node_list = list()
+        for node_id_map in self._nodes_by_id:
+            node_list.append(self._nodes_by_id[node_id_map])
+        return node_list
+
     def _new_id(self):
         return ++self._current_id
 
     def _build_tree_model(self):
-        self._scan_file_system(self._root_node)
+        self._scan_file_system(self._root_folder)
 
     def _scan_file_system(self, tree_node):
         """Creates the files system hierarchy without any filters, except recursion."""
@@ -113,10 +114,54 @@ class Model(object):
     #     else:
     #         return None
 
-    # def generate_files_system_view(self, show_hidden_files, files_type,
+    # def generate_files_system_view(self, discard_hidden_files, files_type,
     #                                name_filter, sorting_criteria,
     #                                reverse_order):
     #     files_system_view = FileSystemView(
-    #         self.root_tree_node, show_hidden_files, files_type, name_filter,
+    #         self.root_tree_node, discard_hidden_files, files_type, name_filter,
     #         sorting_criteria, reverse_order)
     #     return files_system_view
+
+
+class Filter(object):
+    def __init__(self):
+        """ A filter that allows a filesystem model to discard specific files based on its properties."""
+        self._discard_hidden_files = True
+        self._node_type = NodeType.all
+        self._file_type = Types.all
+        self._search_pattern = ""
+
+    @property
+    def discard_hidden_files(self):
+        """ Specifies whether the hidden files must be used or not."""
+        return self._discard_hidden_files
+
+    @discard_hidden_files.setter
+    def discard_hidden_files(self, value):
+        self._discard_hidden_files = value
+
+    @property
+    def node_type(self):
+        return self._node_type
+
+    @node_type.setter
+    def node_type(self, value):
+        self._node_type = value
+
+    @property
+    def file_type(self):
+        self._file_type
+
+    @file_type.setter
+    def file_type(self, value):
+        self._file_type = value
+
+    @property
+    def search_pattern(self):
+        """ The pattern used to search only specific file nodes."""
+        self._search_pattern
+
+    @search_pattern.setter
+    def search_pattern(self, value):
+        """ Specify a pattern used to select only specific file nodes."""
+        self._search_pattern = value
