@@ -5,6 +5,7 @@ import shutil
 import abc
 import uuid
 import re
+from enum import Enum
 
 
 class Node(object):
@@ -65,7 +66,7 @@ class Node(object):
         """Gets the basename of the node (extension excluded)."""
         return self._basename
 
-    @new_name.setter
+    @basename.setter
     def basename(self, value):
         """Sets a new basename. (extension not affected.)"""
         self._basename = value
@@ -145,3 +146,9 @@ class Node(object):
 
     def reset(self):
         self._move(self.path, self._backup_path)
+
+
+class NodeType(Enum):
+    all = 0
+    folder = 1,
+    file = 2

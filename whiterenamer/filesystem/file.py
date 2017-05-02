@@ -83,11 +83,3 @@ class Types(Enum):
     video = 8
     other = 16
     all = 31
-
-
-class NodeType(Enum):
-    all = 0
-    folder = 1,
-    file = 2
-
-

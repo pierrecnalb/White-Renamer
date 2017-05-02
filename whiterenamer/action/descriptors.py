@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 
 from action_input import ActionInput
-from target import Target
-from actions import *
-from input_type import InputType
+from .target import Targets
+from .actions import *
+from .input_type import InputType
 import inspect
+
 
 class ActionDescriptor(object):
     """
@@ -23,7 +24,8 @@ class ActionDescriptor(object):
         self._inputs = dict()
         target_input = ActionInput("target", InputType.target)
         target_input.is_visible = False
-        target_input.documentation = """Specifies what kind of filesystem entity (file, folder, extension) the action should be applied."""
+        target_input.documentation = """ Specifies what kind of filesystem entity
+            (file, folder, extension) the action should be applied."""
         self._inputs["target"] = target_input
         range_input = ActionInput("string_range", InputType.range)
         range_input.is_visible = False
@@ -34,7 +36,7 @@ class ActionDescriptor(object):
         Negative numbers can be used to start from the end.
         """
         self._inputs["string_range"] = range_input
-        self._target_flags = Target.filename | Target.foldername | Target.extension
+        self._target_flags = Targets.filename | Targets.foldername | Targets.extension
         self._group = None
         self._documentation = ""
 
@@ -86,13 +88,11 @@ class ActionDescriptor(object):
             try:
                 input_ = self._inputs[keyword_argument]
                 if input_.is_readonly:
-                    raise Exception(
-                        "The argument {0} is readonly and cannot be changed.".
-                        format(keyword_argument))
+                    raise Exception("The argument {0} is readonly and cannot be changed.".format(
+                        keyword_argument))
             except KeyError:
-                raise KeyError(
-                    "The action {0} does not contain a {1} argument.".format(
-                        self._class.name, keyword_argument))
+                raise KeyError("The action {0} does not contain a {1} argument.".format(
+                    self._class.name, keyword_argument))
 
     def create_action(self, **keyword_arguments):
         self._verify_arguments(**keyword_arguments)
@@ -146,13 +146,12 @@ class Delete(ActionDescriptor):
 class TitleCase(ActionDescriptor):
     def __init__(self):
         super().__init__("Titlecase", TitleCaseAction)
-        is_first_letter_uppercase_input = ActionInput(
-            "is_first_letter_uppercase", InputType.boolean)
+        is_first_letter_uppercase_input = ActionInput("is_first_letter_uppercase",
+                                                      InputType.boolean)
         is_first_letter_uppercase_input.caption = "First Letter"
         is_first_letter_uppercase_input.documentation = "Specifies whether the first letter should be capitalized or not."
         self._add_input(is_first_letter_uppercase_input)
-        special_characters_input = ActionInput("special_characters",
-                                               InputType.string)
+        special_characters_input = ActionInput("special_characters", InputType.string)
         special_characters_input.caption = "And After"
         special_characters_input.documentation = "A list of symbols after which the letters are capitalized."
         self._add_input(special_characters_input)
@@ -186,8 +185,7 @@ class FolderName(ActionDescriptor):
 class FileDate(ActionDescriptor):
     def __init__(self):
         super().__init__("Date", DateAction)
-        is_modified_date_input = ActionInput("is_modified_date",
-                                             InputType.boolean)
+        is_modified_date_input = ActionInput("is_modified_date", InputType.boolean)
         is_modified_date_input.caption = "Modified"
         is_modified_date_input.documentation = "Specifies whether the modified or the created date is used."
 
@@ -398,6 +396,7 @@ class ActionDescriptorGroup(object):
         """override string representation of the class"""
         return self.name
 
+
 class InputType(Enum):
     boolean = 0
     string = 1
@@ -469,4 +468,3 @@ class ActionInput(object):
     @documentation.setter
     def documentation(self, value):
         self._documentation = value
-

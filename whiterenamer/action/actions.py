@@ -5,17 +5,14 @@ import re
 import abc
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
-from enum import Enum
-from scope import Target, StringRange, Tokenizer
+from .scope import Target, StringRange, Tokenizer
 from ..filesystem import File, Folder
-
 
 
 class Action(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, target=Target.filename,
-                 string_range=StringRange(0, None)):
+    def __init__(self, target=Target.filename, string_range=StringRange(0, None)):
         """ An abstract action that modifies the name of a given filesystem node
 
         Args:
@@ -62,11 +59,9 @@ class Action(object):
         works with the current filesystem node.
         """
         if (isinstance(filesystem_node, File)):
-            if (self._target is Target.filename or
-                self._target is Target.extension):
+            if (self._target is Target.filename or self._target is Target.extension):
                 return True
-        if (self._target is Target.foldername and
-            not isinstance(filesystem_node, Folder)):
+        if (self._target is Target.foldername and not isinstance(filesystem_node, Folder)):
             return True
         return False
 
@@ -91,10 +86,8 @@ class Action(object):
         original_name = self._get_original_name(filesystem_node)
         tokenizer = Tokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
-        modified_substring = self._get_modified_substring(filesystem_node,
-                                                          original_substring)
-        new_name = (
-            tokenizer.first_token + modified_substring + tokenizer.last_token)
+        modified_substring = self._get_modified_substring(filesystem_node, original_substring)
+        new_name = (tokenizer.first_token + modified_substring + tokenizer.last_token)
         if (self._target is Target.extension):
             filesystem_node.new_extension += new_name
         else:
@@ -181,8 +174,7 @@ class TitleCaseAction(Action):
 
     def _get_modified_substring(self, filesystem_node, original_substring):
         decomposed_name = self._get_decomposed_name(original_substring)
-        for special_character_index in self._get_special_character_indices(
-                original_substring):
+        for special_character_index in self._get_special_character_indices(original_substring):
             if special_character_index < len(decomposed_name):
                 decomposed_name[special_character_index + 1] = decomposed_name[
                     special_character_index + 1].upper()
@@ -193,8 +185,7 @@ class TitleCaseAction(Action):
 
 
 class UpperCaseAction(Action):
-    def __init__(self, target=Target.filename,
-                 string_range=StringRange(0, None)):
+    def __init__(self, target=Target.filename, string_range=StringRange(0, None)):
         """Uppercases the original name.
 
         Args:
@@ -210,8 +201,7 @@ class UpperCaseAction(Action):
 
 
 class LowerCaseAction(Action):
-    def __init__(self, target=Target.filename,
-                 string_range=StringRange(0, None)):
+    def __init__(self, target=Target.filename, string_range=StringRange(0, None)):
         """Lowercases the original name.
 
         Args:
@@ -227,10 +217,7 @@ class LowerCaseAction(Action):
 
 
 class OverwriteAction(Action):
-    def __init__(self,
-                 custom_name,
-                 target=Target.filename,
-                 string_range=StringRange(0, None)):
+    def __init__(self, custom_name, target=Target.filename, string_range=StringRange(0, None)):
         """Replace the given portion of the filesystem node with a custom name.
 
         Args:
@@ -261,8 +248,7 @@ class DeleteAction(Action):
 
 
 class FolderNameAction(Action):
-    def __init__(self, target=Target.filename,
-                 string_range=StringRange(0, None)):
+    def __init__(self, target=Target.filename, string_range=StringRange(0, None)):
         """Uses the parent foldername as the new name.
 
         Args:

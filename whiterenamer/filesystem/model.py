@@ -3,18 +3,18 @@
 import os
 from .folder import Folder
 from .file import File
+import Filter
 
 
 class Model(object):
-    def __init__(self, root_path, is_recursive=False,
-                 file_filter=Filter()):
-    """ Represents a part or the full filesystem structure, starting from the given root node.
+    def __init__(self, root_path, is_recursive=False, file_filter=Filter()):
+        """ Represents a part or the full filesystem structure, starting from the given root node.
 
-    Args:
-        root_path (string): The full path of the root node.
-        is_recursive (bool): Specifies whether the model uses the subdirectories recursively or not.
-        file_filter (Filter, optional): An optional filter to discard some specific files.
-    """
+        Args:
+            root_path (string): The full path of the root node.
+            is_recursive (bool): Specifies whether the model uses the subdirectories recursively.
+            file_filter (Filter, optional): An optional filter to discard some specific files.
+        """
         self._current_id = 0
         self._nodes_by_id = dict()
         self._root_folder = Folder(self._current_id, root_path, None)
@@ -43,7 +43,6 @@ class Model(object):
     def root_folder(self):
         """ The Folder that is the root of the model."""
         return self._root_folder
-
 
     @property
     def nodes(self):

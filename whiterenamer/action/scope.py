@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
+from enum import Enum
 
-class Target(Enum):
-    """Specifies a filesystem node scope."""
+
+class Targets(Enum):
+    """Specifies the filesystem node scope."""
     foldername = 1
     filename = 2
     extension = 4
