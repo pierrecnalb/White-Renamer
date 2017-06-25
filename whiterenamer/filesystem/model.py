@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
 import os
+from .filter import Filter
 from .folder import Folder
 from .file import File
-import Filter
 
 
-class Model(object):
-    def __init__(self, root_path, is_recursive=False, file_filter=Filter()):
+class FileSystemModel(object):
+    def __init__(self, root_path, is_recursive=False, file_filter=None):
         """ Represents a part or the full filesystem structure, starting from the given root node.
 
         Args:
@@ -17,14 +17,14 @@ class Model(object):
         """
         self._current_id = 0
         self._nodes_by_id = dict()
-        self._root_folder = Folder(self._current_id, root_path, None)
+        self._root_folder = Folder(root_path, None, self)
         self._nodes_by_id[self._current_id] = self._root_folder
         self._is_recursive = is_recursive
-        self._file_filter = file_filter
+        self._file_filter = file_filter if file_filter is not None else Filter()
         self._build_tree_model()
 
     @property
-    def filter(self):
+    def file_filter(self):
         """ The Filter used in this model to discard some files."""
         return self._file_filter
 
@@ -44,19 +44,24 @@ class Model(object):
         """ The Folder that is the root of the model."""
         return self._root_folder
 
-    @property
-    def nodes(self):
-        """ Returns a flat list of all nodes in the filesystem model (filtered nodes excluded)."""
-        node_list = list()
-        for node_id_map in self._nodes_by_id:
-            current_node = self._nodes_by_id[node_id_map]
-            if current_node.is_filtered(self._file_filter):
-                node_list.append(current_node)
-        return node_list
+    def filtered_nodes(self):
+        """ Returns a flat list of all nodes in the filesystem model (filtered nodes only)."""
+        remaining_nodes = list(self.root_folder.children)
+        while len(remaining_nodes) > 0:
+            node = remaining_nodes.pop()
+            if(isinstance(node, Folder) and len(node.children)):
+                remaining_nodes.append(node.children)
+            yield node
+
+    def find_node_by_path(self, path):
+        for node in self._filtered_nodes():
+            if node._backup_path is path:
+                return node
+        return None
 
     @property
     def _all_nodes(self):
-        """ Returns a flat list of all nodes in the filesystem model (included filtered nodes)."""
+        """ Returns a flat list of all nodes in the filesystem model (both filtered and unfiltered)."""
         node_list = list()
         for node_id_map in self._nodes_by_id:
             node_list.append(self._nodes_by_id[node_id_map])
@@ -76,7 +81,7 @@ class Model(object):
             child_path = os.path.join(path, child)
             if os.path.isdir(child_path):
                 # add folder
-                folder_node = Folder(self._new_id(), child_path, tree_node)
+                folder_node = Folder(child_path, tree_node, self)
                 self._nodes_by_id[self._current_id] = folder_node
                 if (not self.is_recursive):
                     continue
@@ -84,7 +89,7 @@ class Model(object):
                     self._scan_file_system(folder_node)
             else:
                 # add file
-                file_node = File(self._new_id(), child_path, tree_node)
+                file_node = File(child_path, tree_node, self)
                 self._nodes_by_id[self._current_id] = file_node
 
     # def natural_sort(self, tree_node):
@@ -120,47 +125,3 @@ class Model(object):
     #         self.root_tree_node, discard_hidden_files, files_type, name_filter,
     #         sorting_criteria, reverse_order)
     #     return files_system_view
-
-
-class Filter(object):
-    def __init__(self):
-        """ A filter that allows a filesystem model to discard specific files based on its properties."""
-        self._discard_hidden_files = True
-        self._node_type = NodeType.all
-        self._file_type = Types.all
-        self._search_pattern = ""
-
-    @property
-    def discard_hidden_files(self):
-        """ Specifies whether the hidden files must be used or not."""
-        return self._discard_hidden_files
-
-    @discard_hidden_files.setter
-    def discard_hidden_files(self, value):
-        self._discard_hidden_files = value
-
-    @property
-    def node_type(self):
-        return self._node_type
-
-    @node_type.setter
-    def node_type(self, value):
-        self._node_type = value
-
-    @property
-    def file_type(self):
-        self._file_type
-
-    @file_type.setter
-    def file_type(self, value):
-        self._file_type = value
-
-    @property
-    def search_pattern(self):
-        """ The pattern used to search only specific file nodes."""
-        self._search_pattern
-
-    @search_pattern.setter
-    def search_pattern(self, value):
-        """ Specify a pattern used to select only specific file nodes."""
-        self._search_pattern = value

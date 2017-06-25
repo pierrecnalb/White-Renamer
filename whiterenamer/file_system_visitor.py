@@ -22,9 +22,9 @@ class FolderActionVisitor(FileSystemActionVisitor):
     def visit(self, file_system_tree_node):
         if(not isinstance(file_system_tree_node, Folder)):
             return
-        modified_basename = ""
+        basename = ""
         for action in self:
-            modified_basename += action.execute(file_system_tree_node, RenamingType.basename)
+            basename += action.execute(file_system_tree_node, RenamingType.basename)
 
 
 class FileActionVisitor(FileSystemActionVisitor):
@@ -35,10 +35,10 @@ class FileActionVisitor(FileSystemActionVisitor):
     def visit(self, file_system_tree_node):
         if(not isinstance(file_system_tree_node, File)):
             return
-        modified_basename = ""
+        basename = ""
         for action in self:
-            modified_basename += action.execute(file_system_tree_node, RenamingType.basename)
-            file_system_tree_node.basename = modified_basename
+            basename += action.execute(file_system_tree_node, RenamingType.basename)
+            file_system_tree_node.basename = basename
 
 
 class ExtensionActionVisitor(FileSystemActionVisitor):

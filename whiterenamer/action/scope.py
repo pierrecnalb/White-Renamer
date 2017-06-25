@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-from enum import Enum
+from ..enummask import EnumMask
 
 
-class Targets(Enum):
+class Targets(EnumMask):
     """Specifies the filesystem node scope."""
     foldername = 1
     filename = 2
@@ -43,7 +43,7 @@ class Tokenizer(object):
 
         Args:
             string (string): The string to tokenize.
-            string_range (StringRange): The range used to define the portion of the string that should be tokenized.
+            string_range (StringRange): The range used to define the token of the string that should be tokenized.
         """
         self._string = string
         start = string_range.start
@@ -76,4 +76,4 @@ class Tokenizer(object):
 
     @property
     def last_token(self):
-        return self._last_portion
+        return self._last_token

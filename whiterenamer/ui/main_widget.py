@@ -45,51 +45,51 @@ class MainWidget(QWidget):
         original_name_inputs = []
         case_change_inputs = []
         first_letter_inputs = []
-        first_letter_inputs.append(action_manager.ActionInput(
+        first_letter_inputs.append(action_manager.ActionParameterDescriptor(
             'first_letter', self.tr('First Letter'), "checkable", True))
-        first_letter_inputs.append(action_manager.ActionInput(
+        first_letter_inputs.append(action_manager.ActionParameterDescriptor(
             'after_symbols', self.tr('And After'), str, "- _"))
         uppercase_inputs = []
         lowercasecase_inputs = []
         character_replacement_inputs = []
-        character_replacement_inputs.append(action_manager.ActionInput(
+        character_replacement_inputs.append(action_manager.ActionParameterDescriptor(
             'old_value', self.tr('Replace'), str, ""))
-        character_replacement_inputs.append(action_manager.ActionInput(
+        character_replacement_inputs.append(action_manager.ActionParameterDescriptor(
             'new_char', self.tr('With'), str, ""))
-        character_replacement_inputs.append(action_manager.ActionInput(
+        character_replacement_inputs.append(action_manager.ActionParameterDescriptor(
             'regex', self.tr('Regex'), "checkable", False))
         character_insertion_inputs = []
-        character_insertion_inputs.append(action_manager.ActionInput(
+        character_insertion_inputs.append(action_manager.ActionParameterDescriptor(
             'new_char', self.tr('Insert'), str, ""))
-        character_insertion_inputs.append(action_manager.ActionInput(
+        character_insertion_inputs.append(action_manager.ActionParameterDescriptor(
             'index', self.tr('At Position'), int, 0))
         character_deletion_inputs = []
-        character_deletion_inputs.append(action_manager.ActionInput(
+        character_deletion_inputs.append(action_manager.ActionParameterDescriptor(
             'starting_position', self.tr('From'), int, 0))
-        character_deletion_inputs.append(action_manager.ActionInput(
+        character_deletion_inputs.append(action_manager.ActionParameterDescriptor(
             'ending_position', self.tr('To'), int, 1))
         custom_name_inputs = []
-        custom_name_inputs.append(action_manager.ActionInput(
+        custom_name_inputs.append(action_manager.ActionParameterDescriptor(
             'new_name', self.tr('New Name'), str, ""))
         counter_inputs = []
-        counter_inputs.append(action_manager.ActionInput(
+        counter_inputs.append(action_manager.ActionParameterDescriptor(
             'start_index', self.tr('Start At'), int, 0))
-        counter_inputs.append(action_manager.ActionInput('increment', self.tr(
+        counter_inputs.append(action_manager.ActionParameterDescriptor('increment', self.tr(
             'Increment'), int, 1))
-        counter_inputs.append(action_manager.ActionInput(
+        counter_inputs.append(action_manager.ActionParameterDescriptor(
             'digit_number', self.tr('Number of Digit'), int, 1))
         date_inputs = []
-        date_inputs.append(action_manager.ActionInput(
+        date_inputs.append(action_manager.ActionParameterDescriptor(
             'is_modified_date', self.tr('Modified'), bool, False))
-        date_inputs.append(action_manager.ActionInput(
+        date_inputs.append(action_manager.ActionParameterDescriptor(
             'is_created_date', self.tr('Created'), bool, True))
         date_inputs.append(
-            action_manager.ActionInput('format_display', self.tr('Format'),
+            action_manager.ActionParameterDescriptor('format_display', self.tr('Format'),
                                        str, "%Y-%m-%d %H:%M:%S (%A %B)"))
         foldername_inputs = []
         image_metadata_inputs = []
         image_date_time_original = []
-        image_date_time_original.append(action_manager.ActionInput(
+        image_date_time_original.append(action_manager.ActionParameterDescriptor(
             'time_format', self.tr('Format'), str, "%Y-%m-%d %H:%M:%S"))
 
         image_f_number = []

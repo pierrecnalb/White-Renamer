@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from . import renamer
+from .renamer import Renamer
 
 # from . import model
 

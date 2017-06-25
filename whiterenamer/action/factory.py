@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from action_descriptor import ActionDescriptor
+from .descriptors import ActionDescriptor
 
 
 class ActionFactory(object):

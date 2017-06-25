@@ -19,12 +19,12 @@
 import re 
 
 
-class FilesystemNodeView(object):
+class FileSystemNodeView(object):
     """
-    Represents a portion of the FilesystemNode depending on filters chosen by the users.
+    Represents a portion of the FileSystemNode depending on filters chosen by the users.
     Parameters:
         --file_system_tree_node: original filesystemtreenode
-        --rank: integer that represents the position of the current file/folder in the list of FilesystemNode children.
+        --rank: integer that represents the position of the current file/folder in the list of FileSystemNode children.
     """
     def __init__(self, file_system_tree_node, rank):
         self._rank = rank
@@ -142,7 +142,7 @@ class FileSystemView(object):
         self.name_filter = name_filter
         self.sorting_criteria = sorting_criteria
         self.reverse_order = reverse_order
-        self.root_tree_node_view = FilesystemNodeView(root_tree_node, 0)
+        self.root_tree_node_view = FileSystemNodeView(root_tree_node, 0)
         self.filter_files(root_tree_node, self.root_tree_node_view)
 
     def filter_files(self, tree_node, tree_node_view):
@@ -157,7 +157,7 @@ class FileSystemView(object):
             else:
                 rank_file +=1
                 rank = rank_file
-            tree_node_child_view = FilesystemNodeView(tree_node_child, rank)
+            tree_node_child_view = FileSystemNodeView(tree_node_child, rank)
             tree_node_view.add_children(tree_node_child_view)
             if (tree_node_child.is_folder):
                 self.filter_files(tree_node_child, tree_node_child_view)

@@ -1,70 +1,38 @@
 #!/usr/bin/python3
 
 import os
-from enum import Enum
-from .node import Node
+from .node import FileSystemNode
+from ..enummask import EnumMask
 
 
-class File(Node):
-    def __init__(self, unique_id, path, parent_node=None):
+class File(FileSystemNode):
+    def __init__(self, path, parent_node, model):
         """ Describes a file in the filesystem.
 
         Args:
-            unique_id (int): An integer representing the id of the node.
             path (string): The full path of the node.
-            parent (Node, optional): The directory node containing this node.
+            parent (FileSystemNode, optional): The directory node containing this node.
+            model (FileSystemModel): The FileSystemModel in which this node belongs to.
         """
-        super().__init__(unique_id, path, parent_node)
+        super().__init__(path, parent_node, model)
         self._set_file_type()
 
     @property
     def file_type(self):
         return self._file_type
 
-    @property
-    def extension(self):
-        return self._extension
-
-    @property
-    def new_extension(self):
-        return self._new_extension
-
-    @new_extension.setter
-    def new_extension(self, value):
-        self._new_extension = value
-
-    def _get_new_path(self):
-        """Since a parent folder may have been renamed during the renaming process,
-        the original path to the current node may not be correct anymore.
-        We need to get back to the parent path that should have been reset if renamed."""
-        return super()._get_new_path() + "." + self.new_extension
-
-    @property
-    def path(self):
-        """ The full path of this file (extension included).."""
-        return super().path + "." + self._extension
-
-    def _set_path(self, path):
-        (pathname, extension) = os.path.splitext(path)
-        super()._set_path(pathname)  # Change path and basename.
-        self._extension = extension[1:]  # remove dot
-        self._new_extension = ""
-
     def _set_file_type(self):
-        music_extensions = [
-            '.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4'
-        ]
+        music_extensions = ['.flac', '.mp3', '.m4a', '.ogg', '.wma', '.m3a', '.mp4']
         image_extensions = [
-            '.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im',
-            '.jfif', '.j2p', '.jpx', '.pcx', '.ico', '.icns', '.psd', '.nef',
-            'cr2', 'pef'
+            '.jpg', '.jpeg', '.tif', '.png', '.gif', '.bmp', '.eps', '.im', '.jfif', '.j2p', '.jpx',
+            '.pcx', '.ico', '.icns', '.psd', '.nef', 'cr2', 'pef'
         ]
-        if (self._extension in music_extensions):
-            self._file_type = Types.music
-        if (self._extension in image_extensions):
-            self._file_type = Types.image
+        if (self.name.extension in music_extensions):
+            self._file_type = FileTypes.music
+        if (self.name.extension in image_extensions):
+            self._file_type = FileTypes.image
         else:
-            self._file_type = Types.normal
+            self._file_type = FileTypes.document
 
     def is_filtered(self, file_filter):
         if super().is_filtered(file_filter):
@@ -76,10 +44,10 @@ class File(Node):
         return False
 
 
-class Types(Enum):
-    document = 1
-    music = 2
-    image = 4
-    video = 8
-    other = 16
-    all = 31
+class FileTypes(EnumMask):
+    document = 0
+    music = 1
+    image = 2
+    video = 4
+    other = 8
+    all = document | music | image | video | other

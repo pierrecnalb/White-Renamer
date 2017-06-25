@@ -6,70 +6,73 @@ import abc
 import uuid
 import re
 from enum import Enum
+from name import Name
 
 
-class Node(object):
+class FileSystemNode(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, unique_id, path, parent=None):
+    def __init__(self, path, parent, model):
         """ An abstract filesystem node (Base class for a file or a directory.)
 
         Args:
-            unique_id (int): An integer representing the id of the node.
             path (string): The full path of the node.
-            parent (Node, optional): The directory node containing this node.
+            parent (Node): The directory node containing this node.
+
+            model (FileSystemModel): The FileSystemModel in which this node belongs to.
         """
-        self._unique_id = unique_id
+        self._model = model
+        self._id = self._model._new_id()
         self._parent = parent
         if parent is not None:
             parent.add_child(self)
-        self._set_path(path)
         self._backup_path = path
+        self._original_name = Name(path)
+        self._modified_name = Name(path)
         self._size = os.path.getsize(path)  # return 0 when folders.
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
         self._is_filtered = False
-        self._new_name = ""
 
     def __repr__(self):
         """Override string representation of the class."""
-        return self._name
+        return self._original_name.fullname
 
     @property
-    def unique_id(self):
+    def id(self):
         """int: The id of the node."""
-        return self._unique_id
+        return self._id
 
     @property
-    def path(self):
-        """string: The full path of the node."""
-        return self._path
-
-    def _set_path(self, path):
-        """Sets the path. This will reset the changes made to the name."""
-        self._path = path
-        self._set_name(path)
-
-    def _set_basename(self, path):
-        (_, basename) = os.path.split(self._path)
-        self._original_basename = basename
-        self._basename = ""
-        self._is_hidden = basename.startswith('.')
+    def original_name(self):
+        self._original_name
 
     @property
-    def original_basename(self):
-        """Gets the unmodified basename of the node (extension excluded)."""
-        return self._original_basename
+    def modified_name(self):
+        self._modified_name
 
     @property
-    def basename(self):
-        """Gets the basename of the node (extension excluded)."""
-        return self._basename
+    def directory_path(self):
+        """Since a parent folder may have been renamed during the renaming process,
+        the original path to the current node may not be correct anymore.
+        We need to get back to the parent path that should have been reset
+        if renamed.
+        """
+        node_name_stack = []
+        node = self
+        while node.parent is not None:
+            node = node.parent
+            node_name_stack.insert(0, node.name.fullname)
+        (path_before_root, _) = os.path.split(node._path)
+        return os.path.join(path_before_root, *node_name_stack)
 
-    @basename.setter
-    def basename(self, value):
-        """Sets a new basename. (extension not affected.)"""
-        self._basename = value
+    @property
+    def original_path(self):
+        return os.path.join(self.directory_path, self.original_name.fullname)
+
+    @property
+    def modified_path(self):
+        return os.path.join(self.directory_path, self.modified_name.fullname)
 
     @property
     def parent(self):
@@ -89,7 +92,7 @@ class Node(object):
 
     @property
     def is_hidden(self):
-        return self._is_hidden
+        return self.name.basename.startswith('.')
 
     @property
     def is_folder(self):
@@ -98,33 +101,26 @@ class Node(object):
     def is_filtered(self, file_filter):
         if file_filter.discard_hidden_files is not self._is_hidden:
             return True
-        if re.match(file_filter.search_pattern, self._name):
+        if re.match(file_filter.search_pattern, self._basename):
             return True
         return False
 
-    def _get_new_path(self):
-        """Since a parent folder may have been renamed during the renaming process,
-        the original path to the current node may not be correct anymore.
-        We need to get back to the parent path that should have been reset
-        if renamed.
-        """
-        return os.path.join(self.parent.path, self.new_name)
 
+
+
+            // TODO: il faut vérifier si le noeud qui a le même nom va être renommer plus tard.
+            // Si oui, suivre la même philosophie.
+            // Si non, lever une exception.
     def _move(self, original_path, modified_path):
+        if(original_path is modified_path):
+            return
         try:
             # verify if the chosen parameters do not lead to naming conflicts.
-            if self.parent.has_conflicting_children_name():
-                raise Exception("""Naming conflict error.
-                Several items in the same folder have the same name.
-                This may cause data loss.
-                Please choose new options to avoid duplicates.""")
-            new_path = self._get_new_path()
+            self._check_children_name_conflict()
             # find if new name is already taken by another file.
-            if os.path.exists(new_path):
-                # get tree node with the same name.
-                conflicting_node = self.parent.find_child_by_path(new_path)
-                # verify if the conflicting tree node
-                # is not in fact the same tree node. (i.e. no changes)
+            if os.path.exists(modified_path):
+                # Verify if a node has 
+                conflicting_node = self.parent.find_child_by_path(modified_path)
                 if conflicting_node is not None:
                     if self.unique_id != conflicting_node.unique_id:
                         # rename conflicting tree node
@@ -137,18 +133,23 @@ class Node(object):
             # rename current node.
             shutil.move(original_path, modified_path)
             # apply new path to the tree nodes, so that child nodes will stil have a valid path.
-            self._path = self._set_path(new_path)
+            self._original_path = self._set_path(new_path)
         except IOError as e:
             raise Exception(str(e))
 
     def rename(self):
-        self._move(self.path, self._get_new_path())
+        if(self.original_path is self.modified_path):
+            return
+        try:
+            shutil.move(original_path, modified_path)
+        except IOError as e:
+            raise Exception(str(e))
 
     def reset(self):
-        self._move(self.path, self._backup_path)
+        path = os.path.join(self.directory_path, self.original_name.fullname)
+        self._move(path, self._backup_path)
 
 
-class NodeType(Enum):
-    all = 0
-    folder = 1,
+class FileSystemNodeType(Enum):
+    folder = 1
     file = 2

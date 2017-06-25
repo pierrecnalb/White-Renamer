@@ -22,7 +22,7 @@ class TestCases(unittest.TestCase):
         # self.apply_actions(action_descriptor, action_args, 'file', 'file')
         # self.apply_actions(action_descriptor, action_args, 'extension','file')
         # self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        # self.compare_with_model_file(TestCasesModel.Main_OriginalName)
+        # self.compare_with_model_file(TestCasesFileSystemModel.Main_OriginalName)
 
     def compare_with_model_file(self, model_file):
         self.assertCountEqual(self.files_list, model_file)

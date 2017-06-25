@@ -44,7 +44,7 @@ class ActionDescriptor(object):
     Describes the actions by names, inputs and classes.
     Parameters:
         --action_name: string that represents the name of the action.
-        --action_inputs: list of ActionInput that represents the inputs properties of the acion.
+        --action_inputs: list of ActionParameterDescriptor that represents the inputs properties of the acion.
         --action_class: string that represents the name of the class used for the action.
     """
 
@@ -58,7 +58,7 @@ class ActionDescriptor(object):
         return self.action_name
 
 
-class ActionInput(object):
+class ActionParameterDescriptor(object):
     """
     Describes the inputs properties of the action.
     Parameters:
@@ -69,12 +69,7 @@ class ActionInput(object):
         --optional_argument: gives the possibility to add an optional argument for storing data.
     """
 
-    def __init__(self,
-                 arg_name,
-                 arg_caption,
-                 arg_type,
-                 default_value,
-                 optional_argument=None):
+    def __init__(self, arg_name, arg_caption, arg_type, default_value, optional_argument=None):
         self.argument_name = arg_name
         self.argument_caption = arg_caption
         self.argument_type = arg_type
@@ -84,7 +79,7 @@ class ActionInput(object):
 
 class Action(object):
     """
-    Describes how the action is applied on the FilesystemNodes. This class
+    Describes how the action is applied on the FileSystemNodes. This class
     is inherited by all the specific actions.
     Parameters:
         --path_type: string that represents where the action will be applied.
@@ -104,16 +99,13 @@ class Action(object):
                 if (self.path_type == "folder"):
                     file_system_tree_node.modified_filedescriptor.foldername = self.call_on_path_part(
                         file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.
-                        foldername)
+                        file_system_tree_node.modified_filedescriptor.foldername)
                 elif (self.path_type == "suffix"):
                     file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(
-                        file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.suffix)
+                        file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
                 elif (self.path_type == "prefix"):
                     file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(
-                        file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.prefix)
+                        file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
                 elif (self.path_type == "extension"):
                     return file_system_tree_node
                 else:
@@ -127,17 +119,14 @@ class Action(object):
                         file_system_tree_node.modified_filedescriptor.filename)
                 elif (self.path_type == "suffix"):
                     file_system_tree_node.modified_filedescriptor.suffix = file_system_tree_node.modified_filedescriptor.suffix + self.call_on_path_part(
-                        file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.suffix)
+                        file_system_tree_node, file_system_tree_node.modified_filedescriptor.suffix)
                 elif (self.path_type == "prefix"):
                     file_system_tree_node.modified_filedescriptor.prefix = file_system_tree_node.modified_filedescriptor.prefix + self.call_on_path_part(
-                        file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.prefix)
+                        file_system_tree_node, file_system_tree_node.modified_filedescriptor.prefix)
                 elif (self.path_type == "extension"):
                     file_system_tree_node.modified_filedescriptor.extension = self.call_on_path_part(
                         file_system_tree_node,
-                        file_system_tree_node.modified_filedescriptor.
-                        extension)
+                        file_system_tree_node.modified_filedescriptor.extension)
                 else:
                     raise Exception("path_type not valid")
         return file_system_tree_node
@@ -277,10 +266,8 @@ class CharacterDeletionAction(Action):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         if self.starting_position > self.ending_position:
-            raise Exception(
-                "Starting position cannot be higher than ending position.")
-        return path_part[:self.starting_position] + path_part[
-            self.ending_position:]
+            raise Exception("Starting position cannot be higher than ending position.")
+        return path_part[:self.starting_position] + path_part[self.ending_position:]
 
 
 class CustomNameAction(Action):
@@ -301,8 +288,7 @@ class FolderNameUsageAction(Action):
         Action.__init__(self, path_type)
 
     def call_on_path_part(self, file_system_tree_node, path_part):
-        folder = file_system_tree_node.get_parent(
-        ).original_filedescriptor.basename
+        folder = file_system_tree_node.get_parent().original_filedescriptor.modified_basename
         return folder
 
 
@@ -327,10 +313,7 @@ class DateAction(Action):
     %p  locale's equivalent of either am or pm.
     """
 
-    def __init__(self,
-                 path_type,
-                 is_modified_date=False,
-                 is_created_date=True,
+    def __init__(self, path_type, is_modified_date=False, is_created_date=True,
                  format_display='%Y'):
         Action.__init__(self, path_type)
         self.is_modified_date = is_modified_date
@@ -386,8 +369,7 @@ class ImageDateTimeOriginal(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             localtime = strptime(exif_tag, "%Y:%m:%d %H:%M:%S")
             return strftime(self.time_format, localtime)
         except:
@@ -400,8 +382,7 @@ class ImageFNumber(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
             return path_part
@@ -413,8 +394,7 @@ class ImageExposureTime(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
             return path_part
@@ -426,8 +406,7 @@ class ImageISO(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
             return path_part
@@ -439,8 +418,7 @@ class ImageCameraModel(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return exif_tag
         except:
             return path_part
@@ -452,8 +430,7 @@ class ImageXDimension(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
             return path_part
@@ -465,8 +442,7 @@ class ImageYDimension(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0])
         except:
             return path_part
@@ -478,8 +454,7 @@ class ImageFocalLength(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return str(exif_tag[0].num / exif_tag[0].den)
         except:
             return path_part
@@ -491,8 +466,7 @@ class ImageArtist(GenericImageAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            exif_tag = self.get_exif_tag(
-                file_system_tree_node.get_original_path())
+            exif_tag = self.get_exif_tag(file_system_tree_node.get_original_path())
             return exif_tag
         except:
             return path_part
@@ -514,8 +488,7 @@ class MusicArtist(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
@@ -527,8 +500,7 @@ class MusicTitle(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
@@ -540,8 +512,7 @@ class MusicYear(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
@@ -553,8 +524,7 @@ class MusicAlbum(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
@@ -566,8 +536,7 @@ class MusicTrack(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
@@ -579,8 +548,7 @@ class MusicGenre(GenericMusicAction):
 
     def call_on_path_part(self, file_system_tree_node, path_part):
         try:
-            metadata_tag = self.get_metadata_tag(
-                file_system_tree_node.get_original_path())
+            metadata_tag = self.get_metadata_tag(file_system_tree_node.get_original_path())
             return metadata_tag
         except:
             return path_part
