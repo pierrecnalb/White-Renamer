@@ -14,7 +14,7 @@ class Folder(FileSystemNode):
             model (FileSystemModel): The FileSystemModel in which this node belongs to.
         """
         super().__init__(path, parent_node, model)
-        self._all_children = []
+        self._children = []
 
     @property
     def has_children(self):
@@ -22,29 +22,30 @@ class Folder(FileSystemNode):
         return self.children.length > 0
 
     def add_child(self, node):
-        self._all_children.append(node)
+        self._children.append(node)
         return node
 
     @property
     def children(self):
         """ Returns a list of the filtered children contained in this folder."""
-        return filter(lambda child: child.is_filtered(self._model.file_filter), self._all_children)
+        self._children
+
+    def remove_child(self, node):
+        """ Removes the given node from this folder."""
+        self._children.remove(node)
 
     def get_folder_children(self):
         return filter(
-            lambda child: isinstance(child, Folder) and child.is_filtered(self._model.file_filter),
-            self.children)
+            lambda child: isinstance(child, Folder), self.children)
 
     def get_files_children(self):
-        return filter(
-            lambda child: isinstance(child, File) and child.is_filtered(self._model.file_filter),
-            self.children)
+        return filter(lambda child: isinstance(child, File), self.children)
 
     def is_filtered(self, file_filter):
         if super().is_filtered(file_filter):
             return True
         if file_filter.files_only:
-            return True
+            return False
         return False
 
     def find_child_by_path(self, path):

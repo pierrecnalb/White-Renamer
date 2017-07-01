@@ -5,7 +5,7 @@ from .file import FileTypes
 
 
 class Filter(object):
-    def __init__(self):
+    def __init__(self, filesystem_model):
         """ A filter that allows a filesystem model
         to discard specific files based on its properties.
         """

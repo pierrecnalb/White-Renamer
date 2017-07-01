@@ -35,13 +35,13 @@ class File(FileSystemNode):
             self._file_type = FileTypes.document
 
     def is_filtered(self, file_filter):
-        if super().is_filtered(file_filter):
-            return True
+        if not super().is_filtered(file_filter):
+            return False
         if file_filter.folders_only:
-            return True
+            return False
         if file_filter.file_type is not self._file_type:
-            return True
-        return False
+            return False
+        return True
 
 
 class FileTypes(EnumMask):

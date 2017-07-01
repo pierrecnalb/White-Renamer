@@ -6,7 +6,7 @@ import abc
 import uuid
 import re
 from enum import Enum
-from name import Name
+from path import Path
 
 
 class FileSystemNode(object):
@@ -27,8 +27,8 @@ class FileSystemNode(object):
         if parent is not None:
             parent.add_child(self)
         self._backup_path = path
-        self._original_name = Name(path)
-        self._modified_name = Name(path)
+        self._original_name = Path(path)
+        self._modified_name = Path(path)
         self._size = os.path.getsize(path)  # return 0 when folders.
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
@@ -105,6 +105,11 @@ class FileSystemNode(object):
             return True
         return False
 
+    def remove(self):
+        """Remove the current node from the filesystem model"""
+        if self.parent is not None:
+            self.parent.remove_child(self)
+            self._model.remove(self)
 
 
 

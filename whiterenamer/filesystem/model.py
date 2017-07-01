@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
 import os
-from .filter import Filter
 from .folder import Folder
 from .file import File
+import copy
 
 
 class FileSystemModel(object):
-    def __init__(self, root_path, is_recursive=False, file_filter=None):
+    def __init__(self, root_path, is_recursive=False):
         """ Represents a part or the full filesystem structure, starting from the given root node.
 
         Args:
@@ -16,59 +16,51 @@ class FileSystemModel(object):
             file_filter (Filter, optional): An optional filter to discard some specific files.
         """
         self._current_id = 0
-        self._nodes_by_id = dict()
-        self._root_folder = Folder(root_path, None, self)
-        self._nodes_by_id[self._current_id] = self._root_folder
         self._is_recursive = is_recursive
-        self._file_filter = file_filter if file_filter is not None else Filter()
+        self._nodes_by_id = dict()
+        self._node_list = []
+        self._path_to_root = os.path.split(root_path)
+        self._root_folder = Folder(root_path, None, self)
+        self._register_node(self._root_folder)
         self._build_tree_model()
-
-    @property
-    def file_filter(self):
-        """ The Filter used in this model to discard some files."""
-        return self._file_filter
-
-    @property
-    def is_recursive(self):
-        """ Specifies whether the model uses the subdirectories recursively or not."""
-        return self._is_recursive
-
-    @is_recursive.setter
-    def is_recursive(self, value):
-        """ Specifies whether the model uses the subdirectories recursively or not."""
-        self._is_recursive = value
-        self._build_tree_model()
+        self._file_filter = None
 
     @property
     def root_folder(self):
         """ The Folder that is the root of the model."""
         return self._root_folder
 
-    def filtered_nodes(self):
-        """ Returns a flat list of all nodes in the filesystem model (filtered nodes only)."""
-        remaining_nodes = list(self.root_folder.children)
-        while len(remaining_nodes) > 0:
-            node = remaining_nodes.pop()
-            if(isinstance(node, Folder) and len(node.children)):
-                remaining_nodes.append(node.children)
-            yield node
+    @property
+    def is_recursive(self):
+        """ Specifies whether the model uses the subdirectories recursively or not."""
+        return self._is_recursive
+
+    @property
+    def nodes(self):
+        """ Returns a flat list of all nodes in the filesystem model (both filtered and unfiltered)."""
+        return list(self._nodes_by_id.values())
 
     def find_node_by_path(self, path):
-        for node in self._filtered_nodes():
+        for node in self.nodes:
             if node._backup_path is path:
                 return node
         return None
 
+    def remove(self, node):
+        """ Remove node from the model."""
+        del self._nodes_by_id[node.id]
+
     @property
-    def _all_nodes(self):
-        """ Returns a flat list of all nodes in the filesystem model (both filtered and unfiltered)."""
-        node_list = list()
-        for node_id_map in self._nodes_by_id:
-            node_list.append(self._nodes_by_id[node_id_map])
-        return node_list
+    def file_filter(self):
+        """ The Filter used in this model to discard some files."""
+        return self._file_filter
 
     def _new_id(self):
         return ++self._current_id
+
+    def _register_node(self, node):
+        self._nodes_by_id[self._current_id] = self._root_folder
+        self._node_list.append(self._root_folder)
 
     def _build_tree_model(self):
         self._scan_file_system(self._root_folder)
@@ -82,7 +74,7 @@ class FileSystemModel(object):
             if os.path.isdir(child_path):
                 # add folder
                 folder_node = Folder(child_path, tree_node, self)
-                self._nodes_by_id[self._current_id] = folder_node
+                self._register_node(folder_node)
                 if (not self.is_recursive):
                     continue
                 else:
@@ -90,7 +82,7 @@ class FileSystemModel(object):
             else:
                 # add file
                 file_node = File(child_path, tree_node, self)
-                self._nodes_by_id[self._current_id] = file_node
+                self._register_node(file_node)
 
     # def natural_sort(self, tree_node):
     #     """ Sorts the given iterable in the way that is expected.
@@ -125,3 +117,17 @@ class FileSystemModel(object):
     #         self.root_tree_node, discard_hidden_files, files_type, name_filter,
     #         sorting_criteria, reverse_order)
     #     return files_system_view
+
+
+class FilteredModel(FileSystemModel):
+    def __init__(self, filesystem_model, file_filter):
+        super().__init__(filesystem_model.root_path, filesystem_model.is_recursive)
+        model = copy.deepcopy(filesystem_model)
+        for node in model.nodes:
+            if not node.is_filtered(file_filter):
+                node.remove()
+
+    @property
+    def file_filter(self):
+        """ The Filter used in this model to discard some files."""
+        return self._file_filter

@@ -3,19 +3,23 @@
 import os
 import shutil
 import uuid
-from .filesystem.model import FileSystemModel
+from .filesystem.model import FileSystemModel, FilteredModel
 from .action.factory import ActionFactory
 
 
 class Renamer(object):
     def __init__(self, root_path, is_recursive=False, file_filter=None):
-        self._model = FileSystemModel(root_path, is_recursive, file_filter)
+        self._original_model = FileSystemModel(root_path, is_recursive)
+        self._filtered_model = FilteredModel(self._original_model, file_filter)
         self._action_collection = list()
         self._factory = ActionFactory()
 
     @property
     def filesystem_model(self):
-        return self._model
+        return self._filtered_model
+
+    def update_model(self, file_filter):
+        self._filtered_model = FileSystemModel(self._original_model, file_filter)
 
     @property
     def action_collection(self):
@@ -35,19 +39,19 @@ class Renamer(object):
         return self._action_collection.pop(index)
 
     def invoke_actions(self):
-        for filesystem_node in self._model.list_nodes():
+        for filesystem_node in self._filtered_model.list_nodes():
             for action in self.action_collection:
                 action.execute(filesystem_node)
 
     def batch_rename(self):
         self._verify_files_integrity()
-        unprocessed_files = list(self._model.root_folder.children)
-        for child in self._model.root_folder.children:
+        unprocessed_files = list(self._filtered_model.root_folder.children)
+        for child in self._filtered_model.root_folder.children:
             child.rename()
 
     def _verify_files_integrity(self):
         """ Performs various tests to be sure that the renaming operations are safe."""
-        unchecked_folders = list(self._model.root_folder)
+        unchecked_folders = list(self._original_model.root_folder)
         while len(unchecked_folders) > 0:
             folder = unchecked_folders.pop()
             folder._check_user_inputs()
@@ -68,7 +72,7 @@ class Renamer(object):
     def _check_conflicting_node(self):
         for child in self.filtered_nodes:
             if os.path.exists(child.modified_path):
-                conflicting_node = self._model.find_node_by_path(child.modified_path)
+                conflicting_node = self._filtered_model.find_node_by_path(child.modified_path)
                 if conflicting_node is None:
                     continue
                 else:
