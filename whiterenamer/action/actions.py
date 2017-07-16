@@ -58,6 +58,8 @@ class Action(object):
         Specifies whether the given target
         works with the current filesystem node.
         """
+        print("target=" + str(self._target))
+        print("nodetype=" + str(filesystem_node))
         if (isinstance(filesystem_node, File)):
             if (self._target is Targets.filename or self._target is Targets.extension):
                 return True
@@ -68,9 +70,9 @@ class Action(object):
     def _get_original_name(self, filesystem_node):
         original_name = ""
         if (self._target is Targets.filename or self._target is Targets.foldername):
-            original_name = filesystem_node.original_basename
+            original_name = filesystem_node.original_path.basename
         elif (self._target is Targets.extension):
-            original_name = filesystem_node.extension
+            original_name = filesystem_node.original_path.extension
         return original_name
 
     def execute(self, filesystem_node):
@@ -81,17 +83,17 @@ class Action(object):
             filesystem_node (FileSystemNode): The node upon which the name will change.
         """
         if (not self._is_target_valid(filesystem_node)):
-            raise Exception("Invalid target: \
-                it cannot be applied to the given filesystem node.")
+            # Invalid target: it cannot be applied to the given filesystem node.
+            return
         original_name = self._get_original_name(filesystem_node)
         tokenizer = Tokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
         modified_substring = self._get_modified_substring(filesystem_node, original_substring)
         new_name = (tokenizer.first_token + modified_substring + tokenizer.last_token)
         if (self._target is Targets.extension):
-            filesystem_node.new_extension += new_name
+            filesystem_node.modified_path.extension += new_name
         else:
-            filesystem_node.basename += new_name
+            filesystem_node.modified_path.basename += new_name
 
 
 class OriginalNameAction(Action):
@@ -358,7 +360,7 @@ class GenericImageAction(Action):
         self._target = Targets.filename
 
     def _get_exif_tag(self, filesystem_node):
-        file_path = filesystem_node.original_path
+        file_path = filesystem_node.original_path.absolute
         with open(file_path, 'rb') as f:
             tags = process_file(f, details=False, stop_tag=self.metadata)
             exif_tag = tags[self.metadata].values
@@ -564,7 +566,7 @@ class GenericMusicAction(Action):
         self._target = Targets.filename
 
     def _get_metadata_tag(self, filesystem_node):
-        file_path = filesystem_node.original_path
+        file_path = filesystem_node.original_path.absolute
         audio = EasyID3(file_path)
         return ', '.join(audio[self.metadata])
 

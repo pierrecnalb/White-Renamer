@@ -50,5 +50,5 @@ class Folder(FileSystemNode):
 
     def find_child_by_path(self, path):
         for child in self.children:
-            if child.original_path in path:
+            if child.original_path.absolute in path:
                 return child

@@ -19,7 +19,8 @@ class FileSystemModel(object):
         self._is_recursive = is_recursive
         self._nodes_by_id = dict()
         self._node_list = []
-        self._path_to_root = os.path.split(root_path)
+        print("path: "+ root_path)
+        self._path_to_root, _ = os.path.split(root_path)
         self._root_folder = Folder(root_path, None, self)
         self._register_node(self._root_folder)
         self._build_tree_model()
@@ -65,15 +66,15 @@ class FileSystemModel(object):
     def _build_tree_model(self):
         self._scan_file_system(self._root_folder)
 
-    def _scan_file_system(self, tree_node):
+    def _scan_file_system(self, node):
         """Creates the files system hierarchy without any filters, except recursion."""
-        path = tree_node.path
+        path = node.original_path.absolute
         children = os.listdir(path)
         for child in children:
             child_path = os.path.join(path, child)
             if os.path.isdir(child_path):
                 # add folder
-                folder_node = Folder(child_path, tree_node, self)
+                folder_node = Folder(child_path, node, self)
                 self._register_node(folder_node)
                 if (not self.is_recursive):
                     continue
@@ -81,32 +82,32 @@ class FileSystemModel(object):
                     self._scan_file_system(folder_node)
             else:
                 # add file
-                file_node = File(child_path, tree_node, self)
+                file_node = File(child_path, node, self)
                 self._register_node(file_node)
 
-    # def natural_sort(self, tree_node):
+    # def natural_sort(self, node):
     #     """ Sorts the given iterable in the way that is expected.
     #     """
-    #     filename = tree_node.original_filedescriptor.basename
+    #     filename = node.original_filedescriptor.basename
     #     convert = lambda text: int(text) if text.isdigit() else text
     #     alphanum_key = [convert(c) for c in re.split('([0-9]+)', filename)]
     #     return alphanum_key
 
-    # def get_sorting_key(self, tree_node):
+    # def get_sorting_key(self, node):
     #     """
     #     Criteria to sort the files.
     #     Parameters:
-    #         --tree_node: path to the specified file/folder.
+    #         --node: path to the specified file/folder.
     #         --sorting_criteria: string that specifies the sorting criteria. Default is 'name'. Possible values are : name, size, creation_date and modified_date.
     #     """
     #     if self.sorting_criteria == "size":
-    #         return tree_node.size
+    #         return node.size
     #     elif self.sorting_criteria == "modified_date":
-    #         return tree_node.modified_date
+    #         return node.modified_date
     #     elif self.sorting_criteria == "creation_date":
-    #         return tree_node.created_date
+    #         return node.created_date
     #     elif self.sorting_criteria == "name":
-    #         return self.natural_sort(tree_node)
+    #         return self.natural_sort(node)
     #     else:
     #         return None
 
@@ -121,13 +122,18 @@ class FileSystemModel(object):
 
 class FilteredModel(FileSystemModel):
     def __init__(self, filesystem_model, file_filter):
-        super().__init__(filesystem_model.root_path, filesystem_model.is_recursive)
-        model = copy.deepcopy(filesystem_model)
-        for node in model.nodes:
-            if not node.is_filtered(file_filter):
-                node.remove()
+        self._filesystem_model = filesystem_model
+        root_path = filesystem_model.root_folder.original_path.absolute
+        super().__init__(root_path, filesystem_model.is_recursive)
+        self.update(file_filter)
 
     @property
     def file_filter(self):
         """ The Filter used in this model to discard some files."""
         return self._file_filter
+
+    def update(self, file_filter):
+        model = copy.deepcopy(self._filesystem_model)
+        for node in model.nodes:
+            if not node.is_filtered(file_filter):
+                node.remove()

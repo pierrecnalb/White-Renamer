@@ -3,16 +3,16 @@
 import os
 import shutil
 import uuid
+import copy
 from .filesystem.model import FileSystemModel, FilteredModel
 from .action.factory import ActionFactory
 
 
 class Renamer(object):
-    def __init__(self, root_path, is_recursive=False, file_filter=None):
+    def __init__(self, root_path, is_recursive, file_filter):
         self._original_model = FileSystemModel(root_path, is_recursive)
         self._filtered_model = FilteredModel(self._original_model, file_filter)
-        self._action_collection = list()
-        self._factory = ActionFactory()
+        self._action_collection = ActionCollection()
 
     @property
     def filesystem_model(self):
@@ -24,6 +24,88 @@ class Renamer(object):
     @property
     def action_collection(self):
         return self._action_collection
+
+    def invoke_actions(self):
+        for filesystem_node in self._filtered_model.nodes:
+            for action in self.action_collection.items:
+                action.execute(filesystem_node)
+
+    def batch_rename(self):
+        ModelValidator.verify_files_integrity(self._filtered_model)
+        for filesystem_node in self._filtered_model.nodes:
+            self._rename(filesystem_node)
+
+    def reset(self):
+        """Reset the modified filedescriptor with the original one."""
+        for node in self._all_nodes:
+            node.reset()
+
+    def _rename(self, node):
+        if(node.original_path.absolute is node.modified_path.absolute):
+            return
+        try:
+            # find if new name is already taken by another file.
+            if os.path.exists(node.modified_path.absolute):
+                conflicting_node = self._filtered_model.find_node_by_path(node.modified_path.absolute)
+                if conflicting_node is None:
+                    # Conflicting node is not part of the model.
+                    # Ignore it.
+                    return
+                else:
+                    # Check whether the conflicting node was intended to be renamed
+                    if conflicting_node.modified_path.absolute is conflicting_node.original_path.absolute:
+                        if self.unique_id != conflicting_node.unique_id:
+                            conflicting_name_backup = conflicting_node.modified_path._fullname
+                            conflicting_node.modified_path._fullname = str(uuid.uuid4())
+                            self._rename(conflicting_node)
+                            # get the conflicting tree node back to its original settings.
+                            conflicting_node.modified_name._fullname = conflicting_name_backup
+            # rename current node.
+            shutil.move(node.original_path.absolute, node.modified_path.absolute)
+            # apply new path to the node, so that child nodes will stil have a valid path.
+            node.original_path = copy.deepcopy(node.modified_path)
+        except IOError as e:
+            raise Exception(str(e))
+
+
+class ModelValidator(object):
+
+    @classmethod
+    def verify_files_integrity(self, filesystem_model):
+        """ Performs various tests to be sure that the renaming operations are safe."""
+        unique_names = set()
+        for node in filesystem_model.nodes:
+            self._check_user_input_duplicates(node, unique_names)
+            self._check_existing_node(node, filesystem_model)
+
+    def _check_user_input_duplicates(node, unique_names):
+        """ Check whether the user inputs does not lead to files with same names.
+        """
+        if (node.modified_path.absolute not in unique_names):
+            unique_names.add(node.modified_path.absolute)
+        else:
+            raise Exception("""Naming conflict error.
+            {0} cannot be renamed {1} since an item with the same name already exists.
+            """.format(node.original_path.absolute, node.modified_path.absolute))
+
+    def _check_existing_node(node, model):
+        """Checks whether the modified node does not override an existing node."""
+        if os.path.exists(node.modified_path.absolute):
+            error = """Conflict error: cannot rename {0} to {1}. The destination path is not empty.""".format(node.original_path.absolute, node.modified_path.absolute)
+            conflicting_node = model.find_node_by_path(node.modified_path.absolute)
+            if conflicting_node is None:
+                # conflicting node is not part of the model.
+                raise Exception(error)
+            else:
+                # Check whether the conflicting node was intended to be renamed
+                if conflicting_node.modified_path.absolute is conflicting_node.original_path.absolute:
+                    raise Exception(error)
+
+
+class ActionCollection(object):
+    def __init__(self):
+        self._factory = ActionFactory()
+        self._action_collection = list()
 
     def append(self, action_name, **parameters):
         action = self._factory.create(action_name, **parameters)
@@ -38,86 +120,6 @@ class Renamer(object):
     def remove(self, index):
         return self._action_collection.pop(index)
 
-    def invoke_actions(self):
-        for filesystem_node in self._filtered_model.list_nodes():
-            for action in self.action_collection:
-                action.execute(filesystem_node)
-
-    def batch_rename(self):
-        self._verify_files_integrity()
-        unprocessed_files = list(self._filtered_model.root_folder.children)
-        for child in self._filtered_model.root_folder.children:
-            child.rename()
-
-    def _verify_files_integrity(self):
-        """ Performs various tests to be sure that the renaming operations are safe."""
-        unchecked_folders = list(self._original_model.root_folder)
-        while len(unchecked_folders) > 0:
-            folder = unchecked_folders.pop()
-            folder._check_user_inputs()
-            unchecked_folders.append(folder.get_folder_children())
-
-    def _check_user_inputs(self):
-        """ Specifies whether the user inputs does not lead to files with same names.
-        """
-        unique_names = set()
-        for child_node in self.filtered_nodes:
-            if (child_node.modified_path not in unique_names):
-                unique_names.add(child_node.modified_path)
-            else:
-                raise Exception("""Naming conflict error.
-                {0} cannot be renamed {1} since an item with the same name already exists.
-                """.format(child_node.original_path, child_node.modified_path))
-
-    def _check_conflicting_node(self):
-        for child in self.filtered_nodes:
-            if os.path.exists(child.modified_path):
-                conflicting_node = self._filtered_model.find_node_by_path(child.modified_path)
-                if conflicting_node is None:
-                    continue
-                else:
-                    # If there is a conflicting node that must be renamed later,
-                    # name it with a unique name to solve the issue.
-                    # It will be renamed later anyway.
-                    if conflicting_node.modified_name is "":
-                        # This node is not intended to be renamed,
-                        # so we'd better raise an exception
-                        raise Exception("""The file/folder {0} cannot be renamed {1} since this path already exists.""".format(child.original_path, child.modified_path))
-                    else:
-                        conflicting_node = conflicting_node.original_name
-                        temporary_name = uuid.uuid4()
-                        conflicting_node.original_name.fullname = temporary_name
-                        shutil.move(conflicting_node.original_path, conflicting_node.modified_path)
-
-
-    def reset(self):
-        """Reset the modified filedescriptor with the original one."""
-        for node in self._all_nodes:
-            node.reset()
-
-
-    def _move(self, original_path, modified_path):
-        if(original_path is modified_path):
-            return
-        try:
-            # verify if the chosen parameters do not lead to naming conflicts.
-            self._check_children_name_conflict()
-            # find if new name is already taken by another file.
-            if os.path.exists(modified_path):
-                # Verify if a node has 
-                conflicting_node = self.parent.find_child_by_path(modified_path)
-                if conflicting_node is not None:
-                    if self.unique_id != conflicting_node.unique_id:
-                        # rename conflicting tree node
-                        # with a unique temporary name.
-                        conflicting_name_backup = conflicting_node.new_name
-                        conflicting_node.modified_name = str(uuid.uuid4())
-                        conflicting_node.rename()
-                        # get the conflicting tree node back to its original settings.
-                        conflicting_node.modified_name = conflicting_name_backup
-            # rename current node.
-            shutil.move(original_path, modified_path)
-            # apply new path to the tree nodes, so that child nodes will stil have a valid path.
-            self._original_path = self._set_path(new_path)
-        except IOError as e:
-            raise Exception(str(e))
+    @property
+    def items(self):
+        return self._action_collection
