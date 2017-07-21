@@ -58,14 +58,11 @@ class Action(object):
         Specifies whether the given target
         works with the current filesystem node.
         """
-        print("target=" + str(self._target))
-        print("nodetype=" + str(filesystem_node))
-        if (isinstance(filesystem_node, File)):
-            if (self._target is Targets.filename or self._target is Targets.extension):
-                return True
-        if (self._target is Targets.foldername and not isinstance(filesystem_node, Folder)):
-            return True
-        return False
+        is_file = isinstance(filesystem_node, File)
+        if (is_file):
+            return (self._target is Targets.filename or self._target is Targets.extension)
+        else:
+            return (self._target is Targets.foldername)
 
     def _get_original_name(self, filesystem_node):
         original_name = ""
@@ -82,14 +79,19 @@ class Action(object):
         Args:
             filesystem_node (FileSystemNode): The node upon which the name will change.
         """
+
         if (not self._is_target_valid(filesystem_node)):
             # Invalid target: it cannot be applied to the given filesystem node.
+            print("is not target valid")
             return
         original_name = self._get_original_name(filesystem_node)
         tokenizer = Tokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
+        print("original_sub= "+original_substring)
         modified_substring = self._get_modified_substring(filesystem_node, original_substring)
+        print("modified_sub= "+modified_substring)
         new_name = (tokenizer.first_token + modified_substring + tokenizer.last_token)
+        print("new_name="+new_name)
         if (self._target is Targets.extension):
             filesystem_node.modified_path.extension += new_name
         else:

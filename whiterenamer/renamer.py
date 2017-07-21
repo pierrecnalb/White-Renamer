@@ -41,7 +41,8 @@ class Renamer(object):
             node.reset()
 
     def _rename(self, node):
-        if(node.original_path.absolute is node.modified_path.absolute):
+        print("rename node={0} INTO {1}".format(node.original_path.basename, node.modified_path.basename))
+        if node.modified_path.basename == "" or node.modified_path.absolute == node.original_path.absolute:
             return
         try:
             # find if new name is already taken by another file.
@@ -49,11 +50,12 @@ class Renamer(object):
                 conflicting_node = self._filtered_model.find_node_by_path(node.modified_path.absolute)
                 if conflicting_node is None:
                     # Conflicting node is not part of the model.
+                    raise Exception("TODO: write here exception")
                     # Ignore it.
                     return
                 else:
                     # Check whether the conflicting node was intended to be renamed
-                    if conflicting_node.modified_path.absolute is conflicting_node.original_path.absolute:
+                    if conflicting_node.modified_path.absolute == conflicting_node.original_path.absolute:
                         if self.unique_id != conflicting_node.unique_id:
                             conflicting_name_backup = conflicting_node.modified_path._fullname
                             conflicting_node.modified_path._fullname = str(uuid.uuid4())
@@ -61,9 +63,10 @@ class Renamer(object):
                             # get the conflicting tree node back to its original settings.
                             conflicting_node.modified_name._fullname = conflicting_name_backup
             # rename current node.
+            print("RENAME***")
             shutil.move(node.original_path.absolute, node.modified_path.absolute)
             # apply new path to the node, so that child nodes will stil have a valid path.
-            node.original_path = copy.deepcopy(node.modified_path)
+            node._set_original_path = copy.deepcopy(node.modified_path)
         except IOError as e:
             raise Exception(str(e))
 
@@ -78,7 +81,10 @@ class ModelValidator(object):
             self._check_user_input_duplicates(node, unique_names)
             self._check_existing_node(node, filesystem_model)
 
-    def _check_user_input_duplicates(node, unique_names):
+    def _is_modified_node(self, node):
+        return node.modified_path.basename == "" or node.modified_path.absolute == node.original_path.absolute
+
+    def _check_user_input_duplicates(self, node, unique_names):
         """ Check whether the user inputs does not lead to files with same names.
         """
         if (node.modified_path.absolute not in unique_names):
@@ -88,8 +94,10 @@ class ModelValidator(object):
             {0} cannot be renamed {1} since an item with the same name already exists.
             """.format(node.original_path.absolute, node.modified_path.absolute))
 
-    def _check_existing_node(node, model):
+    def _check_existing_node(self, node, model):
         """Checks whether the modified node does not override an existing node."""
+        if self._is_modified_node(node):
+            return
         if os.path.exists(node.modified_path.absolute):
             error = """Conflict error: cannot rename {0} to {1}. The destination path is not empty.""".format(node.original_path.absolute, node.modified_path.absolute)
             conflicting_node = model.find_node_by_path(node.modified_path.absolute)
@@ -100,6 +108,7 @@ class ModelValidator(object):
                 # Check whether the conflicting node was intended to be renamed
                 if conflicting_node.modified_path.absolute is conflicting_node.original_path.absolute:
                     raise Exception(error)
+
 
 
 class ActionCollection(object):

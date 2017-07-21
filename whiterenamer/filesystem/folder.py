@@ -42,11 +42,11 @@ class Folder(FileSystemNode):
         return filter(lambda child: isinstance(child, File), self.children)
 
     def is_filtered(self, file_filter):
-        if super().is_filtered(file_filter):
-            return True
-        if file_filter.files_only:
-            return False
-        return False
+        # if super().is_filtered(file_filter):
+        #     return True
+        # if file_filter.files_only:
+        #     return False
+        return True
 
     def find_child_by_path(self, path):
         for child in self.children:

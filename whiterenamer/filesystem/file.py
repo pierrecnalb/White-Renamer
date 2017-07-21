@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from .node import FileSystemNode
+from .node import FileSystemNode, FileSystemNodeType
 from ..enummask import EnumMask
 
 
@@ -36,12 +36,12 @@ class File(FileSystemNode):
             self._file_type = FileTypes.document
 
     def is_filtered(self, file_filter):
-        if not super().is_filtered(file_filter):
-            return False
-        if file_filter.folders_only:
-            return False
-        if file_filter.file_type is not self._file_type:
-            return False
+        # if not super().is_filtered(file_filter):
+        #     return False
+        # if file_filter.node_type is FileSystemNodeType.folder:
+        #     return False
+        # if file_filter.file_type is not self._file_type:
+        #     return False
         return True
 
 

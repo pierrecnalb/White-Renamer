@@ -19,7 +19,6 @@ class FileSystemModel(object):
         self._is_recursive = is_recursive
         self._nodes_by_id = dict()
         self._node_list = []
-        print("path: "+ root_path)
         self._path_to_root, _ = os.path.split(root_path)
         self._root_folder = Folder(root_path, None, self)
         self._register_node(self._root_folder)
@@ -57,11 +56,12 @@ class FileSystemModel(object):
         return self._file_filter
 
     def _new_id(self):
-        return ++self._current_id
+        self._current_id += 1
+        return self._current_id
 
     def _register_node(self, node):
-        self._nodes_by_id[self._current_id] = self._root_folder
-        self._node_list.append(self._root_folder)
+        self._nodes_by_id[self._new_id()] = node
+        self._node_list.append(node)
 
     def _build_tree_model(self):
         self._scan_file_system(self._root_folder)
@@ -136,4 +136,5 @@ class FilteredModel(FileSystemModel):
         model = copy.deepcopy(self._filesystem_model)
         for node in model.nodes:
             if not node.is_filtered(file_filter):
+                print("remove")
                 node.remove()
