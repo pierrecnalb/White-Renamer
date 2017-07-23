@@ -4,11 +4,11 @@
 # import re
 import os
 import sys
-import shutil
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import unittest
 import whiterenamer
-from . import TestCasesModel
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from whiterenamer.filesystem.filter import Filter
+import results
 
 
 def create_files():
@@ -28,21 +28,23 @@ def create_files():
     _create_file(subfolder1, "sub file 2.txt")
 
 
-def _create_file(self, parent, name):
-    file = os.path.join(parent, name)
-    with open(file, 'w+'):
-        file.writelines(name + '\n')
+def _create_file(parent, name):
+    filename = os.path.join('.', parent, name)
+    with open(filename, 'w+'):
+        filename.writelines(name + '\n')
 
 
 class TestCases(unittest.TestCase):
     def setUp(self):
         self.root_folder = os.path.dirname(__file__)
-        self.renamer = whiterenamer.whiterenamer(self.root_folder)
+        print(self.root_folder)
         create_files()
+        self.renamer = whiterenamer.Renamer(self.root_folder, False, Filter())
 
     def tearDown(self):
-        if(os.path.exists(self.root_folder)):
-            shutil.rmtree(self.root_folder)
+        pass
+        # if(os.path.exists(self.root_folder)):
+        #     shutil.rmtree(self.root_folder)
 
     def _get_filenames(self):
         scanned_files = []
@@ -66,8 +68,9 @@ class TestCases(unittest.TestCase):
 
     def test_original_name(self):
         """Makes sure that orginal name keeps the original name."""
-        self.renamer.append("OriginalName")
-        self._rename_and_verify(TestCasesModel.Main_OriginalName)
+        self.renamer.actions.append("OriginalName")
+        self._rename_and_verify(results.OriginalName)
+
 
 #     def test_main_uppercase(self):
 #         """Make all letters uppercase"""
@@ -302,20 +305,20 @@ class TestCases(unittest.TestCase):
 #         self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
 #         self.compare_with_model_file(TestCasesModel.Music_Title)
 
-    # def test_main_undo(self):
-    #     """Name all folders 'folder', files 'file' and extensions '.ext'. and undo the actions after renaming."""
-    #     self.init("TestCase1", True, False, "name", False)
-    #     action_descriptor = action_manager.CustomNameAction
-    #     files = self.files_collection
-    #     action_args_folder = {'new_name': 'folder'}
-    #     action_args_file = {'new_name': 'file'}
-    #     action_args_extension = {'new_name': '.ext'}
-    #     self.apply_actions(action_descriptor, action_args_folder, 'prefix', 'folder')
-    #     self.apply_actions(action_descriptor, action_args_file, 'prefix', 'file')
-    #     self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
-    #     self.controller.batch_undo()
-    #     self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
-        # self.compare_with_model_file(TestCasesModel.Main_OriginalName)
+# def test_main_undo(self):
+#     """Name all folders 'folder', files 'file' and extensions '.ext'. and undo the actions after renaming."""
+#     self.init("TestCase1", True, False, "name", False)
+#     action_descriptor = action_manager.CustomNameAction
+#     files = self.files_collection
+#     action_args_folder = {'new_name': 'folder'}
+#     action_args_file = {'new_name': 'file'}
+#     action_args_extension = {'new_name': '.ext'}
+#     self.apply_actions(action_descriptor, action_args_folder, 'prefix', 'folder')
+#     self.apply_actions(action_descriptor, action_args_file, 'prefix', 'file')
+#     self.apply_actions(action_descriptor, action_args_extension, 'extension', 'file')
+#     self.controller.batch_undo()
+#     self.scan_directory(self.directory, self.sorting_criteria, self.reverse_order)
+# self.compare_with_model_file(TestCasesModel.Main_OriginalName)
 
 if __name__ == '__main__':
     unittest.main()

@@ -22,7 +22,7 @@ class Renamer(object):
         self._filtered_model = FileSystemModel(self._original_model, file_filter)
 
     @property
-    def action_collection(self):
+    def actions(self):
         return self._action_collection
 
     def invoke_actions(self):
@@ -31,7 +31,8 @@ class Renamer(object):
                 action.execute(filesystem_node)
 
     def batch_rename(self):
-        ModelValidator.verify_files_integrity(self._filtered_model)
+        validator = ModelValidator(self._filtered_model)
+        validator.verify_files_integrity()
         for filesystem_node in self._filtered_model.nodes:
             self._rename(filesystem_node)
 
@@ -41,13 +42,15 @@ class Renamer(object):
             node.reset()
 
     def _rename(self, node):
-        print("rename node={0} INTO {1}".format(node.original_path.basename, node.modified_path.basename))
-        if node.modified_path.basename == "" or node.modified_path.absolute == node.original_path.absolute:
+        print("rename node={0} INTO {1}".format(node.original_path.basename,
+                                                node.modified_path.basename))
+        if ModelValidator.is_modified_node(node):
             return
         try:
             # find if new name is already taken by another file.
             if os.path.exists(node.modified_path.absolute):
-                conflicting_node = self._filtered_model.find_node_by_path(node.modified_path.absolute)
+                conflicting_node = self._filtered_model.find_node_by_path(
+                    node.modified_path.absolute)
                 if conflicting_node is None:
                     # Conflicting node is not part of the model.
                     raise Exception("TODO: write here exception")
@@ -72,16 +75,17 @@ class Renamer(object):
 
 
 class ModelValidator(object):
+    def __init__(self, filesystem_model):
+        self.model = filesystem_model
 
-    @classmethod
-    def verify_files_integrity(self, filesystem_model):
+    def verify_files_integrity(self):
         """ Performs various tests to be sure that the renaming operations are safe."""
         unique_names = set()
-        for node in filesystem_model.nodes:
+        for node in self.model.nodes:
             self._check_user_input_duplicates(node, unique_names)
-            self._check_existing_node(node, filesystem_model)
+            self._check_existing_node(node)
 
-    def _is_modified_node(self, node):
+    def is_modified_node(node):
         return node.modified_path.basename == "" or node.modified_path.absolute == node.original_path.absolute
 
     def _check_user_input_duplicates(self, node, unique_names):
@@ -94,13 +98,14 @@ class ModelValidator(object):
             {0} cannot be renamed {1} since an item with the same name already exists.
             """.format(node.original_path.absolute, node.modified_path.absolute))
 
-    def _check_existing_node(self, node, model):
+    def _check_existing_node(self, node):
         """Checks whether the modified node does not override an existing node."""
-        if self._is_modified_node(node):
+        if ModelValidator.is_modified_node(node):
             return
         if os.path.exists(node.modified_path.absolute):
-            error = """Conflict error: cannot rename {0} to {1}. The destination path is not empty.""".format(node.original_path.absolute, node.modified_path.absolute)
-            conflicting_node = model.find_node_by_path(node.modified_path.absolute)
+            error = """Conflict error: cannot rename {0} to {1}. The destination path is not empty.""".format(
+                node.original_path.absolute, node.modified_path.absolute)
+            conflicting_node = self.model.find_node_by_path(node.modified_path.absolute)
             if conflicting_node is None:
                 # conflicting node is not part of the model.
                 raise Exception(error)
@@ -108,7 +113,6 @@ class ModelValidator(object):
                 # Check whether the conflicting node was intended to be renamed
                 if conflicting_node.modified_path.absolute is conflicting_node.original_path.absolute:
                     raise Exception(error)
-
 
 
 class ActionCollection(object):
