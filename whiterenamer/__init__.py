@@ -1,4 +1,9 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+__author__ = """Pierre Blanc"""
+__email__ = 'pierrecnalb@mailbox.org'
+__version__ = '2.0.0'
 
 from .renamer import Renamer
 

@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
-import time
-import re
 import abc
+import re
+import time
+
 from exifread import process_file
 from mutagen.easyid3 import EasyID3
-from .scope import Targets, StringRange, Tokenizer
-from ..filesystem import File, Folder
+
+from ..filesystem import File
+from .scope import StringRange, Targets, Tokenizer
 
 
 class Action(object):
@@ -82,16 +84,13 @@ class Action(object):
 
         if (not self._is_target_valid(filesystem_node)):
             # Invalid target: it cannot be applied to the given filesystem node.
-            print("is not target valid")
+            print("not a valid target")
             return
         original_name = self._get_original_name(filesystem_node)
         tokenizer = Tokenizer(original_name, self._string_range)
         original_substring = tokenizer.selected_token
-        print("original_sub= "+original_substring)
         modified_substring = self._get_modified_substring(filesystem_node, original_substring)
-        print("modified_sub= "+modified_substring)
         new_name = (tokenizer.first_token + modified_substring + tokenizer.last_token)
-        print("new_name="+new_name)
         if (self._target is Targets.extension):
             filesystem_node.modified_path.extension += new_name
         else:
@@ -180,8 +179,8 @@ class TitleCaseAction(Action):
         decomposed_name = self._get_decomposed_name(original_substring)
         for special_character_index in self._get_special_character_indices(original_substring):
             if special_character_index < len(decomposed_name):
-                decomposed_name[special_character_index + 1] = decomposed_name[
-                    special_character_index + 1].upper()
+                decomposed_name[special_character_index +
+                                1] = decomposed_name[special_character_index + 1].upper()
         if self._is_first_letter_uppercase:
             decomposed_name[0] = decomposed_name[0].upper()
             modified_sliced_name = ''.join(decomposed_name)

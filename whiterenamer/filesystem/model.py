@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-import os
-from .folder import Folder
-from .file import File
 import copy
+import os
+
+from .file import File
+from .folder import Folder
 
 
 class FileSystemModel(object):

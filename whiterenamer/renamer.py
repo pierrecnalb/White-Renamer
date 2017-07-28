@@ -27,7 +27,7 @@ class Renamer(object):
 
     def invoke_actions(self):
         for filesystem_node in self._filtered_model.nodes:
-            for action in self.action_collection.items:
+            for action in self._action_collection.items:
                 action.execute(filesystem_node)
 
     def batch_rename(self):
@@ -66,7 +66,7 @@ class Renamer(object):
                             # get the conflicting tree node back to its original settings.
                             conflicting_node.modified_name._fullname = conflicting_name_backup
             # rename current node.
-            print("RENAME***")
+
             shutil.move(node.original_path.absolute, node.modified_path.absolute)
             # apply new path to the node, so that child nodes will stil have a valid path.
             node._set_original_path = copy.deepcopy(node.modified_path)

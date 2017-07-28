@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-import os.path
 import abc
+import os.path
 import re
 from enum import Enum
+
 from .path import FileSystemPath
 
 
