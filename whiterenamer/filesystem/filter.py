@@ -2,6 +2,7 @@
 
 from .node import FileSystemNodeType
 from .file import FileTypes
+from ..observable import Event
 
 
 class Filter(object):
@@ -13,6 +14,14 @@ class Filter(object):
         self._node_type = FileSystemNodeType.file
         self._file_type = FileTypes.all
         self._search_pattern = ""
+        self._changed = Event(self)
+
+    @property
+    def changed(self):
+        return self._changed
+
+    def _on_changed(self):
+        self._changed(None)
 
     @property
     def discard_hidden_files(self):
@@ -22,6 +31,7 @@ class Filter(object):
     @discard_hidden_files.setter
     def discard_hidden_files(self, value):
         self._discard_hidden_files = value
+        self._on_changed()
 
     @property
     def node_type(self):
@@ -30,6 +40,7 @@ class Filter(object):
     @node_type.setter
     def node_type(self, value):
         self._node_type = value
+        self._on_changed()
 
     @property
     def file_type(self):
@@ -38,6 +49,7 @@ class Filter(object):
     @file_type.setter
     def file_type(self, value):
         self._file_type = value
+        self._on_changed()
 
     @property
     def search_pattern(self):
@@ -48,3 +60,4 @@ class Filter(object):
     def search_pattern(self, value):
         """ Specify a pattern used to select only specific file nodes."""
         self._search_pattern = value
+        self._on_changed()

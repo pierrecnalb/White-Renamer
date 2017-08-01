@@ -8,11 +8,9 @@ Tests for `whiterenamer` module.
 """
 
 import os
-import shutil
 
 import pytest
 
-from whiterenamer.filesystem.filter import Filter
 
 from . import makefiles, results
 from .context import whiterenamer
@@ -24,11 +22,10 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), root_folder)
 @pytest.fixture(scope="session")
 def renamer(request):
     makefiles.make_standard_files(root_path)
-    renamer = whiterenamer.Renamer(root_path, False, Filter())
     yield renamer
     # tear down
-    if (os.path.exists(root_path)):
-        shutil.rmtree(root_path)
+    # if (os.path.exists(root_path)):
+    #     shutil.rmtree(root_path)
 
 
 def _get_filenames():
@@ -54,10 +51,10 @@ def _rename_and_verify(renamer, test_case_model):
     assert renamed_filenames == test_case_model
 
 
-def test_original_name(renamer):
-    """Makes sure that orginal name keeps the original name."""
-    renamer.actions.append("OriginalName")
-    _rename_and_verify(renamer, results.OriginalName)
+# def test_original_name(renamer):
+#     """Makes sure that orginal name keeps the original name."""
+#     renamer.actions.append("OriginalName")
+#     _rename_and_verify(renamer, results.OriginalName)
 
 
 # def test_command_line_interface(self):
@@ -69,10 +66,11 @@ def test_original_name(renamer):
 #     assert help_result.exit_code == 0
 #     assert '--help  Show this message and exit.' in help_result.output
 
-#     def test_main_uppercase(self):
-#         """Make all letters uppercase"""
-#         self.renamer.action_collection.append("UpperCase", scope=filename|foldername|extension)
-#         self._rename_and_verify(renamer, TestCasesModel.Main_Uppercase)
+def test_uppercase(renamer):
+    """Make all letters uppercase"""
+    renamer = whiterenamer.Renamer(root_path, True, Filter())
+    renamer.actions.append("Uppercase")
+    _rename_and_verify(renamer, results.Uppercase)
 
 #     def test_main_lowercase(self):
 #         """Make all letters lowercase"""

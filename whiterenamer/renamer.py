@@ -1,25 +1,34 @@
 #!/usr/bin/python3
 
+import copy
 import os
 import shutil
 import uuid
-import copy
-from .filesystem.model import FileSystemModel, FilteredModel
+
 from .action.factory import ActionFactory
+from .filesystem.filter import Filter
+from .filesystem.model import FileSystemModel, FilteredModel
+from .observable import Observer
 
 
-class Renamer(object):
-    def __init__(self, root_path, is_recursive, file_filter):
+class Renamer(Observer):
+    def __init__(self, root_path, is_recursive):
+        self._file_filter = Filter()
+        self._file_filter.on_changed += self.on_filter_changed
         self._original_model = FileSystemModel(root_path, is_recursive)
-        self._filtered_model = FilteredModel(self._original_model, file_filter)
+        self._filtered_model = FilteredModel(self._original_model, self._file_filter)
         self._action_collection = ActionCollection()
 
     @property
     def filesystem_model(self):
         return self._filtered_model
 
-    def update_model(self, file_filter):
-        self._filtered_model = FileSystemModel(self._original_model, file_filter)
+    @property
+    def file_filter(self):
+        return self._file_filter
+
+    def on_filter_changed(self, sender, args):
+        self._filtered_model = FileSystemModel(self._original_model, self._file_filter)
 
     @property
     def actions(self):
