@@ -27,7 +27,7 @@ class Renamer(Observer):
     def file_filter(self):
         return self._file_filter
 
-    def on_filter_changed(self, sender, args):
+    def on_filter_changed(self, *args, **kargs):
         self._filtered_model = FileSystemModel(self._original_model, self._file_filter)
 
     @property

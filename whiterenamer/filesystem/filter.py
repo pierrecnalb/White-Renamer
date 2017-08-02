@@ -2,7 +2,7 @@
 
 from .node import FileSystemNodeType
 from .file import FileTypes
-from ..observable import Event
+from ..event import Event
 
 
 class Filter(object):
@@ -14,11 +14,7 @@ class Filter(object):
         self._node_type = FileSystemNodeType.file
         self._file_type = FileTypes.all
         self._search_pattern = ""
-        self._changed = Event(self)
-
-    @property
-    def changed(self):
-        return self._changed
+        self.changed = Event()
 
     def _on_changed(self):
         self._changed(None)
