@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
-from .node import FileSystemNodeType
-from .file import FileTypes
 from ..event import Event
+from .file import FileTypes
+from .node import NodeType
 
 
 class Filter(object):
@@ -11,13 +11,13 @@ class Filter(object):
         to discard specific files based on its properties.
         """
         self._discard_hidden_files = True
-        self._node_type = FileSystemNodeType.file
+        self._node_type = NodeType.file
         self._file_type = FileTypes.all
         self._search_pattern = ""
         self.changed = Event()
 
     def _on_changed(self):
-        self._changed(None)
+        self.changed(None)
 
     @property
     def discard_hidden_files(self):

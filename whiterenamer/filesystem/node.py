@@ -28,7 +28,7 @@ class FileSystemNode(object):
         self._backup_path = path
         self._original_path = FileSystemPath(path, parent, model)
         self._modified_path = FileSystemPath(path, parent, model)
-        self._modified_path.basename = ""
+        self._modified_path.fullname = ""
         self._size = os.path.getsize(path)  # return 0 when folders.
         self._modified_date = os.path.getmtime(path)
         self._created_date = os.path.getctime(path)
@@ -89,6 +89,7 @@ class FileSystemNode(object):
             self._model.remove(self)
 
 
-class FileSystemNodeType(Enum):
+class NodeType(Enum):
     folder = 1
     file = 2
+    all = 3

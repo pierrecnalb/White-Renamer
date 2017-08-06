@@ -8,15 +8,10 @@ class FileSystemPath(object):
         self._model = model
         (directory, fullname) = os.path.split(path)
         self._is_directory = os.path.isdir(path)
-        if self._is_directory:
-            self._basename = fullname
-            self._extension = ""
-        else:
-            (self._basename, self._extension) = os.path.splitext(fullname)
-            self._extension = self._extension[1:]  # Let's remove the dot.
+        self.fullname = fullname
 
-    # def __repr__(self):
-    #     return self._path()
+    def __repr__(self):
+        return self._path()
 
     @property
     def absolute(self):
@@ -38,11 +33,21 @@ class FileSystemPath(object):
     def extension(self, value):
         self._extension = value
 
-    def _fullname(self):
+    @property
+    def fullname(self):
         if self._is_directory:
             return self.basename
         else:
             return self.basename + "." + self.extension
+
+    @fullname.setter
+    def fullname(self, value):
+        if self._is_directory:
+            self._basename = value
+            self._extension = ""
+        else:
+            (self._basename, self._extension) = os.path.splitext(value)
+            self._extension = self._extension[1:]  # Let's remove the dot.
 
     def _path(self):
         """Since a parent folder may have been renamed during the renaming process,
@@ -51,7 +56,7 @@ class FileSystemPath(object):
         if renamed.
         """
         # root node
-        if(self._parent_node is None):
-            return os.path.join(self._model._path_to_root, self._fullname())
+        if (self._parent_node is None):
+            return os.path.join(self._model._path_to_root, self.fullname)
         else:
-            return os.path.join(self._parent_node.original_path.absolute, self._fullname())
+            return os.path.join(self._parent_node.original_path.absolute, self.fullname)

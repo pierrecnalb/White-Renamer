@@ -22,7 +22,6 @@ class FileSystemModel(object):
         self._node_list = []
         self._path_to_root, _ = os.path.split(root_path)
         self._root_folder = Folder(root_path, None, self)
-        self._register_node(self._root_folder)
         self._build_tree_model()
         self._file_filter = None
 
@@ -137,5 +136,4 @@ class FilteredModel(FileSystemModel):
         model = copy.deepcopy(self._filesystem_model)
         for node in model.nodes:
             if not node.is_filtered(file_filter):
-                print("remove")
                 node.remove()

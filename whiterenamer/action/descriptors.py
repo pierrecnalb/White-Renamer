@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 
 from enum import Enum
-from .scope import Targets, StringRange
+
 from .actions import *
+from .scope import StringRange, Targets
 
 
 class ActionDescriptor(object):
@@ -20,12 +21,12 @@ class ActionDescriptor(object):
         self._class = action_class
         self._caption = ""
         self._parameters = dict()
-        target_parameter = ActionParameterDescriptor("target", ParameterType.enum)
-        target_parameter.default_value = Targets.filename
-        target_parameter.is_visible = False
-        target_parameter.documentation = """ Specifies what kind of filesystem entity
+        targets_parameter = ActionParameterDescriptor("targets", ParameterType.enum)
+        targets_parameter.default_value = Targets.filename | Targets.foldername | Targets.extension
+        targets_parameter.is_visible = False
+        targets_parameter.documentation = """ Specifies what kind of filesystem entity
             (file, folder, extension) the action should be applied."""
-        self._parameters["target"] = target_parameter
+        self._parameters["targets"] = targets_parameter
         range_parameter = ActionParameterDescriptor("string_range", ParameterType.range)
         range_parameter.default_value = StringRange(0, None)
         range_parameter.is_visible = False
@@ -99,9 +100,9 @@ class ActionDescriptor(object):
                 raise KeyError(
                     "The action {0} does not contain a {1} argument.".format(self._class.name, key))
             # Verify if the given target is in the target flags.
-            if key is "target":
+            if key is "targets":
                 if value not in self._allowed_targets:
-                    raise Exception("Invalid target: \
+                    raise Exception("Invalid targets: \
                     it cannot be applied to the given filesystem node.")
 
     def _find_default_values(self):
@@ -264,7 +265,9 @@ class ImageOriginalDate(ActionDescriptor):
         time_format_parameter = ActionParameterDescriptor("time_format", ParameterType.string)
         time_format_parameter.caption = "Format"
         time_format_parameter.documentation = """The format to display the date.
-            Commonly used format_display are :
+
+
+        Commonly used format_display are :
             %y  year with century as a decimal number.
             %m  month as a decimal number [01,12].
             %d  day of the month as a decimal number [01,31].

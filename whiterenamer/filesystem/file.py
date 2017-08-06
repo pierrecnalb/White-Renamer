@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from .node import FileSystemNode, FileSystemNodeType
 from ..enummask import EnumMask
+from .node import FileSystemNode
 
 
 class File(FileSystemNode):

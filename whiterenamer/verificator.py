@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import os
-from .filesystem.model import FileSystemModel, FilteredModel
 
 
 class ModelVerificator(object):
@@ -11,9 +10,6 @@ class ModelVerificator(object):
     def run_tests(self):
         self.check_user_inputs()
         self._verify_files_integrity()
-        unprocessed_files = list(self._filtered_model.root_folder.children)
-        for child in self._filtered_model.root_folder.children:
-            child.rename()
 
     def _verify_files_integrity(self):
         """ Performs various tests to be sure that the renaming operations are safe."""
@@ -48,7 +44,9 @@ class ModelVerificator(object):
                     if conflicting_node.modified_name is "":
                         # This node is not intended to be renamed,
                         # so we'd better raise an exception
-                        raise Exception("""The file/folder {0} cannot be renamed {1} since this path already exists.""".format(child.original_path, child.modified_path))
+                        raise Exception(
+                            """The file/folder {0} cannot be renamed {1} since this path already exists.""".
+                            format(child.original_path, child.modified_path))
                     else:
                         conflicting_node = conflicting_node.original_name
                         temporary_name = uuid.uuid4()

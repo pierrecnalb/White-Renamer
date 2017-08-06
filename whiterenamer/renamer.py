@@ -8,13 +8,15 @@ import uuid
 from .action.factory import ActionFactory
 from .filesystem.filter import Filter
 from .filesystem.model import FileSystemModel, FilteredModel
-from .observable import Observer
 
 
-class Renamer(Observer):
-    def __init__(self, root_path, is_recursive):
-        self._file_filter = Filter()
-        self._file_filter.on_changed += self.on_filter_changed
+class Renamer(object):
+    def __init__(self, root_path, is_recursive, file_filter=None):
+        if file_filter is None:
+            self._file_filter = Filter()
+        else:
+            self._file_filter = file_filter
+        self._file_filter.changed += self.on_filter_changed
         self._original_model = FileSystemModel(root_path, is_recursive)
         self._filtered_model = FilteredModel(self._original_model, self._file_filter)
         self._action_collection = ActionCollection()
@@ -78,7 +80,7 @@ class Renamer(Observer):
 
             shutil.move(node.original_path.absolute, node.modified_path.absolute)
             # apply new path to the node, so that child nodes will stil have a valid path.
-            node._set_original_path = copy.deepcopy(node.modified_path)
+            node._set_original_path(copy.deepcopy(node.modified_path))
         except IOError as e:
             raise Exception(str(e))
 
@@ -95,11 +97,13 @@ class ModelValidator(object):
             self._check_existing_node(node)
 
     def is_modified_node(node):
-        return node.modified_path.basename == "" or node.modified_path.absolute == node.original_path.absolute
+        return node.modified_path.fullname == "" or node.modified_path.absolute == node.original_path.absolute
 
     def _check_user_input_duplicates(self, node, unique_names):
         """ Check whether the user inputs does not lead to files with same names.
         """
+        if ModelValidator.is_modified_node(node):
+            return
         if (node.modified_path.absolute not in unique_names):
             unique_names.add(node.modified_path.absolute)
         else:
@@ -129,12 +133,14 @@ class ActionCollection(object):
         self._factory = ActionFactory()
         self._action_collection = list()
 
-    def append(self, action_name, **parameters):
+    def append(self, action_name, parameters=dict()):
+        print("HHHHHHHHHHH")
+        print(parameters)
         action = self._factory.create(action_name, **parameters)
         self._action_collection.append(action)
         return action
 
-    def insert(self, index, action_name, **parameters):
+    def insert(self, index, action_name, parameters=dict()):
         action = self._factory.create(action_name, **parameters)
         self._action_collection.insert(action, index)
         return action

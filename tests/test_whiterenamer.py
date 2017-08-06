@@ -8,9 +8,13 @@ Tests for `whiterenamer` module.
 """
 
 import os
+import shutil
 
 import pytest
 
+from whiterenamer.filesystem.filter import Filter
+from whiterenamer.filesystem.node import NodeType
+from whiterenamer.action.scope import StringRange, Targets
 
 from . import makefiles, results
 from .context import whiterenamer
@@ -20,12 +24,14 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), root_folder)
 
 
 @pytest.fixture(scope="session")
-def renamer(request):
+def setup(request):
     makefiles.make_standard_files(root_path)
-    yield renamer
+    yield setup
     # tear down
     # if (os.path.exists(root_path)):
-    #     shutil.rmtree(root_path)
+
+
+# shutil.rmtree(root_path)
 
 
 def _get_filenames():
@@ -44,57 +50,67 @@ def _scan_directory(path, scanned_files):
             _scan_directory(filepath, scanned_files)
 
 
-def _rename_and_verify(renamer, test_case_model):
+def _rename_and_verify(renamer, expected_results):
     renamer.invoke_actions()
     renamer.batch_rename()
     renamed_filenames = _get_filenames()
-    assert renamed_filenames == test_case_model
+    assert renamed_filenames == expected_results
 
 
-# def test_original_name(renamer):
-#     """Makes sure that orginal name keeps the original name."""
-#     renamer.actions.append("OriginalName")
-#     _rename_and_verify(renamer, results.OriginalName)
+def test_original_name(setup):
+    """Renames with the original names (i.e: does not change anything)"""
+    renamer = whiterenamer.Renamer(root_path, True)
+    renamer.actions.append("OriginalName")
+    _rename_and_verify(renamer, results.OriginalName)
 
 
-# def test_command_line_interface(self):
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main)
-#     assert result.exit_code == 0
-#     assert 'whiterenamer.cli.main' in result.output
-#     help_result = runner.invoke(cli.main, ['--help'])
-#     assert help_result.exit_code == 0
-#     assert '--help  Show this message and exit.' in help_result.output
-
-def test_uppercase(renamer):
+def test_uppercase(setup):
     """Make all letters uppercase"""
-    renamer = whiterenamer.Renamer(root_path, True, Filter())
+    renamer = whiterenamer.Renamer(root_path, True)
     renamer.actions.append("Uppercase")
     _rename_and_verify(renamer, results.Uppercase)
 
-#     def test_main_lowercase(self):
-#         """Make all letters lowercase"""
-#         self.renamer.action_collection.append("LowerCase", scope=filename|foldername|extension)
-#         self._rename_and_verify(renamer, TestCasesModel.Main_Lowercase)
 
-#     def test_main_titlecase(self):
-#         """Make first letters Titlecase after space, underscore, dash and period."""
-#         self.renamer.action_collection.append("TitleCase", scope=filename|foldername|extension)
-#         self._rename_and_verify(renamer, TestCasesModel.Main_Titlecase)
+def test_lowercase(setup):
+    """Make all letters lowercase"""
+    renamer = whiterenamer.Renamer(root_path, True)
+    renamer.actions.append("Lowercase")
+    _rename_and_verify(renamer, results.Lowercase)
 
-#     def test_main_delete(self):
-#         """Delete first letter for folders, second for files and third for extension."""
-#         self.renamer.action_collection.append("CharacterDeletion",  string_range=StringRange(0, 1))
-#         self.renamer.action_collection.append(RenamingType.filename, "CharacterDeletion", StringRange(1, 2))
-#         self.renamer.action_collection.append(RenamingType.extension, "CharacterDeletion", StringRange(2, 3))
-#         self._rename_and_verify(renamer, TestCasesModel.Main_Delete)
 
-#     def test_main_replace_without_regex(self):
-#         """Replace e with 3 and .txt with .ogg."""
-#         self.renamer.action_collection.append(RenamingType.foldername, "FindAndReplace", "e", "3", False)
-#         self.renamer.action_collection.append(RenamingType.filename, "FindAndReplace", "e", "3", False)
-#         self.renamer.action_collection.append(RenamingType.extension, "FindAndReplace", "txt", "ogg", False)
-#         self._rename_and_verify(renamer, TestCasesModel.Main_Replace_without_regex)
+def test_titlecase(setup):
+    """Make first letters Titlecase after space, underscore, dash and period."""
+    renamer = whiterenamer.Renamer(root_path, True)
+    parameters = {
+        "is_first_letter_uppercase": True,
+        "special_characters": " _-.",
+        "targets": Targets.filename | Targets.foldername
+    }
+    renamer.actions.append("Titlecase", parameters)
+    _rename_and_verify(renamer, results.Titlecase)
+
+
+# def test_delete(setup):
+#     """Delete first letter for folders, second for files and third for extension."""
+#     renamer = whiterenamer.Renamer(root_path, True)
+#     parameters = {"is_first_letter_uppercase": True, "special_characters": " _-.", "targets": Targets.filename}
+#     renamer.actions.append("Titlecase", parameters)
+#     _rename_and_verify(renamer, results.Titlecase)
+#     self.renamer.action_collection.append("CharacterDeletion",  string_range=StringRange(0, 1))
+#     self.renamer.action_collection.append(RenamingType.filename, "CharacterDeletion", StringRange(1, 2))
+#     self.renamer.action_collection.append(RenamingType.extension, "CharacterDeletion", StringRange(2, 3))
+#     self._rename_and_verify(renamer, TestCasesModel.Main_Delete)
+
+
+def test_replace_without_regex(setup):
+    """Replace e with 3 and .txt with .ogg."""
+    renamer = whiterenamer.Renamer(root_path, True)
+    file_parameters = {"old_value": "e", "new_value": "3", "targets": Targets.filename}
+    extension_parameters = {"old_value": "txt", "new_value": "ogg", "targets": Targets.extension}
+    renamer.actions.append("FindAndReplace", file_parameters)
+    renamer.actions.append("FindAndReplace", extension_parameters)
+    _rename_and_verify(renamer, results.Titlecase)
+
 
 #     def test_main_replace_with_regex(self):
 #         """Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf"."""

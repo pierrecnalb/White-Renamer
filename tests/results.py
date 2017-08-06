@@ -12,7 +12,7 @@ Uppercase = set([
     os.path.join("FILE WITH É È.TXT"), os.path.join("FILE.WITH.DOTS.TXT"),
     os.path.join("FILE_WITH_UNDERSCORE.TXT"), os.path.join("FOLDER1"),
     os.path.join("FOLDER1", "FOLDER1-FILE1.TXT"),
-    os.path.join("FOLDER1", "FOLDER1-SUB FILE # 2.TXT"), os.path.join("FOLDER1", "SUB FOLDER_1"),
+    os.path.join("FOLDER1", "FOLDER1-SUB FILE #2.TXT"), os.path.join("FOLDER1", "SUB FOLDER_1"),
     os.path.join("FOLDER1", "SUB FOLDER_1", "SUB FILE 1.TXT"),
     os.path.join("FOLDER1", "SUB FOLDER_1", "SUB FILE 2.TXT"), os.path.join("L'APPOSTROPHE.TXT")
 ])
@@ -21,21 +21,20 @@ Lowercase = set([
     os.path.join("file with é è.txt"), os.path.join("file.with.dots.txt"),
     os.path.join("file_with_underscore.txt"), os.path.join("folder1"),
     os.path.join("folder1", "folder1-file1.txt"),
-    os.path.join("folder1", "folder1-sub file # 2.txt"), os.path.join("folder1", "sub folder_1"),
+    os.path.join("folder1", "folder1-sub file #2.txt"), os.path.join("folder1", "sub folder_1"),
     os.path.join("folder1", "sub folder_1", "sub file 1.txt"),
     os.path.join("folder1", "sub folder_1", "sub file 2.txt"), os.path.join("l'appostrophe.txt")
 ])
 
-TitleCase = set([
+Titlecase = set([
     os.path.join("File With É È.txt"), os.path.join("File.With.Dots.txt"),
-    os.path.join("File_With_Underscore.txt"), os.path.join("FOLDER1"),
-    os.path.join("FOLDER1", "Folder1-File1.txt"),
-    os.path.join("FOLDER1", "Folder1-Sub File # 2.txt"), os.path.join("FOLDER1", "Sub FOlder_1"),
-    os.path.join("FOLDER1", "Sub FOlder_1", "Sub File 1.txt"),
-    os.path.join("FOLDER1", "Sub FOlder_1", "Sub File 2.txt"), os.path.join("L'appostrophe.txt")
+    os.path.join("File_With_Underscore.txt"), os.path.join("Folder1"),
+    os.path.join("Folder1", "Folder1-File1.txt"),
+    os.path.join("Folder1", "Folder1-Sub File #2.txt"), os.path.join("Folder1", "Sub Folder_1"),
+    os.path.join("Folder1", "Sub Folder_1", "Sub File 1.txt"),
+    os.path.join("Folder1", "Sub Folder_1", "Sub File 2.txt"), os.path.join("L'appostrophe.txt")
 ])
 
-# delete first letter for folders, second for files and third for extension.
 Delete = set([
     os.path.join("fle with é è.tx"), os.path.join("fle.with.dots.tx"),
     os.path.join("fle_with_underscore.tx"), os.path.join("lappostrophe.tx"), os.path.join("OLDER1"),
@@ -44,7 +43,6 @@ Delete = set([
     os.path.join("OLDER1", "ub fOlder_1", "sb file 2.tx")
 ])
 
-# replace e with 3 and .txt with .ogg.
 Replace_without_regex = set([
     os.path.join("fil3 with é è.ogg"), os.path.join("fil3.with.dots.ogg"),
     os.path.join("fil3_with_und3rscor3.ogg"), os.path.join("FOLDER1"),
@@ -54,7 +52,6 @@ Replace_without_regex = set([
     os.path.join("FOLDER1", "sub fOld3r_1", "sub fil3 2.ogg"), os.path.join("l'appostroph3.ogg")
 ])
 
-# Replace folder digit with 99, file "file" with "fhis" and extension word with "pdf".
 Replace_with_regex = set([
     os.path.join("fhis with é è.pdf"), os.path.join("fhis.with.dots.pdf"),
     os.path.join("fhis_with_underscore.pdf"), os.path.join("FOLDER99"),
@@ -64,7 +61,6 @@ Replace_with_regex = set([
     os.path.join("FOLDER99", "sub fOlder_99", "sub fhis 2.pdf"), os.path.join("l'appostrophe.pdf")
 ])
 
-# Insert A at position 0 for folder, position 3 for files and position 99 for extension.
 Insert = set([
     os.path.join("AFOLDER1"), os.path.join("AFOLDER1", "Asub fOlder_1"),
     os.path.join("AFOLDER1", "Asub fOlder_1", "subA file 1.txtA"),

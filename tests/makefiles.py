@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 import os
+import shutil
 
 
 def make_standard_files(root):
+    if (os.path.exists(root)):
+        shutil.rmtree(root)
     os.makedirs(root)
     _create_file(root, "file with é è.txt")
     _create_file(root, "file_with_underscore.txt")
